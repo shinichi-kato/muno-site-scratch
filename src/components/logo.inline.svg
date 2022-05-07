@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="102mm" height="17.3mm" version="1.1" viewBox="0 0 102 17.3" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <radialGradient id="radialGradient1158" cx="1282" cy="543" r="172" gradientTransform="matrix(.0347 .0529 -.0445 .0292 39 -17.7)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#6be13e" stop-opacity=".0891" offset="0"/>
+   <stop stop-color="#6be13e" offset="1"/>
+  </radialGradient>
+ </defs>
+ <g transform="translate(-52.7 -58.9)">
+  <path d="m67.7 71.9-7.49 4.33-7.49-4.33v-8.67l7.49-4.33 7.49 4.33z" fill="url(#radialGradient1158)" stroke-opacity=".224" stroke-width=".181" style="paint-order:stroke fill markers"/>
+  <text x="71.751305" y="71.579231" fill="#000000" font-family="sans-serif" font-size="10.6px" stroke-width=".265" style="line-height:1.25" xml:space="preserve"><tspan x="71.751305" y="71.579231" font-family="'Roboto Condensed'" stroke-width=".265">人工無脳は考える</tspan></text>
+ </g>
+</svg>
