@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TreeItem from '@mui/lab/TreeItem';
 import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 
 
 
@@ -88,7 +89,8 @@ function renderTree(nodes, currentSlug) {
         label={
           <Typography
             sx={{
-              fontWeight: currentSlug === node.slug ? "bold" : "normal"
+              fontWeight: currentSlug === node.slug ? "bold" : "normal",
+              fontSize: "0.9rem"
             }}
           >
             {node.title}
@@ -115,22 +117,29 @@ export default function Contents({ currentSlug }) {
     .filter(node => currentSlug.startsWith(node.slug))
     .map(node => node.slug);
 
-  function handleNodeSelect(event, nodeId){
+  function handleNodeSelect(event, nodeId) {
     navigate(`/${nodeId}`);
   }
 
   return (
-    <TreeView
-      aria-label="site-contents"
-      defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpandIcon={<ChevronRightIcon />}
-      defaultExpanded={defaultExpanded}
-      onNodeSelect={handleNodeSelect}
-      sx={{
-        overflowY: 'auto'
-      }}
+    <Box
     >
-      {renderTree(memorizedMenu, currentSlug)}
-    </TreeView>
+      <Typography
+        variant="subtitle2"
+        sx={{pl: "2rem"}}>contents</Typography>
+      <TreeView
+        aria-label="site-contents"
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
+        defaultExpanded={defaultExpanded}
+        onNodeSelect={handleNodeSelect}
+        sx={{
+          overflowY: 'auto'
+        }}
+      >
+        {renderTree(memorizedMenu, currentSlug)}
+      </TreeView>
+    </Box>
+
   )
 }

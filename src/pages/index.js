@@ -1,10 +1,10 @@
 import * as React from 'react';
 
-import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
 import Top from '../components/Landing/Top';
 import Book from '../components/Landing/Book';
 import Updates from '../components/Landing/Updates';
-import Navigation from '../components/Navigation';
+import TopMenu from '../components/TopMenu';
 
 
 
@@ -12,13 +12,17 @@ export default function Index() {
 
 
   return (
-    <Container
-
+    <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "stretch"
+    }}
     >
       <Top />
-      <Navigation />
+      <TopMenu />
       <Book />
       <Updates />
-    </Container>
+    </Box>
   );
 }

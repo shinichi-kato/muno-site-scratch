@@ -4,14 +4,19 @@ import { MDXProvider } from "@mdx-js/react";
 import { MDXRenderer } from "gatsby-plugin-mdx";
 import { Link } from "gatsby";
 
-import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 import Contents from './Contents';
 import TopMenu from './TopMenu';
+import Navigation from './Navigation';
+import Footer from '../Footer';
 
+const components = {
+  p: props => <Typography sx={{ pb: 2, lineHeight: "1.6rem" }} {...props} />,
+  Link: Link
+};
 
-const shortcodes = { Link } // Provide common components here
 
 export const pageQuery = graphql`
   query BlogPostQuery($id: String) {
@@ -22,6 +27,7 @@ export const pageQuery = graphql`
         featuredImage
         tags
         title
+        updated(formatString: "YYYY-MM-DD")
       }
       slug
     }
@@ -30,28 +36,48 @@ export const pageQuery = graphql`
 
 
 export default function PageTemplate({ data: { mdx }, pageContext }) {
-  console.log(pageContext);
 
   return (
-    <Grid container>
-      <Grid item xs={12}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
+      <Box>
         <TopMenu />
-      </Grid>
-      <Grid container item xs={12}>
-        <Grid item md={4} sx={{paddingTop:2}}>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row"
+        }}
+      >
+        <Box
+          sx={{
+            display: { xs: "none", sm: "block" },
+            width: "240px",
+            p:2,
+          }}
+        >
           <Contents currentSlug={mdx.slug} />
-        </Grid>
-        <Grid item md={8} sx={{paddingTop:2}}>
+        </Box>
+        <Box
+          sx={{flex:1, p:2}}
+        >
           <Typography variant="h2">{mdx.frontmatter.title}</Typography>
-          <MDXProvider components={shortcodes}>
+          <Typography
+            sx={{ pb: 2 }}
+          >{mdx.frontmatter.updated}</Typography>
+          <MDXProvider components={components}>
             <MDXRenderer frontmatter={mdx.frontmatter}>{mdx.body}</MDXRenderer>
           </MDXProvider>
-        </Grid>
-      </Grid>
-      <Grid>
-        footer
-      </Grid>
-    </Grid>
-
+          <Navigation context={pageContext} />
+        </Box>
+      </Box>
+      <Box>
+        <Footer />
+      </Box>
+    </Box>
   )
 }
