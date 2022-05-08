@@ -12,8 +12,11 @@ import TopMenu from './TopMenu';
 import Navigation from './Navigation';
 import Footer from '../Footer';
 
+import Monobot from '../Chatbot/Monobot';
+
 const components = {
   p: props => <Typography sx={{ pb: 2, lineHeight: "1.6rem" }} {...props} />,
+  Chatbot: Monobot,
   Link: Link
 };
 

@@ -1,0 +1,16 @@
+{
+    "avatar": "man.svg",
+    "name": "カール先生",
+    "backgroundColor": "#ee77f3",
+    "precision": 0.3,
+    "script": [
+        {
+            "in": ["こんにちは"],
+            "out": ["こんにちは"]
+        },
+        {
+            "in": ["__NOT_FOUND__"],
+            "out": ["そうなんですか","もう少し教えてください"]
+        }
+    ]
+}

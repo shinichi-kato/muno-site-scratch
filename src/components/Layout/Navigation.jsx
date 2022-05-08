@@ -15,7 +15,8 @@ export default function Navigation(props) {
       sx={{
         display: "flex",
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        p: 2,
       }}
     >
       <Box
