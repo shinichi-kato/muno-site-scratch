@@ -15,7 +15,7 @@ export function retrieve(userText, cache) {
   // message: 入力文字列
   // cache: キャッシュデータ
 
-  if (typeOf(cache.tfidf) !== 'Matrix' || cache.fv.length === 0) {
+  if (typeOf(cache.tfidf) !== 'Matrix') {
     console.log("cache empty")
     return { index: null, score: 0 };
   }
@@ -51,30 +51,22 @@ export function retrieve(userText, cache) {
   const ntfidf = map(tfidf, x => (divide(x, n)));
 
   // message.textに対するinScript各行の類似度
-  let textScore = [];
+  let textScores = [];
   try {
-    textScore = apply(cache.tfidf, 1, x => dot(x, ntfidf));
+    textScores = apply(cache.tfidf, 1, x => dot(x, ntfidf));
   } catch (error) {
-    textScore = [];
+    textScores = [];
     console.log("invalid cache.tfidf,tfidf=", cache.tfidf, "error=", error)
-  }
-
-  // bugfixで入れたが本当に必要か？↓
-  if(textScore.size()[0] === 1){
-    let cand = cache.index[0];
-    return {
-      score: 1,
-      index: cand[randomInt(cand.length)]
-    };
   }
 
   // 最も類似度が高かった行のindexとその類似度を返す。
   // 同点一位が複数あった場合はランダムに一つを選ぶ
 
-  const max = Math.max(...textScore);
+  textScores = textScores.toArray();
+  const max = Math.max(...textScores);
   let cand = [];
-  for (let i=0,l=textScore.length; i<l; i++){
-    let score = textScore[i];
+  for (let i=0,l=textScores.length; i<l; i++){
+    let score = textScores[i];
     if (score === max) {
       cand.push(cache.index[i]);
     }

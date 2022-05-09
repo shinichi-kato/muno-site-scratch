@@ -8,7 +8,7 @@ import { TinySegmenter } from './tinysegmenter';
 
 let segmenter = new TinySegmenter();
 
-export function matrixize(src, script) {
+export function matrixize(source, script) {
   let inScript = [];
   let outScript = [];
 
@@ -16,14 +16,15 @@ export function matrixize(src, script) {
   for (let i = 0, l = script.length; i < l; i++) {
     let line = script[i];
 
-    if ('in' in line && line.in.isArray && line.in.length !== 0 &&
-       'out' in line && line.out.isArray && line.out.length !== 0) {
+    if ('in' in line && Array.isArray(line.in) && line.in.length !== 0 &&
+      'out' in line && Array.isArray(line.out) && line.out.length !== 0) {
       inScript.push(line.in);
       outScript.push(line.out);
     }
-    else{
+    else {
       return {
-        status: "スクリプトの形式が正しくない"
+        status: "error",
+        message: `line ${i}でスクリプトの形式が正しくない`
       }
     }
   }
@@ -50,28 +51,26 @@ export function matrixize(src, script) {
     }
   }
 
+
   const vocabKeys = Object.keys(vocab);
   for (let i = 0, l = vocabKeys.length; i < l; i++) {
     vocab[vocabKeys[i]] = i;
   }
-
 
   // Term Frequency: 各行内での単語の出現頻度
   // tf(t,d) = (ある単語tの行d内での出現回数)/(行d内の全ての単語の出現回数の和)
 
   let wv = zeros(squeezeDict.length, vocabKeys.length);
   let pos;
-
   for (let i = 0, l = squeezeDict.length; i < l; i++) {
 
     for (let word of squeezeDict[i]) {
       pos = vocab[word];
       if (pos !== undefined) {
-        wv.set([i, pos], wv.get([i.pos]) + 1);
+        wv.set([i, pos], wv.get([i, pos]) + 1);
       }
     }
   }
-
   // tf = wv / wv.sum(axis=0)
   const inv_wv = apply(wv, 1, x => divide(1, sum(x)));
   const tf = multiply(diag(inv_wv), wv);
@@ -81,7 +80,7 @@ export function matrixize(src, script) {
   //
   //     df(t) = ある単語tが出現する行の数 / 全行数
   //     idf(t) = log(1 +1/ df(t) )   
-  
+
   const num_of_columns = tf.size()[0];
   const df = apply(wv, 0, x => sum(isPositive(x)) / num_of_columns);
   // console.log("matrixize: tf=",tf,"df=",df)
@@ -94,10 +93,11 @@ export function matrixize(src, script) {
 
   const inv_n = apply(tfidf, 1, x => (divide(1, norm(x))));
   tfidf = multiply(diag(inv_n), tfidf);
-  
+
   return {
     status: "loaded",
-    src: src, 
+    source: source,
+    index: index,
     outScript: outScript,
     vocab: vocab,
     vocabLength: Object.keys(vocab).length,

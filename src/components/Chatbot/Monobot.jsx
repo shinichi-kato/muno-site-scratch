@@ -8,7 +8,6 @@ Monobot
 */
 
 import React, { useState, useEffect } from 'react';
-
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Input from '@mui/material/Input';
@@ -18,43 +17,104 @@ import PersonIcon from '@mui/icons-material/AccountCircle';
 
 import { matrixize } from './matrixize';
 import { retrieve } from './retrieve';
-import { render } from 'react-dom';
 
 const MAX_LOG_LENGTH = 5;
 
-export default function Chatbot({ src }) {
+function LeftBalloon({ text, backgroundColor }) {
+  return (
+    <Box
+      sx={{
+        position: "relative",
+        background: { backgroundColor },
+        color: "#000000",
+        borderRadius: "5px",
+        p: 0,
+        "&::after": {
+          content: '""',
+          position: "relative",
+          display: "block",
+          width: 0,
+          zIndex: 1,
+          borderStyle: "solid",
+          borderColor: "transparent #000000",
+          borderWidth: "8px 0 8px 8px",
+          top: "50%",
+          right: "-8px",
+          marginTop: "-8px",
+        }
+      }}
+    >
+      {text}
+    </Box>
+  )
+}
+
+function RightBalloon({ text, backgroundColor }) {
+  return (
+    < Box
+      sx={{
+        position: "relative",
+        background: `${backgroundColor}`,
+        color: "#000000",
+        borderRadius: "5px",
+        p: 1,
+        "&::after": {
+          content: '""',
+          position: "relative",
+          display: "block",
+          width: 0,
+          zIndex: 1,
+          borderStyle: "solid",
+          borderColor: "transparent #000000",
+          borderWidth: "8px 8px 8px 0",
+          top: "50%",
+          right: "-8px",
+          marginTop: "-8px",
+        }
+      }}
+    >
+      {text}
+    </Box >
+  )
+}
+
+
+export default function Chatbot({ source }) {
   const [script, setScript] = useState({
     avatar: "",
     name: "",
     backgroundColor: ""
   });
   const [message, setMessage] = useState(null);
-  const [cache, setCache] = useState({ status: "unload", src: null });
-  const [log, setLog] = useState();
+  const [cache, setCache] = useState({ status: "unload", source: null });
+  const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
 
   //-------------------------------------------
   // chatbotのロード
 
   useEffect(() => {
-    if (cache.status === 'unload' || src !== cache.src) {
+    if (cache.status === 'unload') {
       setMessage("読み込み中 ...")
-      fetch(`${src}/chatbot.json`)
+      fetch(`${source}/chatbot.json`)
         .then(res => res.json())
         .then(
           result => {
-            setScript(src, result);
+            setScript(result);
             setMessage("計算中 ...")
-            setCache(matrixize(result.script));
+            setCache(matrixize(source, result.script));
             setMessage(null);
           },
           error => {
             setMessage(error.message);
           }
         )
-
     }
-  }, [cache.status, cache.src, src]);
+  }, [cache.status, cache.source, source]);
+
+  // -------------------------------------------------
+  // 開始時に__start__を発言
+  //
 
   useEffect(() => {
     if (cache.status === 'loaded') {
@@ -69,7 +129,11 @@ export default function Chatbot({ src }) {
         status: 'ok'
       }))
     }
-  }, [cache.status])
+
+    if (cache.status === 'error') {
+      setMessage(cache.message);
+    }
+  }, [cache, cache.status])
 
   function handleChangeInput(event) {
     setUserText(event.target.value);
@@ -78,80 +142,31 @@ export default function Chatbot({ src }) {
   function handleSubmit(event) {
     renderMessage('user', userText);
 
-    const result = retrieve(userText, cache);
+    let result;
 
-    if (result.score > script.precision) {
-      const cands = cache.outScript[result.index];
-      const cand = cands[Math.floor(Math.random() * cands.length)];
-      renderMessage('bot', cand);
+    result = retrieve(userText, cache);
+    if (result.score < script.precision) {
+      result = retrieve("__not_found__", cache);
     }
+
+    const cands = cache.outScript[result.index];
+    const cand = cands[Math.floor(Math.random() * cands.length)];
+
+    renderMessage('bot', cand);
+    setUserText("");
 
     event.preventDefault();
   }
 
   function renderMessage(person, text) {
-    if (person === 'bot') {
-      setLog(prev =>
-        [...prev.slice(-MAX_LOG_LENGTH),
-        <Box
-          sx={{
-            position: "relative",
-            background: "#eeeeee",
-            color: "#000000",
-            borderRadius: "5px",
-            p: 0,
-            "& :after": {
-              content: "",
-              position: "relative",
-              display: "block",
-              width: 0,
-              zIndex: 1,
-              borderStyle: "solid",
-              borderColor: "transparent #000000",
-              borderWidth: "8px 8px 8px 0",
-              top: "50%",
-              left: "-8px",
-              marginTop: "-8px",
-            }
-          }}
-        >
-          {text}
-        </Box>
-        ]);
-    }
-    else if (person === 'user') {
-      setLog(prev =>
-        [...prev.slice(-MAX_LOG_LENGTH),
-        <Box
-          sx={{
-            position: "relative",
-            background: "#eeeeee",
-            color: "#000000",
-            borderRadius: "5px",
-            p: 0,
-            "& :after": {
-              content: "",
-              position: "relative",
-              display: "block",
-              width: 0,
-              zIndex: 1,
-              borderStyle: "solid",
-              borderColor: "transparent #000000",
-              borderWidth: "8px 0 8px 8px",
-              top: "50%",
-              right: "-8px",
-              marginTop: "-8px",
-            }
-          }}
-        >
-          {text}
-        </Box>
-        ]);
-    }
-
+    setLog(prev =>
+      [...prev.slice(-MAX_LOG_LENGTH),
+      { person: person, text: text }
+      ]
+    )
   }
 
-  const avatarUrl = `${src}/${script.avatar}`;
+  const avatarUrl = `${source}/${script.avatar}`;
 
   return (
     <Box
@@ -159,7 +174,7 @@ export default function Chatbot({ src }) {
         display: "flex",
         flexDirection: "row",
         width: "100%",
-        backgroundColor: script.backgroundColor,
+        backgroundColor: cache.backgroundColor,
         p: 1,
         borderRadius: 3,
       }}
@@ -190,7 +205,22 @@ export default function Chatbot({ src }) {
         <Box
           sx={{ flexGrow: 1 }}
         >
-          {log}
+          {message}
+          {log.map((message, index) =>
+            message.person === 'bot'
+              ?
+              <LeftBalloon
+                text={message.text}
+                key={index}
+                backgroundColor={script.backgroundColor}
+              />
+              :
+              <RightBalloon
+                text={message.text}
+                key={index}
+                backgroundColor="#eeeeee"
+              />
+          )}
         </Box>
         <Box>
           <form onSubmit={handleSubmit}>

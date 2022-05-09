@@ -38,7 +38,9 @@ export default function TopMenu(props) {
       }}
     >
       {contents.map(node =>
-        <Box>
+        <Box
+          key={node.title}
+        >
           <Button
             color="inherit"
             onClick={()=>navigate(node.slug)}
