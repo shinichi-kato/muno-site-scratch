@@ -20,61 +20,70 @@ import { retrieve } from './retrieve';
 
 const MAX_LOG_LENGTH = 5;
 
-function LeftBalloon({ text, backgroundColor }) {
+function RightBalloon({ text, backgroundColor }) {
   return (
     <Box
       sx={{
-        position: "relative",
-        background: { backgroundColor },
-        color: "#000000",
-        borderRadius: "5px",
-        p: 0,
-        "&::after": {
-          content: '""',
+        p: 1
+      }}>
+      <Box
+        sx={{
           position: "relative",
-          display: "block",
-          width: 0,
-          zIndex: 1,
-          borderStyle: "solid",
-          borderColor: "transparent #000000",
-          borderWidth: "8px 0 8px 8px",
-          top: "50%",
-          right: "-8px",
-          marginTop: "-8px",
-        }
-      }}
-    >
-      {text}
+          background: backgroundColor,
+          color: "#000000",
+          borderRadius: "5px",
+          p: 1,
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            display: "block",
+            width: 0,
+            zIndex: 1,
+            borderStyle: "solid",
+            borderColor: `transparent ${backgroundColor}`,
+            borderWidth: "8px 0 8px 8px",
+            top: "50%",
+            right: "-8px",
+            marginTop: "-8px",
+          }
+        }}
+      >
+        {text}
+      </Box>
     </Box>
+
   )
 }
 
-function RightBalloon({ text, backgroundColor }) {
+function LeftBalloon({ text, backgroundColor }) {
   return (
-    < Box
-      sx={{
-        position: "relative",
-        background: `${backgroundColor}`,
-        color: "#000000",
-        borderRadius: "5px",
-        p: 1,
-        "&::after": {
-          content: '""',
+    <Box sx={{ p: 1 }}>
+      < Box
+        sx={{
           position: "relative",
-          display: "block",
-          width: 0,
-          zIndex: 1,
-          borderStyle: "solid",
-          borderColor: "transparent #000000",
-          borderWidth: "8px 8px 8px 0",
-          top: "50%",
-          right: "-8px",
-          marginTop: "-8px",
-        }
-      }}
-    >
-      {text}
-    </Box >
+          background: backgroundColor,
+          color: "#000000",
+          borderRadius: "5px",
+          p: 1,
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            display: "block",
+            width: 0,
+            zIndex: 1,
+            borderStyle: "solid",
+            borderColor: `transparent ${backgroundColor}`,
+            borderWidth: "8px 8px 8px 0",
+            top: "50%",
+            left: "-8px",
+            marginTop: "-8px",
+          }
+        }}
+      >
+        {text}
+      </Box >
+    </Box>
+
   )
 }
 
@@ -152,7 +161,10 @@ export default function Chatbot({ source }) {
     const cands = cache.outScript[result.index];
     const cand = cands[Math.floor(Math.random() * cands.length)];
 
-    renderMessage('bot', cand);
+    if(cand !== '__nop__'){
+      renderMessage('bot', cand);
+    }
+
     setUserText("");
 
     event.preventDefault();
@@ -174,7 +186,7 @@ export default function Chatbot({ source }) {
         display: "flex",
         flexDirection: "row",
         width: "100%",
-        backgroundColor: cache.backgroundColor,
+        backgroundColor: "#dddddd",
         p: 1,
         borderRadius: 3,
       }}
@@ -218,7 +230,7 @@ export default function Chatbot({ source }) {
               <RightBalloon
                 text={message.text}
                 key={index}
-                backgroundColor="#eeeeee"
+                backgroundColor="#ffffff"
               />
           )}
         </Box>

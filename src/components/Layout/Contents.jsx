@@ -17,12 +17,14 @@ const query = graphql`
       slug
       frontmatter {
         title
+        color
       }
     }
   }
 }
 `
-const RE_PARENT = new RegExp(/(.*\/).+$/);
+const RE_PARENT = /(.*\/).+$/;
+const RE_ARTICLE_SLUG = /^article\/[^/]+/;
 
 function generateMenu(data, currentSlug) {
   /* graphqlのクエリ結果dataを解析し、currentSlugが属する
@@ -39,10 +41,12 @@ function generateMenu(data, currentSlug) {
     {
       title: "",
       slug: "",
+      color: ""
       children: [
         {
           title: "",
           slug: "",
+          color: "",
         }
     ]
     }, ...
@@ -50,17 +54,21 @@ function generateMenu(data, currentSlug) {
 
   */
 
-  const root = `${currentSlug.split('/')[0]}/`;
+  let m = RE_ARTICLE_SLUG.exec(currentSlug);
+  let root = m ? m[0] : null;
+
+  console.log(currentSlug,root)
 
   let nodes = data.allMdx.nodes
     .filter(node => node.slug.startsWith(root))
     .map(node => ({
       title: node.frontmatter.title,
+      color: node.frontmatter.color,
       slug: node.slug,
       children: [],
     }));
 
-  let map = {}, node, roots = [], i, m;
+  let map = {}, node, roots = [], i;
 
   for (i = 0; i < nodes.length; i += 1) {
     map[nodes[i].slug] = i;
@@ -80,6 +88,16 @@ function generateMenu(data, currentSlug) {
   return roots;
 }
 
+function getColor(node){
+  switch (node.color) {
+    case 'primary':
+      return 'primary.main';
+    case 'secondary':
+      return 'secondary.main';
+    default:
+      return node.color;
+  }
+}
 
 function renderTree(nodes, currentSlug) {
   return (
@@ -90,7 +108,8 @@ function renderTree(nodes, currentSlug) {
           <Typography
             sx={{
               fontWeight: currentSlug === node.slug ? "bold" : "normal",
-              fontSize: "0.9rem"
+              fontSize: "0.9rem",
+              color: currentSlug === node.slug ? getColor(node) : "inherit", 
             }}
           >
             {node.title}

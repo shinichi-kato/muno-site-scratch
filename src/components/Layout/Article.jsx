@@ -14,9 +14,14 @@ import Footer from '../Footer';
 
 import Monobot from '../Chatbot/Monobot';
 
+import "./mdx.css";
+
 const components = {
   p: props => <Typography sx={{ pb: 2, lineHeight: "1.6rem" }} {...props} />,
   Chatbot: Monobot,
+  code: props => <code className="mdx-code">{props.children}</code>,
+  pre: props => <pre className="mdx-pre">{props.children}</pre>,
+  blockquote: props => <blockquote className="mdx-blockquote">{props.children}</blockquote>,
   Link: Link
 };
 
