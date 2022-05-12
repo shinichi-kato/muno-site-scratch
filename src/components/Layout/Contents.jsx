@@ -57,8 +57,6 @@ function generateMenu(data, currentSlug) {
   let m = RE_ARTICLE_SLUG.exec(currentSlug);
   let root = m ? m[0] : null;
 
-  console.log(currentSlug,root)
-
   let nodes = data.allMdx.nodes
     .filter(node => node.slug.startsWith(root))
     .map(node => ({

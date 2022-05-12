@@ -41,7 +41,24 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
       component: path.resolve(`./src/components/Layout/Article.jsx`),
       // You can use the values in this context in
       // our page layout component
-      context: { id: node.id, next , previous },
+      context: { id: node.id, next, previous },
     })
   })
+}
+
+exports.createSchemaCustomization = ({ actions }) => {
+  const { createTypes } = actions
+  const typeDefs = `
+    type Mdx implements Node {
+      frontmatter: Frontmatter
+    }
+    type Frontmatter {
+      title: String
+      color: String
+      updated: Date @dateformat
+      featuredImage: File @fileByRelativePath
+      tags: [String!]!
+    }
+  `
+  createTypes(typeDefs)
 }

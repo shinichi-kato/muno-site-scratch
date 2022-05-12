@@ -1,8 +1,8 @@
 import React from "react";
-import { graphql } from "gatsby";
+import { graphql, Link } from "gatsby";
 import { MDXProvider } from "@mdx-js/react";
 import { MDXRenderer } from "gatsby-plugin-mdx";
-import { Link } from "gatsby";
+import { GatsbyImage, getImage } from "gatsby-plugin-image";
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -13,6 +13,7 @@ import Navigation from './Navigation';
 import Footer from '../Footer';
 
 import Monobot from '../Chatbot/Monobot';
+import ArticleLink from './ArticleLink';
 
 import "./mdx.css";
 
@@ -22,7 +23,8 @@ const components = {
   code: props => <code className="mdx-code">{props.children}</code>,
   pre: props => <pre className="mdx-pre">{props.children}</pre>,
   blockquote: props => <blockquote className="mdx-blockquote">{props.children}</blockquote>,
-  Link: Link
+  Link: Link,
+  ArticleLink: ArticleLink,
 };
 
 
@@ -32,7 +34,11 @@ export const pageQuery = graphql`
       body
       frontmatter {
         color
-        featuredImage
+        featuredImage {
+          childImageSharp {
+            gatsbyImageData(layout: FULL_WIDTH)
+          }
+        }
         tags
         title
         updated(formatString: "YYYY-MM-DD")
@@ -44,6 +50,8 @@ export const pageQuery = graphql`
 
 
 export default function PageTemplate({ data: { mdx }, pageContext }) {
+  const frontmatter = mdx.frontmatter;
+  const featuredImage = getImage(frontmatter.featuredImage);
 
   return (
     <Box
@@ -73,12 +81,15 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
         <Box
           sx={{flex:1, p:2}}
         >
-          <Typography variant="h2">{mdx.frontmatter.title}</Typography>
+          <GatsbyImage image={featuredImage} alt={frontmatter.title} />
+          <Typography variant="h2"
+            sx={{pt: 2}}
+          >{frontmatter.title}</Typography>
           <Typography
             sx={{ pb: 2 }}
-          >{mdx.frontmatter.updated}</Typography>
+          >{frontmatter.updated}</Typography>
           <MDXProvider components={components}>
-            <MDXRenderer frontmatter={mdx.frontmatter}>{mdx.body}</MDXRenderer>
+            <MDXRenderer frontmatter={frontmatter}>{mdx.body}</MDXRenderer>
           </MDXProvider>
           <Navigation context={pageContext} />
         </Box>
