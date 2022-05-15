@@ -1,5 +1,5 @@
 import React from "react";
-import { GatsbyImage } from "gatsby-plugin-image";
+import { GatsbyImage, getImage } from "gatsby-plugin-image";
 
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -13,7 +13,7 @@ export default function ArticleCard({ node }) {
     <Card>
       <CardContent >
         {node.image &&
-          <GatsbyImage image={node.image} alt={node.title} />
+          <GatsbyImage image={getImage(node.image)} alt={node.title} />
         }
         <Typography gutterBottom variant="h5" component="div">
           {node.title}
