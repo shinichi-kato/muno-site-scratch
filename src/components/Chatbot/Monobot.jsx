@@ -13,7 +13,6 @@ import Typography from '@mui/material/Typography';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
-import PersonIcon from '@mui/icons-material/AccountCircle';
 
 import { matrixize } from './matrixize';
 import { retrieve } from './retrieve';

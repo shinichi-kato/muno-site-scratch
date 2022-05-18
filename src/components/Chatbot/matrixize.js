@@ -98,6 +98,7 @@ export function matrixize(source, script) {
     status: "loaded",
     source: source,
     index: index,
+    inScript: inScript,
     outScript: outScript,
     vocab: vocab,
     vocabLength: Object.keys(vocab).length,

@@ -11,7 +11,54 @@ import { TinySegmenter } from './tinysegmenter';
 
 let segmenter = new TinySegmenter();
 
+
 export function retrieve(userText, cache) {
+
+  let textScores = retrieve_function(userText, cache);
+  // 最も類似度が高かった行のindexとその類似度を返す。
+  // 同点一位が複数あった場合はランダムに一つを選ぶ
+
+  textScores = textScores.toArray();
+  const max = Math.max(...textScores);
+  let cand = [];
+  for (let i = 0, l = textScores.length; i < l; i++) {
+    let score = textScores[i];
+    if (score === max) {
+      cand.push(cache.index[i]);
+    }
+  }
+
+  return {
+    score: max,
+    index: cand[randomInt(cand.length)]
+  };
+
+}
+
+export function textScore(userText, cache) {
+  /*
+  
+  */
+  let textScores = retrieve_function(userText, cache);
+  if (textScores.score !== 0) {
+    textScores = textScores.toArray();
+
+  }
+
+  let table = [];
+  const inscript = cache.inScript;
+  for (let i = 0, l = inscript.length; i < l; i++) {
+    table.push({
+      text: inscript[i],
+      score: textScores.score === 0 ? 0 : textScores[i]
+    });
+  }
+
+  return table;
+}
+
+function retrieve_function(userText, cache) {
+
   // message: 入力文字列
   // cache: キャッシュデータ
 
@@ -21,24 +68,24 @@ export function retrieve(userText, cache) {
   }
 
   // wv
-  if(cache.vocabLength === 0){
+  if (cache.vocabLength === 0) {
     console.log("vocab empty")
-    return {index: null, score: 0}
+    return { index: null, score: 0 }
   }
 
-  let text = segmenter.segment(userText); 
+  let text = segmenter.segment(userText);
 
 
   let wv = zeros(cache.vocabLength);
   for (let word of text) {
     let pos = cache.vocab[word];
-    if(pos !== undefined){
-      wv.set([pos], wv.get([pos])+1);
+    if (pos !== undefined) {
+      wv.set([pos], wv.get([pos]) + 1);
     }
   }
   const sumWv = sum(wv);
-  if(sumWv === 0){
-    return {index: null, score: 0};
+  if (sumWv === 0) {
+    return { index: null, score: 0 };
   }
 
   // tfidf計算
@@ -59,21 +106,6 @@ export function retrieve(userText, cache) {
     console.log("invalid cache.tfidf,tfidf=", cache.tfidf, "error=", error)
   }
 
-  // 最も類似度が高かった行のindexとその類似度を返す。
-  // 同点一位が複数あった場合はランダムに一つを選ぶ
-
-  textScores = textScores.toArray();
-  const max = Math.max(...textScores);
-  let cand = [];
-  for (let i=0,l=textScores.length; i<l; i++){
-    let score = textScores[i];
-    if (score === max) {
-      cand.push(cache.index[i]);
-    }
-  } 
-
-  return {
-    score: max,
-    index: cand[randomInt(cand.length)]
-  };
+  return textScores;
 }
+
