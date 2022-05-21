@@ -14,7 +14,21 @@ module.exports = {
         path: `${__dirname}/content/`,
       },
     },
-    'gatsby-plugin-mdx',
+    'gatsby-remark-images',
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        gatsbyRemarkPlugins: [
+          {
+            resolve: `gatsby-remark-images`,
+            options: {
+              maxWidth: 1035,
+              sizeByPixelDensity: true,
+            },
+          },
+        ],
+      },
+    },
     'gatsby-transformer-json',
     {
       resolve: 'gatsby-plugin-react-svg',

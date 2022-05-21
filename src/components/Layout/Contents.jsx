@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { graphql, navigate, useStaticQuery } from "gatsby";
 
 import TreeView from '@mui/lab/TreeView';
@@ -31,11 +31,9 @@ function generateMenu(data, currentSlug) {
   ディレクトリの目次を生成する。
     see: https://stackoverflow.com/questions/18017869/build-tree-array-from-flat-array-in-javascript
 
-  dataに含まれるnodesでは
-  slugが'/'で終わっているものはindex.mdxで、ディレクトリ内で
-  必ず先頭に現れ、childrenが存在することを示す。
-  slugが'/'以外で終わっているものはそれ以上childがない末端である。
- これを以下のようなツリー形式に変換する。
+  data.nodesにはslugが
+  
+  これを以下のようなツリー形式に変換する。
 
   tree = [
     {
@@ -74,9 +72,14 @@ function generateMenu(data, currentSlug) {
 
   for (i = 0; i < nodes.length; i += 1) {
     node = nodes[i];
-    if (!node.slug.endsWith('/')) {
-      m = RE_PARENT.exec(node.slug);
-      nodes[map[m[1]]].children.push(node);
+    m = RE_PARENT.exec(node.slug);
+    if (m) {
+      if (m[1] in map) {
+        nodes[map[m[1]]].children.push(node);
+      }
+      else {
+        roots.push(node);
+      }
     }
     else {
       roots.push(node);
@@ -86,7 +89,7 @@ function generateMenu(data, currentSlug) {
   return roots;
 }
 
-function getColor(node){
+function getColor(node) {
   switch (node.color) {
     case 'primary':
       return 'primary.main';
@@ -107,7 +110,7 @@ function renderTree(nodes, currentSlug) {
             sx={{
               fontWeight: currentSlug === node.slug ? "bold" : "normal",
               fontSize: "0.9rem",
-              color: currentSlug === node.slug ? getColor(node) : "inherit", 
+              color: currentSlug === node.slug ? getColor(node) : "inherit",
             }}
           >
             {node.title}
@@ -125,7 +128,7 @@ function renderTree(nodes, currentSlug) {
 }
 
 export default function Contents({ currentSlug }) {
-  const data = useStaticQuery(query);
+  const data = useStaticQuery(query)
   const memorizedMenu = useMemo(
     () => generateMenu(data, currentSlug)
     , [data, currentSlug]);
@@ -143,7 +146,7 @@ export default function Contents({ currentSlug }) {
     >
       <Typography
         variant="subtitle2"
-        sx={{pl: "2rem"}}>contents</Typography>
+        sx={{ pl: "2rem" }}>contents</Typography>
       <TreeView
         aria-label="site-contents"
         defaultCollapseIcon={<ExpandMoreIcon />}

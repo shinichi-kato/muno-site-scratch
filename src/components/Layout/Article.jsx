@@ -4,6 +4,7 @@ import { MDXProvider } from "@mdx-js/react";
 import { MDXRenderer } from "gatsby-plugin-mdx";
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 
+import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
@@ -19,7 +20,7 @@ import ArticleLink from './ArticleLink';
 import "./mdx.css";
 
 const components = {
-  p: props => <Typography sx={{ pb: 2, lineHeight: "1.6rem" }} {...props} />,
+  p: props => <Typography sx={{ pb: 2, lineHeight: "1.7rem" }} {...props} />,
   Chatbot: Monobot,
   RetrieverDemo: RetrieverDemo,
   code: props => <code className="mdx-code">{props.children}</code>,
@@ -38,7 +39,7 @@ export const pageQuery = graphql`
         color
         featuredImage {
           childImageSharp {
-            gatsbyImageData(layout: FULL_WIDTH)
+            gatsbyImageData(layout: FULL_WIDTH, aspectRatio: 3)
           }
         }
         tags
@@ -56,7 +57,8 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
   const featuredImage = getImage(frontmatter.featuredImage);
 
   return (
-    <Box
+    <Container
+      maxWidth="lg"
       sx={{
         display: "flex",
         flexDirection: "column"
@@ -75,17 +77,22 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
           sx={{
             display: { xs: "none", sm: "block" },
             width: "240px",
-            p:2,
+            p: 2,
           }}
         >
           <Contents currentSlug={mdx.slug} />
         </Box>
         <Box
-          sx={{flex:1, p:2}}
+          sx={{ flex: 1, p: 2 }}
         >
-          <GatsbyImage image={featuredImage} alt={frontmatter.title} />
+          <GatsbyImage
+            image={featuredImage}
+            alt={frontmatter.title}
+            height={200}
+
+          />
           <Typography variant="h2"
-            sx={{pt: 2}}
+            sx={{ pt: 2 }}
           >{frontmatter.title}</Typography>
           <Typography
             sx={{ pb: 2 }}
@@ -99,6 +106,6 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
       <Box>
         <Footer />
       </Box>
-    </Box>
+    </Container>
   )
 }
