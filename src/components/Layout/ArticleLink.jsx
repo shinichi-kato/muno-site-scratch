@@ -24,7 +24,7 @@ const query = graphql`
     }
   }
 `
-function generateMap(data) {
+export function generateMap(data) {
   let dict = {};
   for (let node of data.allMdx.nodes) {
     const f = node.frontmatter;
