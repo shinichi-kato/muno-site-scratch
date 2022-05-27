@@ -5,6 +5,7 @@ import Top from '../components/Landing/Top';
 import Book from '../components/Landing/Book';
 import Updates from '../components/Landing/Updates';
 import TopMenu from '../components/TopMenu';
+import Footer from '../components/Footer';
 
 
 
@@ -23,6 +24,7 @@ export default function Index() {
       <TopMenu />
       <Book />
       <Updates />
+      <Footer />
     </Box>
   );
 }

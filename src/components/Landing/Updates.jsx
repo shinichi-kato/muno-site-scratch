@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStaticQuery, graphql } from "gatsby"
+import { useStaticQuery, graphql, navigate } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 
 import Box from '@mui/material/Box';
@@ -7,14 +7,15 @@ import Typography from '@mui/material/Typography';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
-import ListSubheader from '@mui/material/ListSubheader';
-import IconButton from '@mui/material/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
 
 
 const query = graphql`
   {
-    allMdx(sort: {fields: frontmatter___updated, order: DESC}, limit: 10) {
+    allMdx(
+      filter: {slug: {glob: "article/**"}}
+      sort: {fields: frontmatter___updated, order: DESC}
+      limit: 10
+    ) {
       nodes {
         frontmatter {
           color
@@ -27,6 +28,7 @@ const query = graphql`
           tags
           updated(fromNow: true)
         }
+        slug
       }
     }
   }
@@ -40,14 +42,14 @@ function generateList(data) {
       title: f.title,
       tags: f.tags,
       updated: f.updated,
-      image: f.featuredImage
+      image: f.featuredImage,
+      slug: node.slug,
     }
   });
 }
 
 export default function Updates(props) {
   const nodes = generateList(useStaticQuery(query));
-
 
   return (
     <Box
@@ -67,9 +69,13 @@ export default function Updates(props) {
         <ImageList
           sx={{ width: "100%" }}
           gap={8}
+          cols={3}
         >
           {nodes.map((node, index) =>
-            <ImageListItem key={index}>
+            <ImageListItem
+              key={index}
+              onClick={() => navigate(node.slug)}
+            >
               <GatsbyImage
                 image={getImage(node.image)} alt={node.title}
               />

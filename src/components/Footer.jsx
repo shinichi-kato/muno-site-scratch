@@ -12,7 +12,7 @@ export default function Footer(){
         justifyContent: "flex-start",
         alignItems: "center",
         p: 2,
-        height: "80vh",
+        height: "30vh",
         width: "100%",
         background: "linear-gradient(118deg, rgba(255,238,89,1) 0%, rgba(255,247,172,1) 100%);",
       }}

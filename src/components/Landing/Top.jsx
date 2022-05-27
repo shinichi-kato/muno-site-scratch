@@ -10,6 +10,7 @@ export default function Top() {
         backgroundImage: `url(${mainBg})`,
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
+        backgroundPosition: "top right 50%",
         width: "100%",
         maxWidth: "1100px",
         height: "100%",
@@ -28,7 +29,12 @@ export default function Top() {
         >人工無脳は考える</Typography>
       </Box>
       <Box
-        sx={{ paddingLeft: {xs: "1rem", sm:"20%"}, paddingTop: "16px" }}>
+        sx={{
+          paddingLeft: { xs: "1rem", sm: "13%", md: "20%" },
+          paddingTop: "16px",
+          paddingBottom: "32px"
+        }}
+      >
         <Typography variant="subtitle1">
           人工無脳、またはチャットボットは人間のような知能を持っていません。<br />
           にもかかわらず私達は彼らとの会話に魅力を感じ、癒やされ、<br />
@@ -38,6 +44,6 @@ export default function Top() {
           一見単純に見えるプログラムの奥に潜む、ディープな世界を探ります。
         </Typography>
       </Box>
-    </Box>
+    </Box >
   )
 }
