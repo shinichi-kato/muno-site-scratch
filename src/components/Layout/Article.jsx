@@ -12,12 +12,15 @@ import Contents from './Contents';
 import TopMenu from './TopMenu';
 import Navigation from './Navigation';
 import Footer from '../Footer';
+import Seo from '../Seo';
 
 import Monobot from '../Chatbot/Monobot';
 import RetrieverDemo from '../Chatbot/RetrieverDemo';
 import ArticleLink from './ArticleLink';
 
 import "./mdx.css";
+
+const RE_ARTICLE_SLUG = /^article\/[^/]+/;
 
 const components = {
   p: props => <Typography sx={{ pb: 2, lineHeight: "1.7rem" }} {...props} />,
@@ -55,13 +58,15 @@ export const pageQuery = graphql`
 export default function PageTemplate({ data: { mdx }, pageContext }) {
   const frontmatter = mdx.frontmatter;
   const featuredImage = getImage(frontmatter.featuredImage);
+  const isArticle = RE_ARTICLE_SLUG.exec(mdx.slug);
 
   return (
     <Container
       maxWidth="lg"
+      disableGutters
       sx={{
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
       }}
     >
       <Box>
@@ -70,13 +75,18 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row"
+          flexDirection: "row",
+          minHeight: "80vh"
         }}
       >
         <Box
           sx={{
-            display: { xs: "none", sm: "block" },
+            display: {
+              xs: "none",
+              sm: isArticle ? "block" : "none"
+            },
             width: "240px",
+            height: "60vh",
             p: 2,
           }}
         >
@@ -103,9 +113,8 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
           <Navigation context={pageContext} />
         </Box>
       </Box>
-      <Box>
-        <Footer />
-      </Box>
+      <Footer />
+      <Seo title={frontmatter.title} />
     </Container>
   )
 }

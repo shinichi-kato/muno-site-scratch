@@ -41,6 +41,9 @@ module.exports = {
   ],
   siteMetadata: {
     title: '人工無脳は考える',
-    author: '加藤真一'
+    author: '加藤真一',
+    description: '心をめぐる考察とチャットボットを作る技術',
+    lang: 'ja',
+    image: '',
   },
 };

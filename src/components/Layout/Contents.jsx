@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {useMemo } from "react";
 import { graphql, navigate, useStaticQuery } from "gatsby";
 
 import TreeView from '@mui/lab/TreeView';
@@ -143,6 +143,7 @@ export default function Contents({ currentSlug }) {
 
   return (
     <Box
+      
     >
       <Typography
         variant="subtitle2"

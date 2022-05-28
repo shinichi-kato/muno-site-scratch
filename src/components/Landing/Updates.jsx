@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStaticQuery, graphql, navigate } from "gatsby"
+import { useStaticQuery, graphql, Link } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 
 import Box from '@mui/material/Box';
@@ -14,7 +14,7 @@ const query = graphql`
     allMdx(
       filter: {slug: {glob: "article/**"}}
       sort: {fields: frontmatter___updated, order: DESC}
-      limit: 10
+      limit: 9
     ) {
       nodes {
         frontmatter {
@@ -74,15 +74,16 @@ export default function Updates(props) {
           {nodes.map((node, index) =>
             <ImageListItem
               key={index}
-              onClick={() => navigate(node.slug)}
             >
-              <GatsbyImage
-                image={getImage(node.image)} alt={node.title}
-              />
-              <ImageListItemBar
-                title={node.title}
-                subtitle={node.updated}
-              />
+              <Link to={node.slug}>
+                <GatsbyImage
+                  image={getImage(node.image)} alt={node.title}
+                />
+                <ImageListItemBar
+                  title={node.title}
+                  subtitle={node.updated}
+                /></Link>
+
             </ImageListItem>)}
         </ImageList>
       </Box>
