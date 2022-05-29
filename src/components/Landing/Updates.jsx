@@ -78,10 +78,12 @@ export default function Updates(props) {
               <Link to={node.slug}>
                 <GatsbyImage
                   image={getImage(node.image)} alt={node.title}
+                  imgStyle={{borderRadius: "0.5rem"}}
                 />
                 <ImageListItemBar
                   title={node.title}
                   subtitle={node.updated}
+                  sx={{ borderRadius: "0 0 0.5rem 0.5rem"}}
                 /></Link>
 
             </ImageListItem>)}

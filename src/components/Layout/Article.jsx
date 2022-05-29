@@ -31,6 +31,7 @@ const components = {
   blockquote: props => <blockquote className="mdx-blockquote">{props.children}</blockquote>,
   Link: Link,
   ArticleLink: ArticleLink,
+  Box: Box,
 };
 
 
