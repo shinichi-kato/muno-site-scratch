@@ -8,11 +8,13 @@ Monobot
 */
 
 import React, { useState, useEffect } from 'react';
+import Link from '@mui/material/Link'
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
+
 
 import { matrixize } from './matrixize';
 import { retrieve } from './retrieve';
@@ -203,7 +205,7 @@ export default function Chatbot({ source }) {
           }}
         />
         <Typography align="center">{script.name}</Typography>
-
+        <Link href={`${source}/chatbot.json`}>辞書を見る</Link>
       </Box>
       <Box
         sx={{
@@ -238,11 +240,18 @@ export default function Chatbot({ source }) {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "row"
+                flexDirection: "row",
+                alignItems: "stretch"
               }}
             >
-              <Box>
+              <Box
+                sx={{flex: 1}}
+              >
                 <Input
+                sx={{
+                    width: "100%",
+                    backgroundColor: "rgba(255,255,255,0.8)",
+                  }}
                   value={userText}
                   onChange={handleChangeInput}
                   disabled={cache.status !== 'ok'}
