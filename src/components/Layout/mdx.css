@@ -6,3 +6,10 @@
     padding: 1rem;
     border-radius: 0.5rem;
 }
+figure {
+    margin: 0;
+    padding: 0;
+}
+figcaption {
+    text-align: center;
+}

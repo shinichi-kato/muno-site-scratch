@@ -24,6 +24,7 @@ module.exports = {
             options: {
               maxWidth: 1035,
               sizeByPixelDensity: true,
+              showCaptions: true,
             },
           },
         ],

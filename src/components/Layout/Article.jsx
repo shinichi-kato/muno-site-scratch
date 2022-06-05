@@ -53,7 +53,7 @@ export const pageQuery = graphql`
       slug
     }
   }
-`
+`;
 
 
 export default function PageTemplate({ data: { mdx }, pageContext }) {
