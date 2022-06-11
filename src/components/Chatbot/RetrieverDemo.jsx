@@ -27,6 +27,7 @@ export default function RetrieverDemo({ source }) {
   const [message, setMessage] = useState(null);
   const [cache, setCache] = useState({ status: "unload", source: null });
   const [userText, setUserText] = useState("");
+  const [targetText, setTargetText] = useState("");
 
   // --------------------------------------------
   // スクリプトのロード
@@ -80,7 +81,8 @@ export default function RetrieverDemo({ source }) {
 
   function handleSubmit(event) {
     let scores = textScore(userText, cache);
-
+    
+    setTargetText(userText);
     setTable(scores);
     setUserText("");
 
@@ -97,6 +99,8 @@ export default function RetrieverDemo({ source }) {
         backgroundColor: "#dddddd",
         p: 1,
         borderRadius: 3,
+        marginBottom: 2,
+        marginTop: 1
       }}
     >
       {message
@@ -107,7 +111,8 @@ export default function RetrieverDemo({ source }) {
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>テキスト</TableCell>
+                <TableCell>行番号</TableCell>
+                <TableCell>辞書</TableCell>
                 <TableCell>類似度</TableCell>
               </TableRow>
             </TableHead>
@@ -117,6 +122,7 @@ export default function RetrieverDemo({ source }) {
                   key={index}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
+                  <TableCell>{index}</TableCell>
                   <TableCell>{row.text}</TableCell>
                   <TableCell>
                     <Box
@@ -155,6 +161,12 @@ export default function RetrieverDemo({ source }) {
                 <SendIcon />
               </IconButton>
             </Box>
+            <Box 
+              sx={{
+                textAlign: "right",
+                flex: 1,
+                paddingRight: 3
+                }}>計算対象の文字列：{targetText}</Box>
           </Box>
         </form>
       </Box>

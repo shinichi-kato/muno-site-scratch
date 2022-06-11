@@ -6,6 +6,10 @@
     padding: 1rem;
     border-radius: 0.5rem;
 }
+.mdx-flavor {
+    padding: 1.5rem 10% 1.5rem 20%;
+    font-style: italic;
+}
 figure {
     margin: 0;
     padding: 0;

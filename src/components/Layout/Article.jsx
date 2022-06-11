@@ -17,6 +17,7 @@ import Seo from '../Seo';
 import Monobot from '../Chatbot/Monobot';
 import RetrieverDemo from '../Chatbot/RetrieverDemo';
 import ArticleLink from './ArticleLink';
+import Flavor from './Flavor';
 
 import "./mdx.css";
 
@@ -29,6 +30,7 @@ const components = {
   code: props => <code className="mdx-code">{props.children}</code>,
   pre: props => <pre className="mdx-pre">{props.children}</pre>,
   blockquote: props => <blockquote className="mdx-blockquote">{props.children}</blockquote>,
+  Flavor: Flavor,
   Link: Link,
   ArticleLink: ArticleLink,
   Box: Box,
