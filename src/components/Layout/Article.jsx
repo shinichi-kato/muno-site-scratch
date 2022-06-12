@@ -13,6 +13,7 @@ import TopMenu from './TopMenu';
 import Navigation from './Navigation';
 import Footer from '../Footer';
 import Seo from '../Seo';
+import Author from './Author';
 
 import Monobot from '../Chatbot/Monobot';
 import RetrieverDemo from '../Chatbot/RetrieverDemo';
@@ -110,11 +111,14 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
           <Typography
             sx={{ pb: 2 }}
           >{frontmatter.updated}</Typography>
+          { isArticle && <Author/> }
           <MDXProvider components={components}>
             <MDXRenderer frontmatter={frontmatter}>{mdx.body}</MDXRenderer>
           </MDXProvider>
           <Navigation context={pageContext} />
+
         </Box>
+        
       </Box>
       <Footer />
       <Seo title={frontmatter.title} />
