@@ -35,6 +35,7 @@ const components = {
   Link: Link,
   ArticleLink: ArticleLink,
   Box: Box,
+  ul: props => <ul className="mdx-ul">{props.children}</ul>,
 };
 
 

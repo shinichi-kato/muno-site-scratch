@@ -10,6 +10,10 @@
     padding: 1.5rem 10% 1.5rem 20%;
     font-style: italic;
 }
+.mdx-ul {
+    padding: 1rem 1rem 1rem 3rem;
+    background-color: #ddddd0;
+}
 figure {
     margin: 0;
     padding: 0;
