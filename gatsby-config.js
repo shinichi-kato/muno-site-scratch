@@ -1,5 +1,19 @@
 module.exports = {
+  pathPrefix: "/~skato/muno",
   plugins: [
+    'gatsby-plugin-react-helmet',
+    {
+      resolve: 'gatsby-plugin-manifest',
+      options: {
+        name: "人工無脳は考える - 雑談チャットボット研究＆考察サイト",
+        short_name: "人工無脳は考える",
+        start_url: "~skato/muno/",
+        icons: [
+          { src: "/src/images/app-icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "/src/images/app-icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+        ]
+      }
+    },
     'gatsby-plugin-top-layout',
     'gatsby-plugin-react-helmet',
     'gatsby-plugin-styled-components',

@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="7.6919303mm"
+   height="7.6919303mm"
+   viewBox="0 0 7.6919302 7.6919302"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (fd57863, 2020-04-02)"
+   sodipodi:docname="icon-source.svg"
+   inkscape:export-filename="/home/shinichi/muno-gatsby/static/icons/icon-512x512.png"
+   inkscape:export-xdpi="1690.7069"
+   inkscape:export-ydpi="1690.7069">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient1123"
+       inkscape:collect="always">
+      <stop
+         id="stop1119"
+         offset="0"
+         style="stop-color:#c4fea9;stop-opacity:0.54938269" />
+      <stop
+         id="stop1121"
+         offset="1"
+         style="stop-color:#408320;stop-opacity:0.886" />
+    </linearGradient>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9208">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9206" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9370" />
+      <feGaussianBlur
+         id="feGaussianBlur9372"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9212">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9210" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9216">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9214" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9220">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9218" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9224">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9222" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9228">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9226" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9232">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9230" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9374" />
+      <feGaussianBlur
+         id="feGaussianBlur9376"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9236">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9234" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9378" />
+      <feGaussianBlur
+         id="feGaussianBlur9380"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9240">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9238" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9244">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9242" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9382" />
+      <feGaussianBlur
+         id="feGaussianBlur9384"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9248">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9246" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9252">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9250" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9386" />
+      <feGaussianBlur
+         id="feGaussianBlur9388"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9256">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9254" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9260">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9258" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9390" />
+      <feGaussianBlur
+         id="feGaussianBlur9392"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9264">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9262" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9394" />
+      <feGaussianBlur
+         id="feGaussianBlur9396"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9268">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9266" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9272">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9270" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9276">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9274" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9280">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9278" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9284">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9282" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9288">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9286" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9292">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9290" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9296">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9294" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9300">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9298" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9304">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9302" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9308">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9306" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9312">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9310" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9398" />
+      <feGaussianBlur
+         id="feGaussianBlur9400"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9316">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9314" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9402" />
+      <feGaussianBlur
+         id="feGaussianBlur9404"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9320">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9318" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9406" />
+      <feGaussianBlur
+         id="feGaussianBlur9408"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9324">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9322" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9328">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9326" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9332">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9330" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9336">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="fbSourceGraphic"
+         id="feGaussianBlur9334" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix9410" />
+      <feGaussianBlur
+         id="feGaussianBlur9412"
+         stdDeviation="0.41 0.41"
+         result="blur"
+         in="fbSourceGraphic" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9340">
+      <feGaussianBlur
+         stdDeviation="0.21 0.21"
+         result="blur"
+         id="feGaussianBlur9338" />
+    </filter>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1123"
+       id="radialGradient9424"
+       cx="-18.150167"
+       cy="98.733917"
+       fx="-18.150167"
+       fy="98.733917"
+       r="12.765804"
+       gradientTransform="matrix(0.19600205,0.12195699,-0.1278689,0.20550348,94.079614,-18.583021)"
+       gradientUnits="userSpaceOnUse" />
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9906">
+      <feGaussianBlur
+         stdDeviation="0.31 0.31"
+         result="blur"
+         id="feGaussianBlur9904" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9910">
+      <feGaussianBlur
+         stdDeviation="0.31 0.31"
+         result="blur"
+         id="feGaussianBlur9908" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9906-5">
+      <feGaussianBlur
+         stdDeviation="0.31 0.31"
+         result="blur"
+         id="feGaussianBlur9904-2" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Blur"
+       id="filter9984">
+      <feGaussianBlur
+         stdDeviation="0.81 0.81"
+         result="blur"
+         id="feGaussianBlur9982" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="10.525641"
+     inkscape:cx="16.350159"
+     inkscape:cy="12.565163"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer2"
+     showgrid="false"
+     inkscape:window-width="1850"
+     inkscape:window-height="1016"
+     inkscape:window-x="70"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="レイヤー 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline"
+     transform="translate(-73.884377,4.3523588)" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="レイヤー 2"
+     style="opacity:1"
+     transform="translate(-73.884377,4.3523588)">
+    <path
+       sodipodi:type="star"
+       style="fill:url(#radialGradient9424);fill-opacity:1;stroke:#000000;stroke-width:0.19460975;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path9414"
+       sodipodi:sides="6"
+       sodipodi:cx="77.730339"
+       sodipodi:cy="-0.50639367"
+       sodipodi:r1="3.0898342"
+       sodipodi:r2="0.76340014"
+       sodipodi:arg1="0.52807445"
+       sodipodi:arg2="1.0516733"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 80.399273,1.0504843 -2.682763,1.5329253 -2.668934,-1.5568779 0.01383,-3.0898033 2.682763,-1.5329253 2.668934,1.5568779 z"
+       inkscape:transform-center-x="-0.023773168"
+       inkscape:transform-center-y="-0.12299799" />
+  </g>
+</svg>

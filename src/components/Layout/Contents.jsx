@@ -1,4 +1,4 @@
-import React, {useMemo } from "react";
+import React, { useMemo } from "react";
 import { graphql, navigate, useStaticQuery } from "gatsby";
 
 import TreeView from '@mui/lab/TreeView';
@@ -23,8 +23,9 @@ const query = graphql`
   }
 }
 `
-const RE_PARENT = /(.*\/).+$/;
+const RE_PARENT = /(.*\/)[^\/]+.$/;
 const RE_ARTICLE_SLUG = /^article\/[^/]+/;
+
 
 function generateMenu(data, currentSlug) {
   /* graphqlのクエリ結果dataを解析し、currentSlugが属する
@@ -64,7 +65,7 @@ function generateMenu(data, currentSlug) {
       children: [],
     }));
 
-  let map = {}, node, roots = [], i;
+  let map = {}, node, roots = [], i, defaultExpanded = [];
 
   for (i = 0; i < nodes.length; i += 1) {
     map[nodes[i].slug] = i;
@@ -72,6 +73,7 @@ function generateMenu(data, currentSlug) {
 
   for (i = 0; i < nodes.length; i += 1) {
     node = nodes[i];
+    defaultExpanded.push(node.slug)
     m = RE_PARENT.exec(node.slug);
     if (m) {
       if (m[1] in map) {
@@ -85,8 +87,7 @@ function generateMenu(data, currentSlug) {
       roots.push(node);
     }
   }
-
-  return roots;
+  return [roots, defaultExpanded];
 }
 
 function getColor(node) {
@@ -129,21 +130,21 @@ function renderTree(nodes, currentSlug) {
 
 export default function Contents({ currentSlug }) {
   const data = useStaticQuery(query)
-  const memorizedMenu = useMemo(
+  const [memorizedMenu, defaultExpanded] = useMemo(
     () => generateMenu(data, currentSlug)
     , [data, currentSlug]);
 
-  const defaultExpanded = data.allMdx.nodes
-    .filter(node => currentSlug.startsWith(node.slug))
-    .map(node => node.slug);
-
+  // const defaultExpanded = data.allMdx.nodes
+  //   .filter(node => currentSlug.startsWith(node.slug))
+  //   .map(node => node.slug);
+    console.log("de=",defaultExpanded)
   function handleNodeSelect(event, nodeId) {
     navigate(`/${nodeId}`);
   }
 
   return (
     <Box
-      
+
     >
       <Typography
         variant="subtitle2"
