@@ -26,7 +26,7 @@ module.exports = {
       options: {
         name: `content`,
         path: `${__dirname}/content/`,
-        igonre: [`/drafts/*`]
+        ignore: [`/drafts/*`]
       },
     },
     'gatsby-remark-images',

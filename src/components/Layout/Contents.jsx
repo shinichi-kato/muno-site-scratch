@@ -23,7 +23,7 @@ const query = graphql`
   }
 }
 `
-const RE_PARENT = /(.*\/)[^\/]+.$/;
+const RE_PARENT = /(.*\/)[^/]+.$/;
 const RE_ARTICLE_SLUG = /^article\/[^/]+/;
 
 
