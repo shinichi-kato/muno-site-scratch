@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 
 const query = graphql`
@@ -35,8 +37,8 @@ const query = graphql`
 `;
 
 
-function generateList(data) {
-  return data.allMdx.nodes.map(node => {
+function generateList(data, isWide) {
+  const items = data.allMdx.nodes.map(node => {
     const f = node.frontmatter;
     return {
       title: f.title,
@@ -46,10 +48,14 @@ function generateList(data) {
       slug: node.slug,
     }
   });
+
+  return isWide ? items : items.slice(0, 8)
 }
 
 export default function Updates(props) {
-  const nodes = generateList(useStaticQuery(query));
+  const theme = useTheme();
+  const isWide = useMediaQuery(theme.breakpoints.up('sm'));
+  const nodes = generateList(useStaticQuery(query), isWide);
 
   return (
     <Box
@@ -69,7 +75,7 @@ export default function Updates(props) {
         <ImageList
           sx={{ width: "100%" }}
           gap={8}
-          cols={3}
+          cols={isWide ? 3 : 2}
         >
           {nodes.map((node, index) =>
             <ImageListItem
@@ -78,12 +84,12 @@ export default function Updates(props) {
               <Link to={node.slug}>
                 <GatsbyImage
                   image={getImage(node.image)} alt={node.title}
-                  imgStyle={{borderRadius: "0.5rem"}}
+                  imgStyle={{ borderRadius: "0.5rem" }}
                 />
                 <ImageListItemBar
                   title={node.title}
                   subtitle={node.updated}
-                  sx={{ borderRadius: "0 0 0.5rem 0.5rem"}}
+                  sx={{ borderRadius: "0 0 0.5rem 0.5rem" }}
                 /></Link>
 
             </ImageListItem>)}

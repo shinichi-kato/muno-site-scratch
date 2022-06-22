@@ -2,7 +2,7 @@ import React from "react";
 import { graphql, Link } from "gatsby";
 import { MDXProvider } from "@mdx-js/react";
 import { MDXRenderer } from "gatsby-plugin-mdx";
-import { GatsbyImage, getImage } from "gatsby-plugin-image";
+import { GatsbyImage, getImage, StaticImage } from "gatsby-plugin-image";
 
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -34,6 +34,7 @@ const components = {
   Flavor: Flavor,
   Link: Link,
   ArticleLink: ArticleLink,
+  StaticImage: StaticImage,
   Box: Box,
   ul: props => <ul className="mdx-ul">{props.children}</ul>,
 };

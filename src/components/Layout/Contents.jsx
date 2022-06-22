@@ -137,7 +137,6 @@ export default function Contents({ currentSlug }) {
   // const defaultExpanded = data.allMdx.nodes
   //   .filter(node => currentSlug.startsWith(node.slug))
   //   .map(node => node.slug);
-    console.log("de=",defaultExpanded)
   function handleNodeSelect(event, nodeId) {
     navigate(`/${nodeId}`);
   }
