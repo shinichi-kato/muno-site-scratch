@@ -1,14 +1,178 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
-<svg width="102mm" height="17.3mm" version="1.1" viewBox="0 0 102 17.3" xmlns="http://www.w3.org/2000/svg">
- <defs>
-  <radialGradient id="radialGradient1158" cx="1282" cy="543" r="172" gradientTransform="matrix(.0347 .0529 -.0445 .0292 39 -17.7)" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#6be13e" stop-opacity=".0891" offset="0"/>
-   <stop stop-color="#6be13e" offset="1"/>
-  </radialGradient>
- </defs>
- <g transform="translate(-52.7 -58.9)">
-  <path d="m67.7 71.9-7.49 4.33-7.49-4.33v-8.67l7.49-4.33 7.49 4.33z" fill="url(#radialGradient1158)" stroke-opacity=".224" stroke-width=".181" style="paint-order:stroke fill markers"/>
-  <text x="71.751305" y="71.579231" fill="#000000" font-family="sans-serif" font-size="10.6px" stroke-width=".265" style="line-height:1.25" xml:space="preserve"><tspan x="71.751305" y="71.579231" font-family="'Roboto Condensed'" stroke-width=".265">人工無脳は考える</tspan></text>
- </g>
+
+<svg
+   width="102mm"
+   height="17.3mm"
+   version="1.1"
+   viewBox="0 0 102 17.3"
+   id="svg11303"
+   sodipodi:docname="logo.inline.svg"
+   inkscape:version="1.2 (56b05e47e7, 2022-06-09, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview11305"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.8046725"
+     inkscape:cx="317.23207"
+     inkscape:cy="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="935"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg11303" />
+  <defs
+     id="defs11293">
+    <radialGradient
+       id="radialGradient1158"
+       cx="1282"
+       cy="543"
+       r="172"
+       gradientTransform="matrix(0.0347,0.0529,-0.0445,0.0292,-1.9789191,-96.694786)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#6be13e"
+         stop-opacity=".0891"
+         offset="0"
+         id="stop11288" />
+      <stop
+         stop-color="#6be13e"
+         offset="1"
+         id="stop11290" />
+    </radialGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#radialGradient1158"
+       id="radialGradient10953"
+       cx="76.227425"
+       cy="7.4188347"
+       fx="76.227425"
+       fy="7.4188347"
+       r="1.8024116"
+       gradientTransform="matrix(0.07368901,-4.5176704,4.2587716,0.06946884,-29.888122,352.49524)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#radialGradient1158"
+       id="radialGradient10970"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.00780324,-0.41265252,0.37524956,-0.00709623,-51.770987,46.18589)"
+       cx="88.246384"
+       cy="159.31721"
+       fx="88.246384"
+       fy="159.31721"
+       r="17.320507" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#radialGradient1158"
+       id="radialGradient10972"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.00780324,-0.41265252,0.37524956,-0.00709623,-51.770987,46.18589)"
+       cx="88.246384"
+       cy="159.31721"
+       fx="88.246384"
+       fy="159.31721"
+       r="17.320507" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#radialGradient1158"
+       id="radialGradient10976"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.00780295,-0.41265242,0.37524959,-0.00709614,-50.769818,45.961608)"
+       cx="87.748985"
+       cy="156.63878"
+       fx="87.748978"
+       fy="156.63878"
+       r="17.320507" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#radialGradient1158"
+       id="radialGradient10978"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.00780295,-0.41265242,0.37524959,-0.00709614,-50.769818,45.961608)"
+       cx="87.748985"
+       cy="156.63878"
+       fx="87.748978"
+       fy="156.63878"
+       r="17.320507" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#radialGradient1158"
+       id="radialGradient10982"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.00780305,-0.41265256,0.37524959,-0.00709564,-51.307439,47.180299)"
+       cx="90.676773"
+       cy="158.13239"
+       fx="90.676773"
+       fy="158.13239"
+       r="17.320507" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#radialGradient1158"
+       id="radialGradient10984"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.00780305,-0.41265256,0.37524959,-0.00709564,-51.307439,47.180299)"
+       cx="90.676773"
+       cy="158.13239"
+       fx="90.676773"
+       fy="158.13239"
+       r="17.320507" />
+  </defs>
+  <path
+     style="fill:url(#radialGradient10953);fill-opacity:1.0;stroke:none;stroke-width:0.248713;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+     d="M 7.3954054,0.12072347 0.9335278,3.8514946 C 0.36976484,4.1769789 -3.237005e-6,4.8174417 -1.1854733e-6,5.5850042 L -3.237005e-6,11.862512 c 0,0.640465 0.369768077005,1.280923 0.924426337005,1.601154 l 6.4709823,3.736026 z"
+     id="path372"
+     sodipodi:nodetypes="ccccccc" />
+  <path
+     style="fill:url(#radialGradient10970);fill-opacity:1.0;stroke:none;stroke-width:0.0536715px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 10.261237,9.6129291 8.5089878,8.5908862 11.150847,7.0811803 l 1.752249,1.0220429 0.0045,-1.0142566 -0.876125,-0.5110216 3.522479,-2.0129412 -0.009,2.0285135 -0.876124,-0.5110213 -0.88062,0.5032353 1.752249,1.0220433 -0.0045,1.0142555 -1.752248,-1.0220422 -0.0045,1.0142573 -0.0045,1.0142555 -2.628373,-1.5330635 c 0,0 -0.88062,0.5032353 -0.88062,0.5032353 z"
+     id="path1103-7" />
+  <path
+     style="fill:url(#radialGradient10972);fill-opacity:1.0;stroke:none;stroke-width:0.0536715px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 15.531469,9.6362874 -0.01349,3.0427706 -4.380622,-2.555107 0.0045,-1.0142572 3.504499,2.0440862 0.009,-2.0285146 z"
+     id="path1105-5" />
+  <path
+     style="fill:url(#radialGradient10976);fill-opacity:1.0;stroke:none;stroke-width:0.0536715px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 9.7267275,7.2001743 7.969966,8.214441 V 5.1716409 L 9.7267275,4.1573742 8.8483469,3.6502409 7.969966,4.1573742 V 0.10030745 L 9.7267275,1.1145741 8.8483469,1.6217075 V 2.6359742 L 10.605109,1.6217075 11.483488,2.1288408 9.7267275,3.1431076 10.605109,3.6502409 11.483488,4.1573742 8.8483469,5.6787743 c 0,0 0,1.0142667 0,1.0142667 z"
+     id="path1103" />
+  <path
+     style="fill:url(#radialGradient10978);fill-opacity:1.0;stroke:none;stroke-width:0.0536715px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 12.361869,2.6359742 2.635142,1.5214 L 10.605109,6.693041 9.7267275,6.1859076 13.240251,4.1573742 11.483488,3.1431076 Z"
+     id="path1105" />
+  <path
+     style="fill:url(#radialGradient10982);fill-opacity:1.0;stroke:none;stroke-width:0.0536715px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 7.9699599,11.101718 -1e-7,-2.028533 2.6351422,1.5214 v 2.028533 l 0.878381,-0.507133 v -1.014267 l 3.513523,2.028533 -1.756762,1.014267 v -1.014266 l -0.878381,-0.507134 v 2.028534 l -0.87838,0.507132 v -2.028532 l -0.878381,0.507134 -0.8783801,0.507132 -7e-7,-3.0428 c 0,0 -0.8783807,-0.507133 -0.8783807,-0.507133 z"
+     id="path1103-9" />
+  <path
+     style="fill:url(#radialGradient10984);fill-opacity:1.0;stroke:none;stroke-width:0.0536715px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 10.605102,15.665918 -2.6351416,1.5214 -8e-7,-5.071332 0.878381,-0.507134 10e-8,4.057067 1.7567623,-1.014268 z"
+     id="path1105-1" />
+  <text
+     x="19.051304"
+     y="12.679232"
+     fill="#000000"
+     font-family="sans-serif"
+     font-size="10.6px"
+     stroke-width="0.265"
+     style="line-height:1.25"
+     xml:space="preserve"
+     id="text11299"><tspan
+       x="19.051304"
+       y="12.679232"
+       font-family="'Roboto Condensed'"
+       stroke-width="0.265"
+       id="tspan11297">人工無脳は考える</tspan></text>
 </svg>

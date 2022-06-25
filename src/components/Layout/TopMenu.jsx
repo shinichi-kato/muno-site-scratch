@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useStaticQuery, graphql, navigate, Link } from "gatsby";
+import { styled } from '@mui/material/styles';
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
+import ArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import Logo from '../logo.inline.svg';
 
 const query = graphql`
@@ -24,12 +26,24 @@ const query = graphql`
   }
 `;
 
-export default function TopMenu() {
+const ExpandMore = styled((props) => {
+  const { expand, ...other } = props;
+  return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+  transform: expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest,
+  }),
+}));
+
+
+export default function TopMenu(props) {
   const data = useStaticQuery(query);
-  const menu = data.allMdx.nodes.map(node=>
-    <MenuItem 
-    onClick={()=>navigate(`/${node.slug}`)}
-    key={node.slug}
+  const menu = data.allMdx.nodes.map(node =>
+    <MenuItem
+      onClick={() => navigate(`/${node.slug}`)}
+      key={node.slug}
     >
       {node.frontmatter.title}
     </MenuItem>
@@ -50,18 +64,35 @@ export default function TopMenu() {
         p: 1,
         position: "relative"
       }}
-    >
+    > <Box
+      sx={{
+        position: "absolute",
+        left: 1,
+        top:4,
+        display: {xs: "block", sm: "none"},
+      }}>
+        <ExpandMore
+          onClick={props.handleToggle}
+          expand={props.openContents}
+          aria-expanded={props.openContents? 'true' : undefined}
+          aria-label="show more"
+        >
+          <ArrowIcon/>
+        </ExpandMore>
+    </Box>
       <Box>
-        <Link to="/">
-        <Logo style={{ height: "2rem", width: "100%" }} />
+        <Link to="/"
+          style={{ textDecoration: "none" }}
+        >
+          <Logo style={{ height: "2rem", width: "100%" }} />
         </Link>
-        
+
       </Box>
       <Box
         sx={{
           position: "absolute",
           right: 1,
-          top: 0,
+          top: 4,
         }}
       >
         <IconButton

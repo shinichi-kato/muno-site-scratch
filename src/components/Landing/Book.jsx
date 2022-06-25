@@ -5,6 +5,7 @@ import Link from '@mui/material/Link';
 import { Link as GatsbyLink } from 'gatsby';
 import { grey } from '@mui/material/colors';
 import { StaticImage } from 'gatsby-plugin-image';
+import Box from '@mui/material/Box';
 
 
 export default function Book() {
@@ -24,23 +25,26 @@ export default function Book() {
         </Grid>
         <Grid item xs={12} sm={4}
         >
-          <GatsbyLink to="/book"
-            style={{
-              color: "rgba(0,0,0,0.87)",
-              textDecoration: "none",
-              '&:hover': {
+          <Box sx={{ mx: {sx: "10px", md: "50px" }} }>
+            <GatsbyLink to="/book"
+              style={{
                 color: "rgba(0,0,0,0.87)",
                 textDecoration: "none",
-              }
-            }}
-          >
-            <StaticImage
-              src='./yumemiru.jpg'
-              alt="夢みるプログラム"
-              layout="fixed"
-              width={200}
-            />
-          </GatsbyLink>
+                '&:hover': {
+                  color: "rgba(0,0,0,0.87)",
+                  textDecoration: "none",
+                }
+              }}
+            >
+              <StaticImage
+                src='./yumemiru.jpg'
+                alt="夢みるプログラム"
+                layout="fixed"
+                width={180}
+              />
+            </GatsbyLink>
+          </Box>
+
         </Grid>
         <Grid item xs={12} sm={8}>
           <Typography variant="h3">夢みるプログラム</Typography>

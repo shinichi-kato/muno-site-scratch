@@ -20,7 +20,7 @@ export default function Top() {
         alignSelf: "center"
       }}>
       <Box
-        sx={{ paddingTop: "250px" }}
+        sx={{ paddingTop: {xs: "130px", sm:"180px", md: "250px"} }}
       >
         <Typography variant="h1" align="center"
           sx={{
@@ -35,7 +35,11 @@ export default function Top() {
           paddingBottom: "32px"
         }}
       >
-        <Typography variant="subtitle1">
+        <Typography variant="subtitle1"
+          sx={{
+            lineHeight: {xs: "1.3rem", sm: "1.7rem"}
+          }}
+        >
           人工無脳、またはチャットボットは人間のような知能を持っていません。<br />
           にもかかわらず私達は彼らとの会話に魅力を感じ、癒やされ、<br />
           時には感情を揺さぶられます。<br />

@@ -1,8 +1,10 @@
-import React from "react";
+import React, {useState} from "react";
 import { graphql, Link } from "gatsby";
 import { MDXProvider } from "@mdx-js/react";
 import { MDXRenderer } from "gatsby-plugin-mdx";
 import { GatsbyImage, getImage, StaticImage } from "gatsby-plugin-image";
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
@@ -65,6 +67,14 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
   const frontmatter = mdx.frontmatter;
   const featuredImage = getImage(frontmatter.featuredImage);
   const isArticle = RE_ARTICLE_SLUG.exec(mdx.slug);
+  const theme = useTheme();
+  const isWide = useMediaQuery(theme.breakpoints.up('sm'));
+
+  const [openContents, setOpenContents] = useState(false);
+
+  function handleToggleContents(){
+    setOpenContents(prev=>!prev);
+  }
 
   return (
     <Container
@@ -76,7 +86,10 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
       }}
     >
       <Box>
-        <TopMenu />
+        <TopMenu 
+          openContents={openContents}
+          handleToggle={handleToggleContents}
+        />
       </Box>
       <Box
         sx={{
@@ -88,7 +101,8 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
         <Box
           sx={{
             display: {
-              xs: "none",
+              xs: isWide ? "none" :
+                openContents ? "none" : "block",
               sm: isArticle ? "block" : "none"
             },
             width: "240px",
