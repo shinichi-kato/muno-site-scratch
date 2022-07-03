@@ -11,7 +11,9 @@ const query = graphql`
         frontmatter {
           featuredImage {
             childImageSharp {
-              gatsbyImageData
+              gatsbyImageData(
+                width: 150
+              )
             }
           }
           color

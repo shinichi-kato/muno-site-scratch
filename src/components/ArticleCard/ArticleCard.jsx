@@ -21,6 +21,7 @@ export default function ArticleCard({ node }) {
     default:
       color="grey.500";
   }
+  console.log("node",node)
   
   return (
     <Card
@@ -39,9 +40,11 @@ export default function ArticleCard({ node }) {
               pr: 1,
             }}
           >
-            {node.image &&
+            {node.featuredImage &&
               <GatsbyImage
-                image={getImage(node.image)} alt={node.title}
+                image={getImage(node.featuredImage)}
+                alt={node.title}
+                
               />
             }
           </Box>

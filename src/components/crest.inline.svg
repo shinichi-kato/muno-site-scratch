@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
-<svg width="7.69mm" height="7.69mm" version="1.1" viewBox="0 0 7.69 7.69" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="7.69mm" height="7.69mm" version="1.1" viewBox="0 0 7.69 7.69">
  <defs>
   <radialGradient id="radialGradient1037" cx="77.4" cy="-.506" r="3.38" gradientTransform="matrix(-.907 -.0587 .0712 -1.1 148 3.49)" gradientUnits="userSpaceOnUse">
    <stop stop-color="#c4fea9" stop-opacity=".751" offset="0"/>
    <stop stop-color="#37a900" stop-opacity=".365" offset="1"/>
   </radialGradient>
  </defs>
- <metadata>
-  <rdf:RDF>
-   <cc:Work rdf:about="">
-    <dc:format>image/svg+xml</dc:format>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-   </cc:Work>
-  </rdf:RDF>
- </metadata>
  <g transform="translate(-73.9 4.35)" fill="url(#radialGradient1037)">
   <g transform="matrix(.887 0 0 .887 9.95 -7.07)" fill="url(#radialGradient1037)">
    <path d="m76.3 3.26-3.15 1.82c-0.275 0.159-0.455 0.471-0.455 0.845l-1e-6 3.06c0 0.312 0.18 0.624 0.451 0.78l3.15 1.82z"/>
