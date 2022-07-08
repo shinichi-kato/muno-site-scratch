@@ -1,0 +1,24 @@
+---
+title: "Elizaの実装"
+color: "secondary"
+updated: "2022-05-01T12:00Z"
+featuredImage: "../abstract2.png"
+tags: 
+    - "test"
+---
+
+# ユーザの発言を聞いて、思い出した物語をはなす
+
+inに物語のすべて＋関連キーワード、outに物語のすべてとすれば思い出した話ができる。
+ここでinを長くしすぎるとtfidfの仕掛けにより一致度が下がるので、一分ずつ区切ったinを用意する。
+outの方は長くしすぎると良くないので、タグで物語のはじめに飛ばす
+in:["その１","その２","その３",...],
+out:["{start_story1}"],
+
+in:["{start_story1"],
+out:["その１{queue story1_2}"],
+
+in:["{story1_2}"],
+out:["その２{queue story1_3}"],
+
+

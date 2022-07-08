@@ -45,6 +45,7 @@ export function generateMap(data) {
 export default function ArticleLink({ to }) {
 
   const map = generateMap(useStaticQuery(query));
+  console.log(map)
   const slug = `article/${to}`;
   if (slug in map) {
     const node = map[slug];
