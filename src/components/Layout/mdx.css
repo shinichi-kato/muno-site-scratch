@@ -14,6 +14,22 @@
     padding: 1rem 1rem 1rem 3rem;
     background-color: #ddddd0;
 }
+.mdx-table {
+    width: 80%;
+    padding: 1rem;
+    border-collapse: collapse;
+}
+.mdx-thead {
+    background-color: #cccccc;
+}
+.mdx-th {
+    border: solid 1px #888888;
+    padding: 0.5rem;
+}
+.mdx-td {
+    border: solid 1px #888888;
+    padding: 0.5rem;
+}
 figure {
     margin: 0;
     padding: 0;
