@@ -42,7 +42,7 @@ const components = {
   table: props => <table className="mdx-table" {...props}/>,
   thead: props => <thead className="mdx-thead" {...props} />,
   tr: props => <tr className="mdx-tr" {...props} />,
-  th: props => <tr className="mdx-th" {...props} />,
+  th: props => <th className="mdx-th" {...props} />,
   td: props => <td className="mdx-td" {...props} />,
 
 };
