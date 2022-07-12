@@ -30,8 +30,8 @@ const components = {
   p: props => <Typography sx={{ pb: 2, lineHeight: "1.7rem" }} {...props} />,
   Chatbot: Monobot,
   RetrieverDemo: RetrieverDemo,
-  code: props => <code className="mdx-code">{props.children}</code>,
-  pre: props => <pre className="mdx-pre">{props.children}</pre>,
+  code: props => <code className="mdx-code" {...props} />,
+  pre: props => <pre className="mdx-pre" {...props} />,
   blockquote: props => <blockquote className="mdx-blockquote">{props.children}</blockquote>,
   Flavor: Flavor,
   Link: Link,
@@ -108,18 +108,17 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
           sx={{
             display: {
               xs: isWide ? "none" :
-                openContents ? "none" : "block",
+                openContents ? "block" : "none",
               sm: isArticle ? "block" : "none"
             },
             width: "240px",
-            height: "60vh",
             p: 2,
           }}
         >
           <Contents currentSlug={mdx.slug} />
         </Box>
         <Box
-          sx={{ flex: 1, p: 2 }}
+          sx={{  p: 2 }}
         >
           <GatsbyImage
             image={featuredImage}

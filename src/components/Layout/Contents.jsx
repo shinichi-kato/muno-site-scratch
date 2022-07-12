@@ -143,7 +143,6 @@ export default function Contents({ currentSlug }) {
 
   return (
     <Box
-
     >
       <Typography
         variant="subtitle2"

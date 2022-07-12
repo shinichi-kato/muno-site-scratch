@@ -8,6 +8,7 @@ Monobot
 */
 
 import React, { useState, useEffect } from 'react';
+import {withPrefix} from 'gatsby';
 import Link from '@mui/material/Link'
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -106,7 +107,7 @@ export default function Chatbot({ source }) {
   useEffect(() => {
     if (cache.status === 'unload') {
       setMessage("読み込み中 ...")
-      fetch(`${source}/chatbot.json`)
+      fetch(withPrefix(`${source}/chatbot.json`))
         .then(res => res.json())
         .then(
           result => {
@@ -179,7 +180,7 @@ export default function Chatbot({ source }) {
     )
   }
 
-  const avatarUrl = `${source}/${script.avatar}`;
+  const avatarUrl = withPrefix(`${source}/${script.avatar}`);
 
   return (
     <Box

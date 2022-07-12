@@ -1,0 +1,62 @@
+---
+title: "傾聴ボット(2)"
+color: "secondary"
+updated: "2022-07-12T12:00Z"
+featuredImage: "../abstract2.png"
+tags: 
+    - "test"
+---
+
+### 7. 短い要約を返す
+
+1〜6を使ったチャットボットでは、例えばユーザ（話し手）の入力文字列が下記inのどれかに似ていたら、outの文字列を返答にするという辞書で作ることができました。
+
+> in: "えーっと、", "うーん", "なんと言ったらいいか"
+> out: "ゆっくり考えてもらって大丈夫ですよ。"
+
+ところが要約の場合はユーザのセリフの一部を記憶してそれを埋め込んだ返答をすることがポイントです。
+
+> ユーザ: 今日は隣の街のモールに行って、本屋でマンガを買ってきたよ
+> チャットボット:マンガを？
+
+つまり、inが単純な文字列ではなく **○を買ってきた** のようなパターンになります。そしてユーザの入力文字列がこのパターンと一致したとき、「○」に当たる部分の言葉を記憶して以降の出力文字列でそれを利用します。
+ここで、よく似た方法が取り入れられたElizaの辞書を見てみましょう。
+Elizaの辞書を見てみると、会話機能の中核部分はキー`key`、分解`decomp`と再構成`reasmb`からなっています。
+
+```yaml
+key: remember 5
+  decomp: * i remember *
+    reasmb: Do you often think of (2) ?
+    reasmb: Does thinking of (2) bring anything else to mind ?
+    reasmb: What else do you recollect ?
+    reasmb: Why do you remember (2) just now ?
+    reasmb: What in the present situation reminds you of (2) ?
+    reasmb: What is the connection between me and (2) ?
+    reasmb: What else does (2) remind you of ?
+```
+
+この辞書では、ユーザの入力に`key`の`"remeber"`が含まれていた場合、`decomp`のパターンに従って `"i remember"`より前の文を(1)に、後の文を(2)に代入します。
+続いて`reasmb`のうちどれか一つを選んで(1)や(2)を当てはめて返答とします。
+例えばユーザが「**At the moment** I remember **his face**」と言ってきたら「Do you ofthen think of **his face**」と返します。
+この仕掛けは一見すると日本語にも移植できそうに見えますが、日本語では文節の順序に融通が効き、主語をはじめとして両者で共通認識している語は省略することが好まれます。
+またtfidfのような統計的な類似度を用いた検索ではなく明確なパターンマッチングによってエンコードを行っているため、対応力はそれほど大きくありません。
+
+これらのことを考慮した要約用のエンコーダーを考えます。
+
+#### 要約のためのエンコーダー
+
+シンプルなパターンマッチングは日本語に適用しにくいため、word vectorを使ったエンコードを考えます。
+word vectorは[分かち書き](http://chasen.org/~taku/software/TinySegmenter/)によって文字列を単語などに分割し、各要素ごとに数を数えたものをベクトル化したものです。
+
+
+> A: 石 | の | 上 | に | も | 三 | 年 |。  
+> B: 砂 | の | 上 | に | は | ？
+
+
+|   |石 |の |上 |に |も |三 |年 |、 |砂 |は |？ |
+|-:-|-:-|-:-|-:-|-:-|-:-|-:-|-:-|-:-|-:-|-:-|-:-|
+| A | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 |0  |
+| B | 0 | 1 | 1 | 1 | 0 | 0 | 0 | 0 |  1| 1 |1  |
+
+
+(以下製作中)
