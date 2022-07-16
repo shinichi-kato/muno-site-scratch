@@ -7,8 +7,8 @@ Monobot
 
 */
 
-import React, { useState, useEffect, useReducer } from 'react';
-import { withPrefix } from 'gatsby';
+import React, { useState, useEffect } from 'react';
+import {withPrefix} from 'gatsby';
 import Link from '@mui/material/Link'
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -16,9 +16,9 @@ import Input from '@mui/material/Input';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
 
-import BowEncoder from './engine/bow-encoder';
-import EchoDecoder from './engine/echo-decoder';
 
+import { matrixize } from './matrixize';
+import { retrieve } from './retrieve';
 
 const MAX_LOG_LENGTH = 5;
 
@@ -89,69 +89,6 @@ function LeftBalloon({ text, backgroundColor }) {
   )
 }
 
-const initialState = {
-  encoder: new BowEncoder(),
-  decoder: new EchoDecoder(),
-  status: "unload",
-  message: null,
-  source: null,
-};
-
-function reducer(state, action) {
-  switch (action.type) {
-    case 'Load': {
-      let result;
-      result = state.encoder.learn(action.script);
-      if (result.status === 'error') {
-        return {
-          ...state,
-          status: "error",
-          message: result.message
-        }
-      }
-      result = state.decoder.learn(action.script);
-      if (result.status === "error") {
-        return {
-          ...state,
-          status: "error",
-          message: result.message
-        }
-      }
-      return {
-        ...state,
-        status: "loaded",
-        message: "",
-        source: action.source
-      }
-    }
-
-    case 'Start': {
-      return {
-        ...state,
-        status: "started",
-        message: "",
-      }
-    }
-
-    case 'Message': {
-      return {
-        ...state,
-        message: action.message
-      }
-    }
-
-    case 'Error': {
-      return {
-        ...state,
-        status: "error",
-        message: action.message
-      }
-    }
-
-    default:
-      throw new Error(`invalid action ${action.type}`)
-  }
-}
 
 export default function Chatbot({ source }) {
   const [script, setScript] = useState({
@@ -159,47 +96,55 @@ export default function Chatbot({ source }) {
     name: "",
     backgroundColor: ""
   });
-
+  const [message, setMessage] = useState(null);
+  const [cache, setCache] = useState({ status: "unload", source: null });
   const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
-  const [state, dispatch] = useReducer(reducer, initialState);
 
   //-------------------------------------------
   // chatbotのロード
 
   useEffect(() => {
-    if (state.source !== source) {
-      dispatch({ type: "Message", message: "読み込み中 ..." });
+    if (cache.status === 'unload') {
+      setMessage("読み込み中 ...")
       fetch(withPrefix(`${source}/chatbot.json`))
         .then(res => res.json())
         .then(
           result => {
             setScript(result);
-            dispatch({ type: "Message", message: "計算中 ..." });
-            dispatch({ type: "Load", script: result, source:source })
-
+            setMessage("計算中 ...")
+            setCache(matrixize(source, result.script));
+            setMessage(null);
           },
           error => {
-            dispatch({ type: "Message", message: error.message });
+            setMessage(error.message);
           }
         )
     }
-  }, [state.source, source]);
+  }, [cache.status, cache.source, source]);
 
   // -------------------------------------------------
   // 開始時に__start__を発言
   //
 
   useEffect(() => {
+    if (cache.status === 'loaded') {
+      const result = retrieve("__start__", cache)
+      const cands = cache.outScript[result.index];
+      const cand = cands[Math.floor(Math.random() * cands.length)];
 
-    if (state.status === 'loaded') {
-      const code = state.encoder.retrieve("__start__");
-      dispatch({ type: "Start" });
-      renderMessage('bot', state.decoder.render(code));
+      renderMessage('bot', cand);
+
+      setCache(prev => ({
+        ...prev,
+        status: 'ok'
+      }))
     }
-  }, [state.encoder, state.decoder, state.status])
 
-
+    if (cache.status === 'error') {
+      setMessage(cache.message);
+    }
+  }, [cache, cache.status])
 
   function handleChangeInput(event) {
     setUserText(event.target.value);
@@ -208,17 +153,18 @@ export default function Chatbot({ source }) {
   function handleSubmit(event) {
     renderMessage('user', userText);
 
-    let code;
+    let result;
 
-    code = state.encoder.retrieve(userText);
-    if (code.score < script.precision) {
-      code = state.encoder.retrieve("__not_found__");
+    result = retrieve(userText, cache);
+    if (result.score < script.precision) {
+      result = retrieve("__not_found__", cache);
     }
 
-    const text = state.decoder.render(code);
+    const cands = cache.outScript[result.index];
+    const cand = cands[Math.floor(Math.random() * cands.length)];
 
-    if (text !== '__nop__') {
-      renderMessage('bot', text);
+    if(cand !== '__nop__'){
+      renderMessage('bot', cand);
     }
 
     setUserText("");
@@ -273,7 +219,7 @@ export default function Chatbot({ source }) {
         <Box
           sx={{ flexGrow: 1 }}
         >
-          {state.message}
+          {message}
           {log.map((message, index) =>
             message.person === 'bot'
               ?
@@ -300,16 +246,16 @@ export default function Chatbot({ source }) {
               }}
             >
               <Box
-                sx={{ flex: 1 }}
+                sx={{flex: 1}}
               >
                 <Input
-                  sx={{
+                sx={{
                     width: "100%",
                     backgroundColor: "rgba(255,255,255,0.8)",
                   }}
                   value={userText}
                   onChange={handleChangeInput}
-                  disabled={state.status !== 'started'}
+                  disabled={cache.status !== 'ok'}
                 />
               </Box>
               <Box>

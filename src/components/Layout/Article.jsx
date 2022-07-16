@@ -111,8 +111,8 @@ export default function PageTemplate({ data: { mdx }, pageContext }) {
                 openContents ? "block" : "none",
               sm: isArticle ? "block" : "none"
             },
-            width: "240px",
             p: 2,
+            whiteSpace: "nowrap",
           }}
         >
           <Contents currentSlug={mdx.slug} />
