@@ -19,6 +19,11 @@ import SendIcon from '@mui/icons-material/Send';
 import BowEncoder from './engine/bow-encoder';
 import EchoDecoder from './engine/echo-decoder';
 
+const codecs = {
+  'BowEncoder': BowEncoder,
+  'EchoDecoder': EchoDecoder,
+}
+
 
 const MAX_LOG_LENGTH = 5;
 
@@ -90,8 +95,12 @@ function LeftBalloon({ text, backgroundColor }) {
 }
 
 const initialState = {
-  encoder: new BowEncoder(),
-  decoder: new EchoDecoder(),
+  encoder: null,
+  decoder: null,
+  avatar: "",
+  name: "",
+  backgroundColor: "",
+  precision: 0,
   status: "unload",
   message: null,
   source: null,
@@ -100,28 +109,24 @@ const initialState = {
 function reducer(state, action) {
   switch (action.type) {
     case 'Load': {
-      let result;
-      result = state.encoder.learn(action.script);
-      if (result.status === 'error') {
-        return {
-          ...state,
-          status: "error",
-          message: result.message
-        }
-      }
-      result = state.decoder.learn(action.script);
-      if (result.status === "error") {
-        return {
-          ...state,
-          status: "error",
-          message: result.message
-        }
-      }
+      const script = action.script;
+
+      let encoder = new codecs[script.encoder]();
+      let decoder = new codecs[script.decoder]();
+      encoder.learn(script);
+      decoder.learn(script);
+      
       return {
         ...state,
+        encoder: encoder,
+        decoder: decoder,
+        avatar: script.avatar,
+        name: script.name,
+        backgroundColor: script.backgroundColor,
+        precision: script.precision,
         status: "loaded",
         message: "",
-        source: action.source
+        source: action.source,
       }
     }
 
@@ -154,12 +159,6 @@ function reducer(state, action) {
 }
 
 export default function Chatbot({ source }) {
-  const [script, setScript] = useState({
-    avatar: "",
-    name: "",
-    backgroundColor: ""
-  });
-
   const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -168,19 +167,18 @@ export default function Chatbot({ source }) {
   // chatbotのロード
 
   useEffect(() => {
-    if (state.source !== source) {
+    if ( state.source !== source) {
       dispatch({ type: "Message", message: "読み込み中 ..." });
       fetch(withPrefix(`${source}/chatbot.json`))
         .then(res => res.json())
         .then(
           result => {
-            setScript(result);
             dispatch({ type: "Message", message: "計算中 ..." });
-            dispatch({ type: "Load", script: result, source:source })
+            dispatch({ type: "Load", script: result, source: source })
 
           },
           error => {
-            dispatch({ type: "Message", message: error.message });
+            dispatch({ type: "Error", message: error.message });
           }
         )
     }
@@ -193,7 +191,7 @@ export default function Chatbot({ source }) {
   useEffect(() => {
 
     if (state.status === 'loaded') {
-      const code = state.encoder.retrieve("__start__");
+      const code = state.encoder.resolve("__start__");
       dispatch({ type: "Start" });
       renderMessage('bot', state.decoder.render(code));
     }
@@ -208,13 +206,15 @@ export default function Chatbot({ source }) {
   function handleSubmit(event) {
     renderMessage('user', userText);
 
-    let code;
+    // 入力文字列を中間コードに
+    let code = state.encoder.retrieve(userText);
 
-    code = state.encoder.retrieve(userText);
-    if (code.score < script.precision) {
-      code = state.encoder.retrieve("__not_found__");
+    // 返答できない時は代わりに__not_found__に置き換える
+    if (code.score < state.precision) {
+      code = state.encoder.resolve("__not_found__");
     }
 
+    // 中間コードを出力文字列に
     const text = state.decoder.render(code);
 
     if (text !== '__nop__') {
@@ -234,7 +234,7 @@ export default function Chatbot({ source }) {
     )
   }
 
-  const avatarUrl = withPrefix(`${source}/${script.avatar}`);
+  const avatarUrl = withPrefix(`${source}/${state.avatar}`);
 
   return (
     <Box
@@ -255,12 +255,12 @@ export default function Chatbot({ source }) {
       >
         <img src={avatarUrl} alt={avatarUrl}
           style={{
-            width: "200px",
-            height: "300px"
+            width: "120px",
+            height: "180px"
           }}
         />
-        <Typography align="center">{script.name}</Typography>
-        <Link href={`${source}/chatbot.json`}>辞書を見る</Link>
+        <Typography align="center">{state.name}</Typography>
+        <Link href={withPrefix(`${source}/chatbot.json`)}>辞書を見る</Link>
       </Box>
       <Box
         sx={{
@@ -280,7 +280,7 @@ export default function Chatbot({ source }) {
               <LeftBalloon
                 text={message.text}
                 key={index}
-                backgroundColor={script.backgroundColor}
+                backgroundColor={state.backgroundColor}
               />
               :
               <RightBalloon

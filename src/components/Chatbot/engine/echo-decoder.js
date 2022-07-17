@@ -4,7 +4,7 @@ Echo dncoderクラス
 
 # 概要
 
-スクリプトに書かれた出力文字列を記憶する。
+スクリプトの"out"に書かれた出力文字列を記憶する。
 encoder.retrieve()で得られた内部コードを与えると、
 出力文字列候補からランダムに一つを選んで返答とする。
 
@@ -42,6 +42,7 @@ codeは以下の情報で構成される
 */
 
 import { randomInt } from "mathjs";
+import { InvalidScriptException } from './exceptions.js';
 
 export default class EchoDecoder {
 
@@ -58,22 +59,19 @@ export default class EchoDecoder {
 
   learn(script) {
     if (!("script" in script)) {
-      return {
-        status: "error",
-        message: "decoder error:スクリプトはscriptという要素に含まれている必要があります"
-      }
+      throw new InvalidScriptException(
+        "decoder error:スクリプトはscriptという要素に含まれている必要があります"
+      )
     }
     if ((!Array.isArray(script.script)) || script.script.length === 0) {
-      return {
-        status: "error",
-        message: "スクリプトが空です"
-      }
+      throw new InvalidScriptException(
+        "スクリプトが空です"
+      )
     }
 
     this.outScript = [];
 
     // outスクリプトの抽出
-    // inスクリプトの抽出
     const _script = script.script;
 
     for (let i = 0, l = _script.length; i < l; i++) {
@@ -82,21 +80,20 @@ export default class EchoDecoder {
         this.outScript.push(line.out);
       }
       else {
-        return {
-          status: "error",
-          message: `${i}行のoutの形式が正しくありません`
-        }
+        throw new InvalidScriptException(
+          `${i}行のoutの形式が正しくありません`
+        )
       }
     }
 
     return { status: "ok" };
   }
 
-  render(code){
-    if(code.status === 'error'){
+  render(code) {
+    if (code.status === 'error') {
       return code.message;
     }
-    
+
     const cands = this.outScript[code.index];
 
     return cands[randomInt(cands.length)];

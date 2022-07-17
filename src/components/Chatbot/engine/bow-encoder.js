@@ -28,9 +28,15 @@ Bag-og-word、つまり文字列を単語に分け、その順番を無視して
 
 let bowEncoder = new BowEndocer();
 
-bowEncoder.learn(script); // スクリプトを記憶させる
+bowEncoder.learn(script); // スクリプトを読み込む
 
-const code = bowEncoder.retrieve(text); // textを内部コードとスコアに変換
+// textを内部コードに変換。__start__のような
+// コマンドも文字列として扱う。
+code = bowEncoder.retrieve(text); 
+
+// textを内部コードに変換
+// __start__のようなコマンドが有効
+code = bowEncoder.solve(string); 
 
 codeは以下の情報で構成される
 {
@@ -40,17 +46,6 @@ codeは以下の情報で構成される
   message: エラーの場合エラーメッセージの文字列が渡される
 }
 
-# state
-bowEncoderは以下の状態を取る
-
-state
-------------------------------------------
-unload     スクリプトがロードされていない
-loaded     スクリプトが読み込まれた
-badscript  スクリプトの読み込みに失敗した
-error      retrieveを実行し、失敗した
-ok         retrieveを実行し、成功した
-------------------------------------------
 
 */
 import {
@@ -59,13 +54,16 @@ import {
 } from "mathjs";
 
 import { TinySegmenter } from '../tinysegmenter';
+import { InvalidScriptException } from './exceptions.js';
 
 let segmenter = new TinySegmenter();
+
+
+
 
 export default class BowEncoder {
 
   constructor() {
-    this.source = null;
     this.matrix = [];
     this.vocab = {};
     this.wv = null;
@@ -84,16 +82,14 @@ export default class BowEncoder {
   learn(script) {
 
     if (!("script" in script)) {
-      return {
-        status: "error",
-        message: "スクリプトはscriptという要素に含まれている必要があります"
-      }
+      throw new InvalidScriptException(
+        "スクリプトはscriptという要素に含まれている必要があります"
+      )
     }
     if ((!Array.isArray(script.script)) || script.script.length === 0) {
-      return {
-        status: "error",
-        message: "スクリプトが空です"
-      }
+      throw new InvalidScriptException(
+        "スクリプトが空です"
+      )
     }
     const _script = script.script;
     let inScript = [];
@@ -106,10 +102,7 @@ export default class BowEncoder {
         inScript.push(line.in);
       }
       else {
-        return {
-          status: "error",
-          message: `${i}行のinの形式が正しくありません`
-        }
+        throw new InvalidScriptException(`${i}行のinの形式が正しくありません`)
       }
     }
 
@@ -173,13 +166,28 @@ export default class BowEncoder {
     return { status: "ok" }
   }
 
+
   // ----------------------------------------------------
   //
   // 類似テキストの検索
+  // __start__のようなコマンドも通常の文字列として扱われる
   //
   // ----------------------------------------------------
 
-  retrieve(text) {
+  retrieve(text){
+    text.replace('_','＿');
+    return this.resolve(text);
+  }
+
+
+  // ----------------------------------------------------
+  //
+  // 類似テキストの検索
+  // __start__のような文字列がコマンドとして扱われる
+  //
+  // ----------------------------------------------------
+
+  resolve(text) {
     if (this.wv === null) {
       return {
         index: null, score: 0,
@@ -218,7 +226,6 @@ export default class BowEncoder {
     // tfidf計算
     const tf = divide(wv, sumWv);
     const tfidf = dotMultiply(tf, this.idf);
-    // console.log("tfidf=",tfidf)
     // 正規化
 
     const n = norm(tfidf);
@@ -236,7 +243,6 @@ export default class BowEncoder {
         message: `tfidf行列が不正です。error=${error}`
       }
     }
-    console.log("scores",scores)
     scores = scores.toArray();
     let maxScore = Math.max(...scores);
     let indexes = [];
