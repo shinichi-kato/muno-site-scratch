@@ -110,7 +110,7 @@ function renderTree(nodes, currentSlug) {
           <Typography
             sx={{
               fontWeight: currentSlug === node.slug ? "bold" : "normal",
-              fontSize: "0.9rem",
+              fontSize: "0.8rem",
               color: currentSlug === node.slug ? getColor(node) : "inherit",
             }}
           >

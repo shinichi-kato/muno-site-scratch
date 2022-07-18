@@ -244,12 +244,13 @@ export default function Chatbot({ source }) {
         width: "100%",
         backgroundColor: "#dddddd",
         p: 1,
+        mb: 2,
         borderRadius: 3,
       }}
     >
       <Box
         sx={{
-          width: "210px",
+          width: "130px",
           p: 1
         }}
       >
