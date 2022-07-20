@@ -19,6 +19,7 @@ import Author from './Author';
 
 import Monobot from '../Chatbot/Monobot';
 import RetrieverDemo from '../Chatbot/RetrieverDemo';
+import PhraseSegmenterDemo from "../Chatbot/PhraseSegmenterDemo";
 import ArticleLink from './ArticleLink';
 import Flavor from './Flavor';
 
@@ -30,6 +31,7 @@ const components = {
   p: props => <Typography sx={{ pb: 2, lineHeight: "1.7rem" }} {...props} />,
   Chatbot: Monobot,
   RetrieverDemo: RetrieverDemo,
+  PhraseSegmenterDemo: PhraseSegmenterDemo,
   code: props => <code className="mdx-code" {...props} />,
   pre: props => <pre className="mdx-pre" {...props} />,
   blockquote: props => <blockquote className="mdx-blockquote">{props.children}</blockquote>,
