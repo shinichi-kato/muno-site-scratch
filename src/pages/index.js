@@ -25,7 +25,7 @@ export const query = graphql`
           }
           title
           tags
-          updated(fromNow: true)
+          updated
         }
         slug
       }

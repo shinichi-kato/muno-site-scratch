@@ -9,6 +9,7 @@ import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import moment from 'moment';
 
 
 
@@ -18,7 +19,7 @@ function generateList(data, isWide) {
     return {
       title: f.title,
       tags: f.tags,
-      updated: f.updated,
+      updated: moment(f.updated).fromNow(),
       image: f.featuredImage,
       slug: node.slug,
     }

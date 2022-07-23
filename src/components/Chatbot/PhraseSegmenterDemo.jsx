@@ -31,6 +31,7 @@ export default function PhraseSegmenterDemo() {
       sx={{
         display: "flex",
         flexDirection: "column",
+        alignItems: "stretch",
         width: "100%",
         backgroundColor: "#dddddd",
         p: 1,
@@ -40,7 +41,7 @@ export default function PhraseSegmenterDemo() {
       }}
     >
       <Box>
-        <Typography>PhraseSegmenter</Typography>
+        <Typography>PhraseSegmenter Demo</Typography>
       </Box>
       <Box>
         結果：<Typography>{result}</Typography>
@@ -53,10 +54,13 @@ export default function PhraseSegmenterDemo() {
               flexDirection: "row"
             }}
           >
-            <Box>
+            <Box
+              sx={{flex:1}}
+            >
               <Input
                 value={text}
                 onChange={handleChangeText}
+                fullWidth
               />
             </Box>
             <Box>

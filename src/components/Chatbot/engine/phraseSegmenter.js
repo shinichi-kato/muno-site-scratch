@@ -3,8 +3,21 @@ phraseSegmenter
 
 簡易な文節区切り
 =====================
+phraseSegmenterは入力文字列をTinySegmenterで分割し、それを文節に再構成する。
+文節の典型的な分類は主語・述語・修飾語・接続語・独立語の5種類であるが、
+以下の例のように、より文の意味を保持した独自の分類を用いる。
 
-BNF記法でしめす。(https://www.bottlecaps.de/rr/ui)
+藤野先生が新宿の本屋にいる → 藤野先生 主者 | 新宿 修飾語 | 本屋 目的語 | いる 
+
+このsegmenterでは文節として認識した文字列から助詞を除き、代わりに文節の分類を
+文字列に含める。これにより「藤野先生が」「藤野先生は」のような表記の違いを吸収する。
+また実験的に一つの形態素として扱われる一部の独立語の表記ゆれを吸収している。
+
+なお「〜を」「〜に」などの助詞は判断が容易であるが、動詞は様々な活用形が存在するため
+すべてを書き下すのは難しく、精度も期待できない。そこでサ変動詞のみを文節化する。
+
+文字列の解析にはプッシュダウン・オートマトンを用い、状態遷移は以下にBNF記法でしめす。
+BNF記法はこのサイトで可視化できる。https://www.bottlecaps.de/rr/ui
 
 main ::= indep* '*'+ (indep* '*'+)* person_suffix? (subj|obj|dest|mod|by|verb) 'accept()'
 subj ::= ('が'|'は'|'と' ) 'subj()'
@@ -23,17 +36,20 @@ import { TinySegmenter } from "../tinysegmenter";
 
 
 
-const DI_INDEPS = toTrueDict([
-  'しかし', 'それで', 'なので', 'そんな', 'もしも', 'もしかし', 'だが',
-  'いや', 'あはは',
-  '、', '。', '?', '？', '!', '！',
-  '\t' // 終端記号
-])
+const DI_INDEPS = {
+  'しかし': 'しかし', 'だけど': 'しかし',
+  'なので': 'なので', 'だから': 'なので', 'それで': 'なので', 'そんで': 'なので',
+  'あはは': 'あはは', 'わはは': 'わはは',
+  'おそらく': 'おそらく', '多分': 'おそらく',
+  '、': '、', '。': '。', '?': '？', '？': '？', '!': '！', '！': '！',
+  '\t': '\t',
+}
+
 const DI_SUFFIX = toTrueDict([
   'さん', '君', 'ちゃん', '先生', '先輩',
 ])
 const DI_BY = toTrueDict(['で', 'により', 'による', 'によって']);
-const DI_GAHA = toTrueDict(['が', 'は', 'と']);
+const DI_GAHATO = toTrueDict(['が', 'は', 'と']);
 const DI_NADANE = toTrueDict(['な', 'だ', 'ね']);
 
 const DI_TYPES = {
@@ -108,7 +124,7 @@ const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
 const LEX = {
   '*': n => false,
   'indep': n => n in DI_INDEPS,
-  'subj': n => n in DI_GAHA,
+  'subj': n => n in DI_GAHATO,
   'obj': n => n === 'を' || n === 'の',
   'dest': n => n === 'に' || n === 'まで',
   'mod': n => n in DI_NADANE,
@@ -185,14 +201,14 @@ export default class PhraseSegmenter {
       while (true) {
         loop++;
         if (loop > 100) {
-          throw new RangeError(`loop counter exceeded at ${node}`)
+          throw new RangeError(`Trapped in infinite loop at ${node}`)
         }
 
         [table, state] = states[states.length - 1];
         pos = assignPos(node, states[states.length - 1]);
         states[states.length - 1] = [table, STATE_TABLES[table][pos][state]];
         state = states[states.length - 1][1];
-        console.log('node=', node, pos, 'state[-1]=', table, state)
+        // console.log('node=', node, pos, 'state[-1]=', table, state)
 
         if (state === 0) {
           fruit = new Fruit();
@@ -219,7 +235,7 @@ export default class PhraseSegmenter {
           continue;
         }
 
-        if (table === 'subj' && state === 4) {
+        if (table === 'subj' && state === 5) {
           fruit.type = 'subj';
           continue;
         }
@@ -227,20 +243,20 @@ export default class PhraseSegmenter {
         if (table === 'obj') {
           if (state === 3 || state === 9) {
             fruit.type = 'obj';
+            continue;
           } if (state === 5) {
             fruit.type = 'mod';
-          } else {
-            break;
+            continue;
           }
-          continue;
+          break;
         }
 
-        if (table === 'dest' && state === 4) {
+        if (table === 'dest' && state === 5) {
           fruit.type = 'dest';
           continue;
         }
 
-        if (table === 'mod' && state === 3) {
+        if (table === 'mod' && state === 5) {
           fruit.type = 'mod';
           continue;
         }
@@ -260,14 +276,20 @@ export default class PhraseSegmenter {
 
       if (pos === 'indep') {
         //透過
-        line.push(node)
+        if (buff.length !== 0) {
+          line = line.concat(buff);
+          buff = [];
+        }
+        fruit.surfaces = [];
+        line.push(DI_INDEPS[node])
         continue;
       }
 
+      if (pos === '*' || pos === 'suf') {
+        fruit.surfaces.push(node)
+      }
       buff.push(node)
-      fruit.surfaces.push(node)
 
-      console.log("check", table === 'main', state === 4)
       if (table === 'main' && state === 4) {
         fruit.person = 1;
         continue;
