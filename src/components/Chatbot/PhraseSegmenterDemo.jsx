@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import SendIcon from '@mui/icons-material/Send';
 
-import PhraseSegmenter from 'engine/phraseSegmenter';
+import PhraseSegmenter from './engine/phraseSegmenter';
 
 const phraseSegmenter = new PhraseSegmenter();
 
@@ -38,6 +40,9 @@ export default function PhraseSegmenterDemo() {
       }}
     >
       <Box>
+        <Typography>PhraseSegmenter</Typography>
+      </Box>
+      <Box>
         結果：<Typography>{result}</Typography>
       </Box>
       <Box>
@@ -55,7 +60,9 @@ export default function PhraseSegmenterDemo() {
               />
             </Box>
             <Box>
-              <IconButton>
+              <IconButton
+               onClick={handleSubmit}
+              >
                 <SendIcon />
               </IconButton>
             </Box>

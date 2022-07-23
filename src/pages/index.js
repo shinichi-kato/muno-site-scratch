@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import { graphql } from 'gatsby';
 import Container from '@mui/material/Container';
 import Top from '../components/Landing/Top';
 import Book from '../components/Landing/Book';
@@ -8,8 +8,33 @@ import TopMenu from '../components/TopMenu';
 import Footer from '../components/Footer';
 import Seo from '../components/Seo';
 
+export const query = graphql`
+  {
+    allMdx(
+      filter: {slug: {glob: "article/**"}}
+      sort: {fields: frontmatter___updated, order: DESC}
+      limit: 9
+    ) {
+      nodes {
+        frontmatter {
+          color
+          featuredImage {
+            childImageSharp {
+              gatsbyImageData(layout: FULL_WIDTH, aspectRatio: 1)
+            }
+          }
+          title
+          tags
+          updated(fromNow: true)
+        }
+        slug
+      }
+    }
+  }
+`;
 
-export default function Index() {
+
+export default function Index({data}) {
 
 
   return (
@@ -25,7 +50,7 @@ export default function Index() {
       <Top />
       <TopMenu />
       <Book />
-      <Updates />
+      <Updates data={data}/>
       <Footer />
       <Seo />
     </Container>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStaticQuery, graphql, Link } from "gatsby"
+import { Link } from "gatsby"
 import { GatsbyImage, getImage } from "gatsby-plugin-image";
 
 import Box from '@mui/material/Box';
@@ -10,31 +10,6 @@ import ImageListItemBar from '@mui/material/ImageListItemBar';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
-
-const query = graphql`
-  {
-    allMdx(
-      filter: {slug: {glob: "article/**"}}
-      sort: {fields: frontmatter___updated, order: DESC}
-      limit: 9
-    ) {
-      nodes {
-        frontmatter {
-          color
-          featuredImage {
-            childImageSharp {
-              gatsbyImageData(layout: FULL_WIDTH, aspectRatio: 1)
-            }
-          }
-          title
-          tags
-          updated(fromNow: true)
-        }
-        slug
-      }
-    }
-  }
-`;
 
 
 function generateList(data, isWide) {
@@ -55,7 +30,7 @@ function generateList(data, isWide) {
 export default function Updates(props) {
   const theme = useTheme();
   const isWide = useMediaQuery(theme.breakpoints.up('sm'));
-  const nodes = generateList(useStaticQuery(query), isWide);
+  const nodes = generateList(props.data, isWide);
 
   return (
     <Box
