@@ -32,7 +32,7 @@ const text = echoDecoder.render(code); // textを内部コードとスコアに�
 codeは以下の情報で構成される
 {
   score: 類似度の最大値,
-  indexes: 類似度が最大だった行番号のリスト
+  index: 類似度が最大だった行番号のリスト
   status: "ok" or "error",
   message: エラーの場合エラーメッセージの文字列が渡される
 }

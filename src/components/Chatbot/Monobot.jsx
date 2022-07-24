@@ -158,10 +158,13 @@ function reducer(state, action) {
   }
 }
 
+const initialHarvest = ["",""];
+
 export default function Chatbot({ source }) {
   const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [harvest, setHarvest] = useState(initialHarvest);
 
   //-------------------------------------------
   // chatbotのロード
@@ -175,7 +178,6 @@ export default function Chatbot({ source }) {
           result => {
             dispatch({ type: "Message", message: "計算中 ..." });
             dispatch({ type: "Load", script: result, source: source })
-
           },
           error => {
             dispatch({ type: "Error", message: error.message });
@@ -193,7 +195,18 @@ export default function Chatbot({ source }) {
     if (state.status === 'loaded') {
       const code = state.encoder.resolve("__start__");
       dispatch({ type: "Start" });
-      renderMessage('bot', state.decoder.render(code));
+      if(code.harvests.length !== 0){
+        const h = code.harvests[0];
+        setHarvest(h);
+        renderMessage('bot',state.decoder.render({
+          ...code,
+          harvest: h
+        }))
+      }
+      renderMessage('bot', state.decoder.render({
+        ...code,
+        harvest: harvest
+      }));
     }
   }, [state.encoder, state.decoder, state.status])
 

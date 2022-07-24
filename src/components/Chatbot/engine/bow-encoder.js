@@ -56,20 +56,17 @@ import {
 import { TinySegmenter } from '../tinysegmenter';
 import { InvalidScriptException } from './exceptions.js';
 
-let segmenter = new TinySegmenter();
-
-
-
 
 export default class BowEncoder {
 
-  constructor() {
+  constructor(segmenter) {
     this.matrix = [];
     this.vocab = {};
     this.wv = null;
     this.idf = null;
     this.tfidf = null;
     this.index = [];
+    this.segmenter = segmenter !== undefine ? segmenter : new TinySegmenter();
   }
 
 
@@ -112,7 +109,7 @@ export default class BowEncoder {
     let squeezed = [];
     for (let i = 0, l = inScript.length; i < l; i++) {
       for (let text of inScript[i]) {
-        let words = segmenter.segment(text);
+        let words = this.segmenter.segment(text);
         squeezed.push(words);
         this.index.push(i);
 
@@ -188,6 +185,16 @@ export default class BowEncoder {
   // ----------------------------------------------------
 
   resolve(text) {
+
+    const check = this._precheck();
+    if(check.status !== 'ok') return check;
+
+    let nodes = this.segmenter.segment(text)
+
+    return this._similarity(nodes);
+  }
+
+  _precheck(){
     if (this.wv === null) {
       return {
         index: null, score: 0,
@@ -205,11 +212,15 @@ export default class BowEncoder {
         message: "単語リストが空です"
       }
     }
+    return {
+      status: "ok"
+    }
+  }
 
-    text = segmenter.segment(text);
+  _similarity(nodes){
 
     let wv = zeros(vocabLength);
-    for (let word of text) {
+    for (let word of nodes) {
       let pos = this.vocab[word];
       if (pos !== undefined) {
         wv.set([pos], wv.get([pos]) + 1);

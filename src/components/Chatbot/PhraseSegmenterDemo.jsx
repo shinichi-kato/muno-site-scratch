@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
 
-import PhraseSegmenter from './engine/phraseSegmenter';
+import PhraseSegmenter from './engine/phrase-segmenter';
 
 const phraseSegmenter = new PhraseSegmenter();
 
