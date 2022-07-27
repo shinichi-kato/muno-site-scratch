@@ -47,14 +47,12 @@ codeは以下の情報で構成される
 
 import { randomInt } from "mathjs";
 import EchoDecoder from "./echo-decoder";
-import PhraseSegmenter from "./phrase-segmenter";
 
 const RE_TAG = /\(\*\)/g;
 
 export default class HarvestDecoder extends EchoDecoder {
   constructor() {
     super();
-    this.segmenter = new PhraseSegmenter();
   }
 
   learn(script) {
@@ -69,11 +67,10 @@ export default class HarvestDecoder extends EchoDecoder {
     const cands = this.outScript[code.index];
     const cand = cands[randomInt(cands.length)];
 
-    let nodes = this.segmenter.segment(cand);
-    // ここで同じ種類のharvestであれば置き換える
-    cand = cand.replace(RE_TAG,code.harvest);
+    // 「*」をharvestで置き換える。
+    cand = cand.replace(RE_TAG,code.harvest[0])
 
-    return cands[randomInt(cands.length)];
+    return cand;
   }
 
 }

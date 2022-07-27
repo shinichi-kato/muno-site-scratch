@@ -62,11 +62,12 @@ export default class BowEncoder {
   constructor(segmenter) {
     this.matrix = [];
     this.vocab = {};
+    this.vocabLength = 0;
     this.wv = null;
     this.idf = null;
     this.tfidf = null;
     this.index = [];
-    this.segmenter = segmenter !== undefine ? segmenter : new TinySegmenter();
+    this.segmenter = segmenter !== undefined ? segmenter : new TinySegmenter();
   }
 
 
@@ -171,8 +172,8 @@ export default class BowEncoder {
   //
   // ----------------------------------------------------
 
-  retrieve(text){
-    text.replace('_','＿');
+  retrieve(text) {
+    text.replace('_', '＿');
     return this.resolve(text);
   }
 
@@ -187,14 +188,14 @@ export default class BowEncoder {
   resolve(text) {
 
     const check = this._precheck();
-    if(check.status !== 'ok') return check;
+    if (check.status !== 'ok') return check;
 
     let nodes = this.segmenter.segment(text)
 
     return this._similarity(nodes);
   }
 
-  _precheck(){
+  _precheck() {
     if (this.wv === null) {
       return {
         index: null, score: 0,
@@ -204,8 +205,8 @@ export default class BowEncoder {
     }
 
     // wv
-    const vocabLength = Object.keys(this.vocab).length;
-    if (vocabLength === 0) {
+    this.vocabLength = Object.keys(this.vocab).length;
+    if (this.vocabLength === 0) {
       return {
         index: null, score: 0,
         status: "error",
@@ -217,9 +218,9 @@ export default class BowEncoder {
     }
   }
 
-  _similarity(nodes){
+  _similarity(nodes) {
 
-    let wv = zeros(vocabLength);
+    let wv = zeros(this.vocabLength);
     for (let word of nodes) {
       let pos = this.vocab[word];
       if (pos !== undefined) {

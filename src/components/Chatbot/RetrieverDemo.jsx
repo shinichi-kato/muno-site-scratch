@@ -7,6 +7,8 @@ TFIDFでテキスト類似度を計算するデモ
 */
 
 import React, { useState, useEffect } from 'react';
+import { withPrefix } from 'gatsby';
+
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -35,7 +37,7 @@ export default function RetrieverDemo({ source }) {
   useEffect(() => {
     if (cache.status === 'unload') {
       setMessage("読み込み中 ...")
-      fetch(source)
+      fetch(withPrefix(source))
         .then(res => res.json())
         .then(
           result => {

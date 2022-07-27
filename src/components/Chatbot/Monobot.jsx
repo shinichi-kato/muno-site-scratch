@@ -18,10 +18,14 @@ import SendIcon from '@mui/icons-material/Send';
 
 import BowEncoder from './engine/bow-encoder';
 import EchoDecoder from './engine/echo-decoder';
+import HarvestEncoder from './engine/harvest-encoder';
+import HarvestDecoder from './engine/harvest-decoder';
 
 const codecs = {
   'BowEncoder': BowEncoder,
   'EchoDecoder': EchoDecoder,
+  'HarvestEcoder': HarvestEncoder,
+  'HarvestDecoder': HarvestDecoder,
 }
 
 
@@ -195,7 +199,7 @@ export default function Chatbot({ source }) {
     if (state.status === 'loaded') {
       const code = state.encoder.resolve("__start__");
       dispatch({ type: "Start" });
-      if(code.harvests.length !== 0){
+      if(code.harvests !== undefined && code.harvests.length !== 0){
         const h = code.harvests[0];
         setHarvest(h);
         renderMessage('bot',state.decoder.render({
@@ -205,7 +209,7 @@ export default function Chatbot({ source }) {
       }
       renderMessage('bot', state.decoder.render({
         ...code,
-        harvest: harvest
+        harvest: h
       }));
     }
   }, [state.encoder, state.decoder, state.status])
