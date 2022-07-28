@@ -24,7 +24,7 @@ import HarvestDecoder from './engine/harvest-decoder';
 const codecs = {
   'BowEncoder': BowEncoder,
   'EchoDecoder': EchoDecoder,
-  'HarvestEcoder': HarvestEncoder,
+  'HarvestEncoder': HarvestEncoder,
   'HarvestDecoder': HarvestDecoder,
 }
 
@@ -174,7 +174,7 @@ export default function Chatbot({ source }) {
   // chatbotのロード
 
   useEffect(() => {
-    if ( state.source !== source) {
+    if ( state.source !== source && state.status !== "error") {
       dispatch({ type: "Message", message: "読み込み中 ..." });
       fetch(withPrefix(`${source}/chatbot.json`))
         .then(res => res.json())
@@ -188,7 +188,7 @@ export default function Chatbot({ source }) {
           }
         )
     }
-  }, [state.source, source]);
+  }, [state.source, source, state.status]);
 
   // -------------------------------------------------
   // 開始時に__start__を発言
@@ -199,17 +199,9 @@ export default function Chatbot({ source }) {
     if (state.status === 'loaded') {
       const code = state.encoder.resolve("__start__");
       dispatch({ type: "Start" });
-      if(code.harvests !== undefined && code.harvests.length !== 0){
-        const h = code.harvests[0];
-        setHarvest(h);
-        renderMessage('bot',state.decoder.render({
-          ...code,
-          harvest: h
-        }))
-      }
       renderMessage('bot', state.decoder.render({
         ...code,
-        harvest: h
+        harvest: "..." // 初回にharvestはないのでdummy
       }));
     }
   }, [state.encoder, state.decoder, state.status])
@@ -221,7 +213,10 @@ export default function Chatbot({ source }) {
   }
 
   function handleSubmit(event) {
+    event.preventDefault();
     renderMessage('user', userText);
+    setUserText("");
+
 
     // 入力文字列を中間コードに
     let code = state.encoder.retrieve(userText);
@@ -231,16 +226,23 @@ export default function Chatbot({ source }) {
       code = state.encoder.resolve("__not_found__");
     }
 
-    // 中間コードを出力文字列に
-    const text = state.decoder.render(code);
 
+    // harvestがあれば記憶
+    let h = harvest;
+    if(code.harvests !== undefined && code.harvests.length !== 0){
+      h = code.harvests[0];
+      setHarvest(h);
+    }
+
+    // 内部コードをテキストにデコード
+    let text = state.decoder.render({
+      ...code,
+      harvest: h
+    });
+    
     if (text !== '__nop__') {
       renderMessage('bot', text);
     }
-
-    setUserText("");
-
-    event.preventDefault();
   }
 
   function renderMessage(person, text) {

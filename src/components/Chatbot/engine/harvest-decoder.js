@@ -51,9 +51,6 @@ import EchoDecoder from "./echo-decoder";
 const RE_TAG = /\(\*\)/g;
 
 export default class HarvestDecoder extends EchoDecoder {
-  constructor() {
-    super();
-  }
 
   learn(script) {
     super.learn(script);
@@ -65,7 +62,7 @@ export default class HarvestDecoder extends EchoDecoder {
     }
 
     const cands = this.outScript[code.index];
-    const cand = cands[randomInt(cands.length)];
+    let cand = cands[randomInt(cands.length)];
 
     // 「*」をharvestで置き換える。
     cand = cand.replace(RE_TAG,code.harvest[0])

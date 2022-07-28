@@ -57,7 +57,7 @@ import { randomInt } from 'mathjs';
 import BowEncoder from './bow-encoder';
 import PhraseSegmenter from './phrase-segmenter';
 
-class HarvestEncoder extends BowEncoder {
+export default class HarvestEncoder extends BowEncoder {
   constructor() {
     super(new PhraseSegmenter());
     this.slotIndex = {}; // *文節のインデックス
@@ -79,7 +79,7 @@ class HarvestEncoder extends BowEncoder {
     const check = this._precheck();
     if (check.status !== 'ok') return check;
 
-    nodes = this.segmenter.segment(text);
+    let nodes = this.segmenter.segment(text);
 
     // 類似度計算のときは「猫が」→「* 主語」のように文節の種類が与えられた
     // ノードは*に置き換える。foundsに*だったものを格納する。
@@ -122,11 +122,11 @@ class HarvestEncoder extends BowEncoder {
       };
     }
 
-    // phase 1: acceptingsとslotで同じ種類のものをharvestsに
-    for (let a of acceptings) {
+    // phase 1: foundsとslotで同じ種類のものをharvestsに
+    for (let f of founds) {
       for (let s of slots) {
-        if (a[1] === s[1]) {
-          harvests.push(a)
+        if (f[1] === s[1]) {
+          harvests.push(f)
         }
       }
     }
@@ -140,7 +140,7 @@ class HarvestEncoder extends BowEncoder {
     // phase 2: 種類が違っていたらどれか一つをランダムに返す
     return {
       ...result,
-      harvests: [acceptings[randomInt(acceptings.length)]]
+      harvests: [founds[randomInt(founds.length)]]
     }
   }
 }
