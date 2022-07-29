@@ -48,7 +48,7 @@ codeは以下の情報で構成される
 import { randomInt } from "mathjs";
 import EchoDecoder from "./echo-decoder";
 
-const RE_TAG = /\(\*\)/g;
+const RE_TAG = /\*/g;
 
 export default class HarvestDecoder extends EchoDecoder {
 
@@ -60,12 +60,15 @@ export default class HarvestDecoder extends EchoDecoder {
     if (code.status === 'error') {
       return code.message;
     }
-
     const cands = this.outScript[code.index];
     let cand = cands[randomInt(cands.length)];
 
-    // 「*」をharvestで置き換える。
-    cand = cand.replace(RE_TAG,code.harvest[0])
+    // 「*」をとりあえず先頭のharvestで置き換える。
+    let harvest = "";
+    if(code.harvests !== undefined && code.harvests.length !== 0){
+      harvest = code.harvests[0][0]
+    }
+    cand = cand.replace(RE_TAG,harvest)
 
     return cand;
   }

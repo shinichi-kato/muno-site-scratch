@@ -28,6 +28,13 @@ const codecs = {
   'HarvestDecoder': HarvestDecoder,
 }
 
+function getCodec(name){
+  if(name in codecs){
+    return new codecs[name]();
+  }
+  throw new Error(`invalid codec name ${name}`)
+}
+
 
 const MAX_LOG_LENGTH = 5;
 
@@ -115,8 +122,9 @@ function reducer(state, action) {
     case 'Load': {
       const script = action.script;
 
-      let encoder = new codecs[script.encoder]();
-      let decoder = new codecs[script.decoder]();
+      let encoder = getCodec(script.encoder);
+      let decoder = getCodec(script.decoder);
+      // let decoder = new codecs[script.decoder]();
       encoder.learn(script);
       decoder.learn(script);
       
@@ -162,13 +170,13 @@ function reducer(state, action) {
   }
 }
 
-const initialHarvest = ["",""];
+const initialHarvest = [];
 
 export default function Chatbot({ source }) {
   const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [harvest, setHarvest] = useState(initialHarvest);
+  const [harvests, setHarvests] = useState(initialHarvest);
 
   //-------------------------------------------
   // chatbotのロード
@@ -226,18 +234,20 @@ export default function Chatbot({ source }) {
       code = state.encoder.resolve("__not_found__");
     }
 
+    console.log("code",code);
+
 
     // harvestがあれば記憶
-    let h = harvest;
+    let h = harvests;
     if(code.harvests !== undefined && code.harvests.length !== 0){
-      h = code.harvests[0];
-      setHarvest(h);
+      h = code.harvests;
+      setHarvests(h);
     }
 
     // 内部コードをテキストにデコード
     let text = state.decoder.render({
       ...code,
-      harvest: h
+      harvests: h
     });
     
     if (text !== '__nop__') {

@@ -60,19 +60,20 @@ import PhraseSegmenter from './phrase-segmenter';
 export default class HarvestEncoder extends BowEncoder {
   constructor() {
     super(new PhraseSegmenter());
-    this.slotIndex = {}; // *文節のインデックス
+    this.slots = {}; // *文節の種類
   }
 
   learn(script) {
     super.learn(script);
-    this.phraseIndex = {};
+    this.slots = {};
 
     for (let v in this.vocab) {
       let [key, word] = v.split('\t');
       if (key === '*' && word !== undefined) {
-        this.slotIndex[word] = this.vocab[v]
+        this.slots[word] = this.vocab[v]
       }
     }
+
   }
 
   retrieve(text) {
@@ -85,7 +86,6 @@ export default class HarvestEncoder extends BowEncoder {
     // ノードは*に置き換える。foundsに*だったものを格納する。
 
     let founds = []; // 入力文字列の中に見つかった*文節
-    let slots = []; // 辞書のなかで入力と類似度が高かった行の*文節
     let harvests = []; // *として採用された文節
 
     nodes = nodes.map(node => {
@@ -105,32 +105,14 @@ export default class HarvestEncoder extends BowEncoder {
       };
     }
 
-    // phase 0: 辞書のヒットした行に含まれる有効な文節をslotsに収集
-
-    let wv = this.wv[result.index];
-    for (let ph in this.phraseIndex) {
-      if (wv[this.phaseIndex[ph]] !== 0) {
-        let [surf, type] = ph.split('\t');
-        slots.push([surf, type]);
-      }
-    }
-
-    if (slots.length === 0 ) {
-      return {
-        ...result,
-        harvests: []
-      };
-    }
-
-    // phase 1: foundsとslotで同じ種類のものをharvestsに
+    // phase 1: foundsとslotIndexの中で同じ種類のものをharvestsに
     for (let f of founds) {
-      for (let s of slots) {
-        if (f[1] === s[1]) {
-          harvests.push(f)
-        }
+      if(f[1] in this.slots){
+        harvests.push(f)
       }
     }
     if (harvests.length !== 0) {
+      console.log("harvest match",harvests)
       return {
         ...result,
         harvests: harvests

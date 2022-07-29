@@ -1,6 +1,6 @@
 {
     "avatar": "man.svg",
-    "name": "傾聴ボットver1",
+    "name": "傾聴ボット1",
     "backgroundColor": "#c7a2e0",
     "encoder":"BowEncoder",
     "decoder":"EchoDecoder",

@@ -1,6 +1,6 @@
 {
     "avatar": "polar-bear.svg",
-    "name": "傾聴ボットver2",
+    "name": "傾聴ボット2",
     "backgroundColor": "#c7a2e0",
     "encoder":"HarvestEncoder",
     "decoder":"HarvestDecoder",
