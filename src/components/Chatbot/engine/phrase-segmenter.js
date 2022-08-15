@@ -19,6 +19,7 @@ phraseSegmenterは入力文字列をTinySegmenterで分割し、それを文節�
 文字列の解析にはプッシュダウン・オートマトンを用い、状態遷移は以下にBNF記法でしめす。
 BNF記法はこのサイトで可視化できる。https://www.bottlecaps.de/rr/ui
 
+------------------------------------------------------------------------------------------
 main ::= indep* '*'+ (indep* '*'+)* person_suffix? (subj|obj|dest|mod|by|verb) 'accept()'
 subj ::= ('が'|'は'|'と' ) 'subj()'
 obj ::= ('を' 'obj()') | ('の' 'mod()' ('こと' ('を' 'obj()'|subj|dest|by) )? )
@@ -29,7 +30,7 @@ verb ::= ('する' | 'し' 'た') 'verb()'
 
 person_suffix::= 'さん'|'君'|'ちゃん'|'先生'
 indep::='しかし'|'なので'|'それで'|'、|。|？|！'
-
+------------------------------------------------------------------------------------------
 */
 
 import { TinySegmenter } from "../tinysegmenter";
@@ -302,7 +303,7 @@ export default class PhraseSegmenter {
 }
 
 
-function parseTables(tables) {
+export function parseTables(tables) {
 
   let dict = {};
   for (let table in tables) {
@@ -323,7 +324,7 @@ function parseTables(tables) {
   return dict;
 }
 
-function dispatchTables(tables) {
+export function dispatchTables(tables) {
   let dict = {};
   for (let table in tables) {
     dict[table] = dispatch(tables[table])
@@ -331,7 +332,7 @@ function dispatchTables(tables) {
   return dict;
 }
 
-function dispatch(table) {
+export function dispatch(table) {
   /* 遷移表からディスパッチテーブルを生成 */
   const rt = table["*"].map(c => { return {} });
   for (let k in table) {
