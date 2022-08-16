@@ -1,0 +1,53 @@
+---
+title: "チャットボット関連研究のレビュー"
+color: "secondary"
+updated: "2022-08-16T12:00Z"
+featuredImage: "ceiling.jpg"
+tags: 
+    - "review"
+---
+**本ページは現在推敲中です**
+
+チャットボットには人工知能、または機械学習の様々な技術が利用されています。
+人工知能は**記号的人工知能**と**統計的人工知能**に分けられます。
+
+## 記号的人工知能のアプローチ
+「ルールベース」と呼ばれることも多い手法です。
+
+### Eliza
+Elizaは1966年にジョセフ・ワイゼンバウムによって発表された草創期のチャットボットです[^1]。
+[^1]:[J. Weizenbaum,"ELIZA A Computer Program For the Study of Natural Language Communication Between Man And Machine", *Comp. Linguistics* 9[1](1996)](https://dl.acm.org/doi/pdf/10.1145/365153.365168)
+ワイゼンバウムがこのチャットボットを「大まかにロジャー派のセラピストのように応答する」と述べているように、Elizaはユーザに質問し、ユーザ自身が自分の悩みに対する答えに気づくように導きました。
+
+
+
+### AIML
+Artificial Intelligence Markup Language(AIML)はBruno Marietto[^2]らによって開発された、AIという名前がついていますがチャットボット記述用の言語です。
+
+[^2]:[Bruno Marietto, et. al., "ARTIFICIAL INTELLIGENCE MARKUP LANGUAGE: A BRIEF TUTORIAL", *Intern. J. Computer Sci. and Eng. Survey* 4[3](2013)](https://arxiv.org/pdf/1307.3091.pdf)
+
+AIMLやその派生言語を利用したチャットボットは[A.I.Nexus](https://knytetrypper.proboards.com/)で多数公開されています。
+
+
+
+## 統計的人工知能のアプローチ
+
+一問一答形式のチャットボットでは、辞書の入力文字列を何らかの内部コードにマッピングし、その内部コードを出力文字列に変換するという動作をします。
+入力文字列からのマッピングの手法として最も基本的なのはsin類似度の総当り計算で、最近は統計的機械学習もよく利用されています。
+
+統計的機械学習によるマッピングのうち、典型的な例を一つ示します[^10]。
+[^10]: [Amila Viraj, "How To Build Your Own Chatbot Using Deep Learning”, medium (2020)](https://towardsdatascience.com/how-to-build-your-own-chatbot-using-deep-learning-bb41f970e281)
+
+チャットボットがより「生きている」と感じられるようにするため、ベイツは**感情**の組み込みが必要だと指摘しています[^11]。
+ユーザのさまざまな入力文字列について喜怒哀楽のような感情を人間が読んでラベルを付与し、機械学習によってユーザ入力がどの感情に属する発言かを予測することができます。
+それを利用し、Shinらはユーザの感情がポジティブならポジティブな反応を、ネガティブならネガティブな反応をするチャットボットを検討しました[^12]。
+これが可能であれば共感的な反応は可能になると思われます。
+しかし、ユーザの感情は会話の流れの中で形作られるもので、恋人にやさしく囁かれた「ばか」と、嫌いな上司から憎々しげに言われた「ばか」とは明らかに別物です。
+また同じ上司のセリフであっても、揉めているときの「（お前に任せた）**俺が馬鹿だった**」と、誤解が溶けた後の「（話を聞いてやれなかった）**俺が馬鹿だった**」は意図が逆になります。
+従って、「相手の感情に沿った反応をする」というモデルは一見有効そうに見えますが、心のモデルがあまりにも単純にすぎます。
+
+[^11]: [J. Bates, "The role of emotion in believable agents", *Commun. ACM* 37[7] pp.122-125(1994)](https://dl.acm.org/doi/pdf/10.1145/176789.176803)
+[^12]: [J. Shin et. al., "Generating Empathetic Responses by Looking Ahead The User’s Sentiment" ICASSP 2020](https://arxiv.org/pdf/1906.08487.pdf)
+
+[^13]: [Rhio Sutoyo, et.al., "Designing an Emotionally Realistic Chatbot Framework to Enhance
+Its Believability with AIML and Information States", *4th Intern. Conf. Computer Sci. and Computational Interl. 2019* 12-13(2019)](https://reader.elsevier.com/reader/sd/pii/S1877050919311457?token=E7B52A16CF6120EB43F1687205F9C1F27D4034D96A6512901719818AA434D30FE7133E81569609C645B2D8A17E06A5B6&originRegion=us-east-1&originCreation=20220816073643)
