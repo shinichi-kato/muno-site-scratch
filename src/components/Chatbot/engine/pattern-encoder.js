@@ -3,12 +3,13 @@ pattern encoderクラス
 -----------------------------------
 
 # 概要
-正規表現で書かれたIN文字列に対してmatchするかどうかを計算し、
-一致した中の一つを返す。類似度は一致したINがあれば1、なければ0を返す。
+正規表現で書かれたIN文字列に対してmatchするかどうかを辞書に記述された
+順番で調べ、最初に一致したものを返す。類似度は一致したINがあれば1、
+なければ0を返す。
 INの中に後方参照()が含まれていた場合、それを抽出してharvestsに格納する。
 また複文処理のため、retrieveで検索に一致した部分を除去するchompオプションがある。
 
-pattern encoderでは辞書の形式はin-outではなくin-reprとし、codeにはindexではなく
+pattern encoderでは辞書の形式はin-outではなくin-intentとし、codeにはindexではなく
 intentを格納する。
     {
       intent: "summon",
@@ -19,7 +20,7 @@ intentを格納する。
       in: ["*"],
     }
 
-正規表現のチェックは辞書に書かれた準に実行する。正規表現 * はあらゆる入力に
+正規表現 * はあらゆる入力にマッチするため辞書の末尾に置く。
 
 
 # 使用法
@@ -39,6 +40,7 @@ codeは以下の内容になる
 }
 */
 
+import { IntegrationInstructions } from "@mui/icons-material";
 import {
   randomInt
 } from "mathjs";
@@ -49,7 +51,7 @@ export default class PatternEncoder {
 
   constructor() {
     this.script = [];
-    this.index = [];
+    this.intents = [];
   }
 
   // -----------------------------------------------------
@@ -72,13 +74,15 @@ export default class PatternEncoder {
     }
     const _script = script.script;
     let inScript = [];
+    let intents = [];
 
-    // inスクリプトの抽出
+    // in-intentスクリプトの抽出
 
     for (let i = 0, l = _script.length; i < l; i++) {
       let line = _script[i];
       if ('in' in line && Array.isArray(line.in) && line.in.length !== 0) {
         inScript.push(line.in);
+        intents.push(line.intent);
       }
       else {
         throw new InvalidScriptException(`${i}行のinの形式が正しくありません`)
@@ -90,7 +94,7 @@ export default class PatternEncoder {
     for (let i = 0, l = inScript.length; i < l; i++) {
       for (let text of inScript[i]) {
         this.script.push(new RegExp(text));
-        this.index.push(i);
+        this.intents.push(intents[i])
       }
     }
   }
@@ -105,7 +109,7 @@ export default class PatternEncoder {
   //
   // ---------------------------------------------------- 
 
-  retrieve(text, chomp=false) {
+  retrieve(text, chomp = false) {
     text.replace('_', '＿');
     return this.resolve(text, chomp);
   }
@@ -120,41 +124,34 @@ export default class PatternEncoder {
   //
   // ----------------------------------------------------
 
-  resolve(text, chomp=false) {
+  resolve(text, chomp = false) {
 
     const check = this._precheck();
     if (check.status !== 'ok') return check;
-    
+
     // 正規表現のマッチした行はスコア1とする
-    // 後方参照があれば保持する
-    let matches={};
+    // 後方参照があればharvestに格納して返す
+
     let match;
-
-    for(let i=0,l=this.script.length; i<l; i++){
+    for (let i = 0, l = this.script.length; i < l; i++) {
       match = this.script[i].exec(text);
-      if(match){
-        matches.push({
-          index: i,
-          backRefs:match.slice(1,match.length)
-        })
-      }  
-    }
-
-    if(matches.length === 0){
-      return {
-        index: null, score:0,
-        status: "ok",
-        text: text,
+      if (match) {
+        return {
+          intent: this.intents[i],
+          score: 1,
+          harvests: match.slice(1, match.length),
+          text: chomp ? text.replace(match[0], "") : text,
+          status: "ok",
+        }
       }
     }
 
-    let i = randomInt(matches.length);
-
     return {
-      index:  this.index[matches[i].index],
-      score: 1,
-      harvests: matches[i].backRefs,
-      text: chomp ? text.replace(this.script[i],"") : text
+      intent: null,
+      score: 0,
+      harvests: [],
+      text: text,
+      status: "ok",
     }
   }
 

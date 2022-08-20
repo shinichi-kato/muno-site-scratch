@@ -4,6 +4,7 @@ import { graphql, navigate, useStaticQuery } from "gatsby";
 import TreeView from '@mui/lab/TreeView';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CircleIcon from '@mui/icons-material/NoiseControlOff';
 import TreeItem from '@mui/lab/TreeItem';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -150,6 +151,7 @@ export default function Contents({ currentSlug }) {
       <TreeView
         aria-label="site-contents"
         defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultEndIcon={<CircleIcon sx={{color: "#eeeeee"}}/>}
         defaultExpandIcon={<ChevronRightIcon />}
         defaultExpanded={defaultExpanded}
         onNodeSelect={handleNodeSelect}

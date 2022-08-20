@@ -11,15 +11,9 @@ in-outではなくin-intentとして、encoderからは行番号でなくcodeを
   in: ["^ねえ(.+?)さん"],
   intent: "summon"
 },
-{
-  in: ["*"],
-  intent: "u_*"
-}
 
-usage:
-let m = new NamingStateMachine();
 
-let state = m.run(code)
+
 
 codeには以下の情報を格納する
 {
@@ -38,7 +32,7 @@ naming ::= 'u_try' 'b_confirm' (('u_revise'|'u_try')
 
 */
 
-import { parseTables,dispatchTables, dispatch } from 'mathjs';
+import { parseTables, dispatchTables, dispatch } from './phrase-segmenter';
 const STATE_TABLES = parseTables({
   main: [
     //         0  1  2  3  4
@@ -64,7 +58,7 @@ function assignPos(code, currentState) {
   const [table, state] = currentState;
 
   for (let st in DISPATCH_TABLES[table][state]) {
-    if (code===st) {
+    if (code === st) {
       return st
     }
   }
@@ -72,12 +66,48 @@ function assignPos(code, currentState) {
 }
 
 export default class NamingStateMachine {
-  constructor(names){
-    this.states=[['main',0]];
-    this.names=[...names];
+  constructor(names) {
+    this.states = [['main', 0]];
+    this.names = [...names];
   }
 
-  run(code){
-    
+  run(code) {
+    /* 以下の内容を格納したcodeを受取り、次の状態を決める 
+    code={
+      intent: intent名,
+      score: 1,
+      harvests: 正規表現で獲得した後方参照文字列のリスト
+      text: 入力文字列
+      status: "ok"
+    }
+    */
+    let table, state;
+    let intent;
+    let loop = 0;
+
+    while (true) {
+      loop++;
+      if (loop > 100) {
+        throw new Error(`Trapped in infinite loop at ${code.intent}`);
+      }
+      [table, state] = this.states[this.states.length - 1];
+
+      intent = code.intent;
+
+      this.states[this.states.length - 1] = [table, STATE_TABLES[table][intent][state]];
+
+      state = this.states[this.states.length - 1];
+
+      if (state === 0) {
+        this.states = [['main', 0]];
+        continue;
+      }
+
+      if (state === 1) {
+        this.states.pop();
+        continue;
+      }
+
+    }
   }
 }

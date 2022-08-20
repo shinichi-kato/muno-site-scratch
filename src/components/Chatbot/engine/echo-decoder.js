@@ -5,7 +5,7 @@ Echo dncoderクラス
 # 概要
 
 スクリプトの"out"に書かれた出力文字列を記憶する。
-encoder.retrieve()で得られた内部コードを与えると、
+encoder.retrieve()が出力する内部コードを与えると、
 出力文字列候補からランダムに一つを選んで返答とする。
 
 # スクリプト
@@ -14,29 +14,32 @@ encoder.retrieve()で得られた内部コードを与えると、
   "script": [
     {
       "in": ["入力文字列1","入力文字列2", ...],
+      "intent": 意図文字列
       "out": ["出力文字列候補1","出力文字列候補2",...]
     },
     ...
   ]
 }
 
+ここで
+code={
+  intent: 意図文字列
+  index: 辞書の行番号
+  score: 類似度　// 無視
+  status: "ok" or エラーメッセージ　
+}
+
+intentが*以外の非空文字列だった場合、それを辞書から探して
+該当する行を出力する。intentが無効ならindexで指定された行の
+候補の中から一つを選んで出力する
 
 # 使用法
 
-let echoDecoder = new EchoDecoder();
+let echoDecoder = new EchoDecoder(script);
 
-echoDecoder.learn(script); // スクリプトを記憶させる
+echoDecoder.learn(script); // スクリプトを学習させる
 
 const text = echoDecoder.render(code); // textを内部コードとスコアに変換
-
-codeは以下の情報で構成される
-{
-  score: 類似度の最大値,
-  index: 類似度が最大だった行番号のリスト
-  status: "ok" or "error",
-  message: エラーの場合エラーメッセージの文字列が渡される
-}
-
 
 
 */
@@ -46,15 +49,10 @@ import { InvalidScriptException } from './exceptions.js';
 
 export default class EchoDecoder {
 
-  constructor() {
-    this.outScript = null;
-  }
-
-  status() {
-    if (this.outScript === null) {
-      return "unload"
-    }
-    return "ready"
+  constructor(script) {
+    this.outScript = [];
+    this.intents = {};
+    this.learn(script);
   }
 
   learn(script) {
@@ -84,17 +82,39 @@ export default class EchoDecoder {
           `${i}行のoutの形式が正しくありません`
         )
       }
+
+      // intents
+      if ('intent' in line && typeof line.intent === 'string' && line.intent !== '*') {
+        if (line.intent in this.intents) {
+          throw new InvalidScriptException(
+            `スクリプト中でintent "${line.intent}"が重複しています`
+          )
+        }
+        this.intents[line.intent] = i
+      }
     }
 
     return { status: "ok" };
   }
 
   render(code) {
-    if (code.status === 'error') {
-      return code.message;
+    /* code={intent: string, index: number, score: number, status: string } */
+
+    if (code.status !== 'ok') {
+      return code.status;
     }
 
-    const cands = this.outScript[code.index];
+    let cands;
+
+    if (code.intent && code.intent !== "" && code.intent !== "*"){
+      if(code.intent in this.intents){
+        cands = this.outScript[this.intents[code.intent]]
+      }else {
+        cands = [`error: 辞書にないintent "${code.intent}"が指定されました`]
+      }
+    }else {
+      cands = this.outScript[code.index];
+    }
 
     return cands[randomInt(cands.length)];
   }

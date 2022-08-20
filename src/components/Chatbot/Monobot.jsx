@@ -17,20 +17,28 @@ import IconButton from '@mui/material/IconButton';
 import SendIcon from '@mui/icons-material/Send';
 
 import BowEncoder from './engine/bow-encoder';
-import EchoDecoder from './engine/echo-decoder';
 import HarvestEncoder from './engine/harvest-encoder';
+import PatternEncoder from './engine/pattern-encoder';
+import EchoDecoder from './engine/echo-decoder';
 import HarvestDecoder from './engine/harvest-decoder';
+import IntentDecoder from './engine/intent-decoder';
+import BasicStateMachine from './engine/basic-state-machine';
+// import NamingStateMachine from './engine/naming-state-machine';
 
-const codecs = {
+const modules = {
   'BowEncoder': BowEncoder,
-  'EchoDecoder': EchoDecoder,
   'HarvestEncoder': HarvestEncoder,
+  'PatternEncoder': PatternEncoder,
+  'EchoDecoder': EchoDecoder,
   'HarvestDecoder': HarvestDecoder,
+  'IntentDecoder': IntentDecoder,
+  'BasicStateMachine': BasicStateMachine,
+  // 'NamingStateMachine': NamingStateMachine,
 }
 
-function getCodec(name){
-  if(name in codecs){
-    return new codecs[name]();
+function getModules(name) {
+  if (name in modules) {
+    return modules[name];
   }
   throw new Error(`invalid codec name ${name}`)
 }
@@ -107,6 +115,7 @@ function LeftBalloon({ text, backgroundColor }) {
 
 const initialState = {
   encoder: null,
+  stateMachine: null,
   decoder: null,
   avatar: "",
   name: "",
@@ -122,15 +131,18 @@ function reducer(state, action) {
     case 'Load': {
       const script = action.script;
 
-      let encoder = getCodec(script.encoder);
-      let decoder = getCodec(script.decoder);
-      // let decoder = new codecs[script.decoder]();
-      encoder.learn(script);
-      decoder.learn(script);
-      
+      let encoder = getModules(script.encoder);
+      let decoder = getModules(script.decoder);
+      let stateMachine = getModules(script.stateMachine || 'BasicStateMachine');
+
+      encoder = new encoder(script);
+      decoder = new decoder(script);
+      stateMachine = new stateMachine(script);
+
       return {
         ...state,
         encoder: encoder,
+        stateMachine: stateMachine,
         decoder: decoder,
         avatar: script.avatar,
         name: script.name,
@@ -182,7 +194,7 @@ export default function Chatbot({ source }) {
   // chatbotのロード
 
   useEffect(() => {
-    if ( state.source !== source && state.status !== "error") {
+    if (state.source !== source && state.status !== "error") {
       dispatch({ type: "Message", message: "読み込み中 ..." });
       fetch(withPrefix(`${source}/chatbot.json`))
         .then(res => res.json())
@@ -199,21 +211,27 @@ export default function Chatbot({ source }) {
   }, [state.source, source, state.status]);
 
   // -------------------------------------------------
-  // 開始時に__start__を発言
+  // チャットボットの動作開始
   //
 
   useEffect(() => {
 
     if (state.status === 'loaded') {
-      const code = state.encoder.resolve("__start__");
-      dispatch({ type: "Start" });
-      renderMessage('bot', state.decoder.render({
-        ...code,
-        harvest: "..." // 初回にharvestはないのでdummy
-      }));
-    }
-  }, [state.encoder, state.decoder, state.status])
+      // stale effect化を防ぐためrun()の内容を展開
+      let code = {
+        intent: 'start',
+        text: '',
+        owner: 'system'
+      };
 
+      code = state.encoder.retrieve(code);
+      code = state.stateMachine.run(code);
+      let text = state.decoder.render(code);
+
+      dispatch({ type: "Start" });
+      renderMessage('bot', text);
+    }
+  }, [state.encoder, state.decoder, state.stateMachine, state.status])
 
 
   function handleChangeInput(event) {
@@ -224,32 +242,22 @@ export default function Chatbot({ source }) {
     event.preventDefault();
     renderMessage('user', userText);
     setUserText("");
-
-
-    // 入力文字列を中間コードに
-    let code = state.encoder.retrieve(userText);
-
-    // 返答できない時は代わりに__not_found__に置き換える
-    if (code.score < state.precision) {
-      code = state.encoder.resolve("__not_found__");
-    }
-
-    console.log("code",code);
-
-
-    // harvestがあれば記憶
+    
+    let code = {
+      intent: '*',
+      text: userText,
+      owner: 'user',
+    };
+    
+    code = state.encoder.retrieve(code);
+    code = state.stateMachine.run(code);
     let h = harvests;
-    if(code.harvests !== undefined && code.harvests.length !== 0){
+    if (code.harvests !== undefined && code.harvests.length !== 0) {
       h = code.harvests;
       setHarvests(h);
     }
+    let text = state.decoder.render(code);
 
-    // 内部コードをテキストにデコード
-    let text = state.decoder.render({
-      ...code,
-      harvests: h
-    });
-    
     if (text !== '__nop__') {
       renderMessage('bot', text);
     }

@@ -16,7 +16,9 @@ tags:
 
 ### Eliza
 Elizaは1966年にジョセフ・ワイゼンバウムによって発表された草創期のチャットボットです[^1]。
+
 [^1]:[J. Weizenbaum,"ELIZA A Computer Program For the Study of Natural Language Communication Between Man And Machine", *Comp. Linguistics* 9[1](1996)](https://dl.acm.org/doi/pdf/10.1145/365153.365168)
+
 ワイゼンバウムがこのチャットボットを「大まかにロジャー派のセラピストのように応答する」と述べているように、Elizaはユーザに質問し、ユーザ自身が自分の悩みに対する答えに気づくように導きました。
 
 
@@ -32,11 +34,16 @@ AIMLやその派生言語を利用したチャットボットは[A.I.Nexus](http
 
 ## 統計的人工知能のアプローチ
 
-一問一答形式のチャットボットでは、辞書の入力文字列を何らかの内部コードにマッピングし、その内部コードを出力文字列に変換するという動作をします。
-入力文字列からのマッピングの手法として最も基本的なのはsin類似度の総当り計算で、最近は統計的機械学習もよく利用されています。
+一問一答形式のチャットボットでは、辞書の入力文字列を何らかの内部コードに写像し、その内部コードを出力文字列に変換するという動作をします。
+入力文字列から内部コードへの変換の手法として最も基本的なのはBag-of-Wordsによるベクトル化で、最近は統計的機械学習もよく利用されています。
 
-統計的機械学習によるマッピングのうち、典型的な例を一つ示します[^10]。
-[^10]: [Amila Viraj, "How To Build Your Own Chatbot Using Deep Learning”, medium (2020)](https://towardsdatascience.com/how-to-build-your-own-chatbot-using-deep-learning-bb41f970e281)
+統計的機械学習による内部コード化のうち、典型的な例を一つ示します[^10]。 
+
+[^10]:[Amila Viraj, "How To Build Your Own Chatbot Using Deep Learning”, medium (2020)](https://towardsdatascience.com/how-to-build-your-own-chatbot-using-deep-learning-bb41f970e281)
+
+これは機械学習の基本的な用途の一つである「分類」で、辞書で与えた入力文字列を意図(intent)と呼ばれるコードのどれかに分類するという学習モデルを用意します。
+得られたモデルにユーザからの入力を与えるとintentを予測します。intentが決まったら辞書を使って出力文字列を決めます。こうして一問一答形式のチャットボットを作ることができます。
+ところがこの方法では会話の流れを一切無視した反応になってしまいます。そこで
 
 チャットボットがより「生きている」と感じられるようにするため、ベイツは**感情**の組み込みが必要だと指摘しています[^11]。
 ユーザのさまざまな入力文字列について喜怒哀楽のような感情を人間が読んでラベルを付与し、機械学習によってユーザ入力がどの感情に属する発言かを予測することができます。
@@ -44,10 +51,18 @@ AIMLやその派生言語を利用したチャットボットは[A.I.Nexus](http
 これが可能であれば共感的な反応は可能になると思われます。
 しかし、ユーザの感情は会話の流れの中で形作られるもので、恋人にやさしく囁かれた「ばか」と、嫌いな上司から憎々しげに言われた「ばか」とは明らかに別物です。
 また同じ上司のセリフであっても、揉めているときの「（お前に任せた）**俺が馬鹿だった**」と、誤解が溶けた後の「（話を聞いてやれなかった）**俺が馬鹿だった**」は意図が逆になります。
-従って、「相手の感情に沿った反応をする」というモデルは一見有効そうに見えますが、心のモデルがあまりにも単純にすぎます。
+Shinらの例では感情をポジティブ-ネガティブという一つの次元で示しました。それ以外にもっと複雑な感情の分類がいくつも考えられており、例えばMageedらはユーザの入力から得られる感情をPlutchikの輪に従って24に分類することを試みました[^13]。
+彼らはGated Recurrent Neural Networkと呼ばれる手法を用いて、文脈に沿って高い精度でユーザの感情を細かく推測することに成功しています。
+この方法ではテキストレベルで辞書や会話ログを模倣するだけでなく、感情状態のレベルで会話ログを模倣することに近づくでしょう。
+しかし私達は同じ文脈だからといって、常に同じ感情になるわけではありません。
+「いい天気ですね」という返答が正解になるのはその日の天候によるのであって、会話ログをいくら集めても正解を知ることはできないでしょう。
+さらに私達は意識的に表現する感情をコントロールし、平静を装ったり空元気を見せたりもします。本当の感情に自分自身が気がついていないこともあるでしょう。
+そのため、特に雑談チャットボットではこれらの方針はうまく機能しないでしょう。
 
-[^11]: [J. Bates, "The role of emotion in believable agents", *Commun. ACM* 37[7] pp.122-125(1994)](https://dl.acm.org/doi/pdf/10.1145/176789.176803)
-[^12]: [J. Shin et. al., "Generating Empathetic Responses by Looking Ahead The User’s Sentiment" ICASSP 2020](https://arxiv.org/pdf/1906.08487.pdf)
+[^11]:[J. Bates, "The role of emotion in believable agents", *Commun. ACM* 37[7] pp.122-125(1994)](https://dl.acm.org/doi/pdf/10.1145/176789.176803)
+[^12]:[J. Shin et. al., "Generating Empathetic Responses by Looking Ahead The User’s Sentiment" ICASSP 2020](https://arxiv.org/pdf/1906.08487.pdf)
+[^13]:[M. A. Mageed et. al., "EmoNet: Fine-Grained Emotion Detection with Gated Recurrent Neural Networks", *Proc. 55th Annual Meeting of the Assoc. for Computational Ling. pp.718-728(2017)](https://aclanthology.org/P17-1067.pdf)
 
-[^13]: [Rhio Sutoyo, et.al., "Designing an Emotionally Realistic Chatbot Framework to Enhance
-Its Believability with AIML and Information States", *4th Intern. Conf. Computer Sci. and Computational Interl. 2019* 12-13(2019)](https://reader.elsevier.com/reader/sd/pii/S1877050919311457?token=E7B52A16CF6120EB43F1687205F9C1F27D4034D96A6512901719818AA434D30FE7133E81569609C645B2D8A17E06A5B6&originRegion=us-east-1&originCreation=20220816073643)
+
+
+[^14]:[Rhio Sutoyo, et.al., "Designing an Emotionally Realistic Chatbot Framework to Enhance Its Believability with AIML and Information States", *4th Intern. Conf. Computer Sci. and Computational Interl. 2019* 12-13(2019)](https://reader.elsevier.com/reader/sd/pii/S1877050919311457?token=E7B52A16CF6120EB43F1687205F9C1F27D4034D96A6512901719818AA434D30FE7133E81569609C645B2D8A17E06A5B6&originRegion=us-east-1&originCreation=20220816073643)

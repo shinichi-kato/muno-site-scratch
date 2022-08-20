@@ -4,50 +4,57 @@ bag-of-word encoderクラス
 
 # 概要
 
-Bag-og-word、つまり文字列を単語に分け、その順番を無視して単語ごとに数を
-数えたものを文字列のベクトル化方法として、下記のようなフォーマットで
-書かれたスクリプトの各入力文字列をベクトル化して記憶する。
-
-スクリプトを記憶したインスタンスに文字列を入力すると、スクリプトの中で
-その文字列に最もよく似た行の番号リストと、類似度を表すscoreを返す。
+スクリプトに書かれた入力文字列をsegmenterで分かち書きし、それをbag-of-words
+としてベクトル化しtfidf行列にする。ユーザ文字列を受け取ったら各行の
+ベクトルに対してcos類似度を計算し、最も類似度が高いもののうち一つをランダムに
+選んで内部コードとする。内部コードはスクリプトの行数を示すindex値とintent文字列
+で表現する。
 
 # スクリプト
 
 {
   "script": [
     {
-      "in": ["入力文字列1","入力文字列2", ...],
-      "out": ["出力文字列候補1","出力文字列候補2",...]
+      "in": ["こんにちは","こんばんは", ...],
+      "intent": "greeting"
+      "out": ["今日は！","こんにちは。",...]
     },
     ...
   ]
 }
 
+スクリプトの各行はin,intent,outからなる。
+inは入力文字列の候補、intentは意図を示す文字列、outは出力文字列の候補である。
+これによりチャットボットユーザのinからintentを推測することができ、チャットボットの
+intentからoutを生成することができる。またintentは状況によっては有効だが無効な
+場合もある。その場合にはinに対してoutを出力する動作をするため、in,intent,outは
+すべて定義する必要がある。なお、スクリプト上ではintentを省略可能で、その場合は
+intent='*'とみなす。intentは'*'を例外として一意である必要がある。
 
 # 使用法
 
-let bowEncoder = new BowEndocer();
+let bowEncoder = new BowEncoder(segmenter, script); // 生成時にスクリプトを読む
 
-bowEncoder.learn(script); // スクリプトを読み込む
+bowEncoder.learn(script); // スクリプトを別途上書きする場合に使用
 
-// textを内部コードに変換。__start__のような
-// コマンドも文字列として扱う。
-code = bowEncoder.retrieve(text); 
+internalCode = bowEncoder.retrieve(inputCode); // inputCodeからinternalCodeを計算
 
-// textを内部コードに変換
-// __start__のようなコマンドが有効
-code = bowEncoder.solve(string); 
-
-codeは以下の情報で構成される
-{
-  score: 類似度の最大値,
-  index: 類似度が最大だった行の番号（複数ある場合はランダムに選んだ一つ)
-  status: "ok" or "error",
-  message: エラーの場合エラーメッセージの文字列が渡される
+ここで
+inputCode={
+  intent: 意図を示す文字列
+  text: 入力文字列
+  owner: 発話したものの名前
 }
 
+internalCode={
+  intent: 最も一致した行のintent
+  index: 最も一致した行の行番号
+  score: 類似度
+  status: "ok" or "エラーメッセージ"
+}
 
 */
+
 import {
   zeros, divide, apply, sum, diag, dotMultiply,
   multiply, isPositive, map, norm, dot, randomInt
@@ -59,7 +66,7 @@ import { InvalidScriptException } from './exceptions.js';
 
 export default class BowEncoder {
 
-  constructor(segmenter) {
+  constructor(script, segmenter) {
     this.matrix = [];
     this.vocab = {};
     this.vocabLength = 0;
@@ -67,13 +74,17 @@ export default class BowEncoder {
     this.idf = null;
     this.tfidf = null;
     this.index = [];
+    this.intents = {};
     this.segmenter = segmenter !== undefined ? segmenter : new TinySegmenter();
+
+    this.learn(script);
   }
+
 
 
   // -----------------------------------------------------
   //
-  // スクリプトの記憶
+  // スクリプトの学習
   //
   // ----------------------------------------------------
 
@@ -93,7 +104,6 @@ export default class BowEncoder {
     let inScript = [];
 
     // inスクリプトの抽出
-
     for (let i = 0, l = _script.length; i < l; i++) {
       let line = _script[i];
       if ('in' in line && Array.isArray(line.in) && line.in.length !== 0) {
@@ -101,6 +111,16 @@ export default class BowEncoder {
       }
       else {
         throw new InvalidScriptException(`${i}行のinの形式が正しくありません`)
+      }
+
+      // intents
+      if ('intent' in line && typeof line.intent === 'string' && line.intent !== '*') {
+        if (line.intent in this.intents) {
+          throw new InvalidScriptException(
+            `スクリプト中でintent "${line.intent}"が重複しています`
+          )
+        }
+        this.intents[line.intent] = i
       }
     }
 
@@ -121,14 +141,14 @@ export default class BowEncoder {
     }
 
     const vocabKeys = Object.keys(this.vocab);
-    for (let i = 0, l = vocabKeys.length; i < l; i++) {
+    this.vocabLength = vocabKeys.length;
+    for (let i = 0, l = this.vocabLength; i < l; i++) {
       this.vocab[vocabKeys[i]] = i;
     }
-
     // Term Frequency: 各行内での単語の出現頻度
     // tf(t,d) = (ある単語tの行d内での出現回数)/(行d内の全ての単語の出現回数の和)
 
-    this.wv = zeros(squeezed.length, vocabKeys.length);
+    this.wv = zeros(squeezed.length, this.vocabLength);
     let pos;
     for (let i = 0, l = squeezed.length; i < l; i++) {
 
@@ -161,65 +181,41 @@ export default class BowEncoder {
 
     const inv_n = apply(this.tfidf, 1, x => (divide(1, norm(x))));
     this.tfidf = multiply(diag(inv_n), this.tfidf);
-    return { status: "ok" }
   }
+
 
 
   // ----------------------------------------------------
   //
   // 類似テキストの検索
-  // __start__のようなコマンドも通常の文字列として扱われる
   //
-  // ----------------------------------------------------
+  // ----------------------------------------------------  
 
-  retrieve(text) {
-    text.replace('_', '＿');
-    return this.resolve(text);
-  }
+  retrieve(code) {
+    /* code={intent: string, text: string, owner: string}　*/
 
-
-  // ----------------------------------------------------
-  //
-  // 類似テキストの検索
-  // __start__のような文字列がコマンドとして扱われる
-  //
-  // ----------------------------------------------------
-
-  resolve(text) {
-
-    const check = this._precheck();
-    if (check.status !== 'ok') return check;
-
-    let nodes = this.segmenter.segment(text)
-
-    return this._similarity(nodes);
-  }
-
-  _precheck() {
-    if (this.wv === null) {
+    // intentが設定されており'*'以外なら探してoutとする
+    if (code.intent && code.intent !== "" && code.intent !== '*') {
+      if (code.intent in this.intents) {
+        return {
+          intent: code.intent,
+          index: this.intents[code.intent],
+          score: 1,
+          status: 'ok'
+        }
+      }
       return {
-        index: null, score: 0,
-        status: "error",
-        message: "スクリプトが読み込まれていません"
-      };
-    }
-
-    // wv
-    this.vocabLength = Object.keys(this.vocab).length;
-    if (this.vocabLength === 0) {
-      return {
-        index: null, score: 0,
-        status: "error",
-        message: "単語リストが空です"
+        intent: "*",
+        index: null,
+        score: 0,
+        status: `辞書にない intent "${code.intent}"が使用されました`
       }
     }
-    return {
-      status: "ok"
-    }
-  }
 
-  _similarity(nodes) {
+    // segment
 
+    let nodes = this.segmenter.segment(code.text);
+    // similarity計算
     let wv = zeros(this.vocabLength);
     for (let word of nodes) {
       let pos = this.vocab[word];
@@ -230,11 +226,11 @@ export default class BowEncoder {
     const sumWv = sum(wv);
     if (sumWv === 0) {
       return {
-        index: null, score: 0,
+        index: null, score: 0, intent: "*",
         status: "ok",
       };
     }
-
+    console.log("wv",wv)
     // tfidf計算
     const tf = divide(wv, sumWv);
     const tfidf = dotMultiply(tf, this.idf);
@@ -250,9 +246,8 @@ export default class BowEncoder {
     } catch (error) {
       console.log("invalid this.tfidf,tfidf=", this.tfidf, "error=", error);
       return {
-        index: null, score: 0,
-        status: "error",
-        message: `tfidf行列が不正です。error=${error}`
+        index: null, score: 0, intent: "*",
+        status: `tfidf行列が不正です。error=${error}`
       }
     }
     scores = scores.toArray();
@@ -264,10 +259,11 @@ export default class BowEncoder {
       }
     }
 
-
     return {
-      index: indexes[randomInt(indexes.length)], score: maxScore,
-      status: "ok",
-    };
+      intent: "*",
+      index: indexes[randomInt(indexes.length)],
+      score: maxScore,
+      status: "ok"
+    }
   }
 }
