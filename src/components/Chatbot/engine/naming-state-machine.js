@@ -24,51 +24,73 @@ codeには以下の情報を格納する
 文字列の解析にはプッシュダウン・オートマトンを用い、状態遷移は以下にBNF記法でしめす。
 BNF記法はこのサイトで可視化できる。https://www.bottlecaps.de/rr/ui
 
+ver1           
 ------------------------------------------------------------------------------------------
-main ::= ('u_*' ('b_*' 'u_*')*)? naming
-naming ::= 'u_try' 'b_confirm' (('u_revise'|'u_try')
-           'b_confirm')* ('u_accept' 'b_agree'|'u_*' 'b_break')
+main     ::= 'start' 'accept()' ( ( '*' | 'not_found'| naming ) 'accept()' )* 'bye'
+naming   ::= ( 'get_name()' 'confirm' 'test()' )+ ( 'memorize' | '*' )
 ------------------------------------------------------------------------------------------
+
+ver2
+main     ::= 'start' ('absent()' ('*' 'absent()')* 'summon') ?
+                      'accept()' ( ( '*' | 'not_found'| naming ) 'accept()' )* 'bye'
+naming   ::= ( 'get_name()' 'confirm' 'accept()' )+ ( 'memorize' | '*' )
 
 */
 
+import { CodeTwoTone } from '@mui/icons-material';
 import { parseTables, dispatchTables, dispatch } from './phrase-segmenter';
 const STATE_TABLES = parseTables({
   main: [
-    //         0  1  2  3  4
-    'u_*     : 2  0  0  2  0',
-    'b_*     : 0  0  3  0  0',
-    'naming  : 4  0  4  0  0',
+    //           0  1  2  3  4  5  6  7
+    '*         : 0  0  3  4  3  3  3  0',
+    'start     : 2  0  0  0  0  0  0  0',
+    'not_found : 0  0  0  5  0  0  0  0',
+    'naming    : 0  0  0  6  0  0  0  0',
+    'bye       : 0  0  0  7  0  0  0  0',
   ],
   naming: [
-    //           0  1  2  3  4  5  6  7  8  9
-    'u_*       : 0  0  0  8  0  0  0  1  9  1',
-    'u_try     : 2  0  0  5  0  0  0  0  0  0',
-    'b_confirm : 0  0  3  0  3  3  0  0  0  0',
-    'u_revise  : 0  0  0  4  0  0  0  0  0  0',
-    'u_accept  : 0  0  0  6  0  0  0  0  0  0',
-    'b_agree   : 0  0  0  0  0  0  7  0  0  0',
-    'b_break   : 0  0  0  0  0  0  0  0  0  0',
+    //          0  1  2  3  4  5  6
+    '*        : 0  0  0  4  6  1  1',
+    'get_name : 2  0  0  0  2  0  0',
+    'confirm  : 0  0  3  0  0  0  0',
+    'memorize : 0  0  0  0  5  0  0',
   ],
 });
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
+const LEX = {
+  '*': c => false,
+  'start': c => c.intent === 'start',
+  'not_found': c => c.intent === 'not_found',
+  'bye': c => c.intent === 'bye',
+  'naming': c => c.intent === 'naming',
+  'confirm': c => c.intent === 'confirm',
+  'memorize': c => c.intent === 'memorize'
+};
 
 function assignPos(code, currentState) {
   const [table, state] = currentState;
 
   for (let st in DISPATCH_TABLES[table][state]) {
-    if (code === st) {
+    if (LEX[st](code)) {
       return st
     }
   }
   return '*'
 }
 
+
+
 export default class NamingStateMachine {
-  constructor(names) {
+  constructor(script) {
     this.states = [['main', 0]];
-    this.names = [...names];
+    this.learn(script);
+  }
+
+  learn(script) {
+    this.precision = script.precision;
+    this.names = [script.name || "noname"];
+    this.harvest = "";
   }
 
   run(code) {
@@ -82,21 +104,18 @@ export default class NamingStateMachine {
     }
     */
     let table, state;
-    let intent;
     let loop = 0;
 
     while (true) {
+      // 管理ループ
       loop++;
       if (loop > 100) {
         throw new Error(`Trapped in infinite loop at ${code.intent}`);
       }
       [table, state] = this.states[this.states.length - 1];
-
-      intent = code.intent;
-
-      this.states[this.states.length - 1] = [table, STATE_TABLES[table][intent][state]];
-
-      state = this.states[this.states.length - 1];
+      pos = assignPos(code, this.states[this.states.length - 1]);
+      this.states[this.states.length - 1] = [table, STATE_TABLES[table][pos][state]];
+      state = this.states[this.states.length - 1][1];
 
       if (state === 0) {
         this.states = [['main', 0]];
@@ -108,6 +127,40 @@ export default class NamingStateMachine {
         continue;
       }
 
+      if (pos in STATE_TABLES) {
+        states.push([pos, 0]);
+        continue;
+      }
+
+      if ((table === 'main' && state === 3) ||
+        (table === 'naming' && state === 4)) {
+        // accept()
+        if (code.score < this.precision) {
+          code.intent = 'not_found'
+        }
+        continue;
+      }
+
+      if (table === 'naming' && state === 2) {
+        // get_name()
+        this.harvest = code.harvests[0];
+        continue;
+      }
+
+      break;
+    }
+
+    // 通常の処理
+    if(pos === '*'){
+      return code
+    }
+    if(pos === 'memorize'){
+      this.names.push(this.harvest);
+    }
+    return {
+      ...code,
+      intent: pos,
+      
     }
   }
 }

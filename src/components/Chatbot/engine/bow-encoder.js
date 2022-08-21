@@ -33,7 +33,7 @@ intent='*'とみなす。intentは'*'を例外として一意である必要が�
 
 # 使用法
 
-let bowEncoder = new BowEncoder(segmenter, script); // 生成時にスクリプトを読む
+let bowEncoder = new BowEncoder(script, segmenter); // 生成時にスクリプトを読む
 
 bowEncoder.learn(script); // スクリプトを別途上書きする場合に使用
 
@@ -195,6 +195,17 @@ export default class BowEncoder {
     /* code={intent: string, text: string, owner: string}　*/
 
     // intentが設定されており'*'以外なら探してoutとする
+    let result = this._retrieveIntent(code);
+    if(result !== false){ return result };
+
+    // segment
+    let nodes = this.segmenter.segment(code.text);
+    // similarity計算
+    return this._similarity(nodes);
+  }
+
+  _retrieveIntent(code) {
+    // intentが設定されており'*'以外なら探してoutとする
     if (code.intent && code.intent !== "" && code.intent !== '*') {
       if (code.intent in this.intents) {
         return {
@@ -212,10 +223,10 @@ export default class BowEncoder {
       }
     }
 
-    // segment
+    return false;
+  }
 
-    let nodes = this.segmenter.segment(code.text);
-    // similarity計算
+  _similarity(nodes){
     let wv = zeros(this.vocabLength);
     for (let word of nodes) {
       let pos = this.vocab[word];
@@ -230,7 +241,6 @@ export default class BowEncoder {
         status: "ok",
       };
     }
-    console.log("wv",wv)
     // tfidf計算
     const tf = divide(wv, sumWv);
     const tfidf = dotMultiply(tf, this.idf);

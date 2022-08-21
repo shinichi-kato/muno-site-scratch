@@ -14,23 +14,29 @@ tags:
 ## 記号的人工知能のアプローチ
 「ルールベース」と呼ばれることも多い手法です。
 
-### Eliza
-Elizaは1966年にジョセフ・ワイゼンバウムによって発表された草創期のチャットボットです[^1]。
+2003年に藤野[^1]がまとめた目的別のチャットボットの分類
 
-[^1]:[J. Weizenbaum,"ELIZA A Computer Program For the Study of Natural Language Communication Between Man And Machine", *Comp. Linguistics* 9[1](1996)](https://dl.acm.org/doi/pdf/10.1145/365153.365168)
+[^1]: [H.Fujino, "Current situations and problems of software counselling" Proc. 2003 IEEE Intern. Sym. ](https://doi.org/10.1109/CIRA.2003.1222244)
+
+
+
+### Eliza
+Elizaは1966年にジョセフ・ワイゼンバウムによって発表された草創期のチャットボットです[^2]。
+
+[^2]:[J. Weizenbaum,"ELIZA A Computer Program For the Study of Natural Language Communication Between Man And Machine", *Comp. Linguistics* 9[1](1996)](https://dl.acm.org/doi/pdf/10.1145/365153.365168)
 
 ワイゼンバウムがこのチャットボットを「大まかにロジャー派のセラピストのように応答する」と述べているように、Elizaはユーザに質問し、ユーザ自身が自分の悩みに対する答えに気づくように導きました。
 
 
 
 ### AIML
-Artificial Intelligence Markup Language(AIML)はBruno Marietto[^2]らによって開発された、AIという名前がついていますがチャットボット記述用の言語です。
+Artificial Intelligence Markup Language(AIML)はBruno Marietto[^3]らによって開発された、AIという名前がついていますがチャットボット記述用の言語です。
 
-[^2]:[Bruno Marietto, et. al., "ARTIFICIAL INTELLIGENCE MARKUP LANGUAGE: A BRIEF TUTORIAL", *Intern. J. Computer Sci. and Eng. Survey* 4[3](2013)](https://arxiv.org/pdf/1307.3091.pdf)
+[^3]:[Bruno Marietto, et. al., "ARTIFICIAL INTELLIGENCE MARKUP LANGUAGE: A BRIEF TUTORIAL", *Intern. J. Computer Sci. and Eng. Survey* 4[3](2013)](https://arxiv.org/pdf/1307.3091.pdf)
 
 AIMLやその派生言語を利用したチャットボットは[A.I.Nexus](https://knytetrypper.proboards.com/)で多数公開されています。
 
-
+記号論的人工知能のアプローチは
 
 ## 統計的人工知能のアプローチ
 
@@ -66,3 +72,6 @@ Shinらの例では感情をポジティブ-ネガティブという一つの次
 
 
 [^14]:[Rhio Sutoyo, et.al., "Designing an Emotionally Realistic Chatbot Framework to Enhance Its Believability with AIML and Information States", *4th Intern. Conf. Computer Sci. and Computational Interl. 2019* 12-13(2019)](https://reader.elsevier.com/reader/sd/pii/S1877050919311457?token=E7B52A16CF6120EB43F1687205F9C1F27D4034D96A6512901719818AA434D30FE7133E81569609C645B2D8A17E06A5B6&originRegion=us-east-1&originCreation=20220816073643)
+
+統計的機械学習のアプローチは、記号論的な手法があまり得意としなかった大量データの処理に道を開きました。
+その一方でデータが多くなりすぎるとトピックや傾向の違う会話データが混在することが問題になり、それを統計的な工夫で分割する必要性が論じられました

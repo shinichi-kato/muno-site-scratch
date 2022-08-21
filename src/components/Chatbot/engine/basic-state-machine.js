@@ -102,26 +102,12 @@ export default class BasicStateMachine {
 
     // 通常出力
 
-    switch (pos) {
-      case 'start':{
-        return {
-          intent: 'start',
-          ...code,
-        }
-      }
-      case '*':
-        return {
-          intent: code.intent,
-          ...code,
-        }
-      case 'not_found':
-      case 'bye':
-        return {
-          intent: pos,
-          ...code
-        }
-      default:
-        throw new Error(`invalid state ${pos}`)
+    if(pos==='*'){
+      return code
+    }
+    return {
+      ...code,
+      intent: pos
     }
   }
 }

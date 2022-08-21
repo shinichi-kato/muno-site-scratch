@@ -5,8 +5,8 @@ harvest encoderクラス
 # 概要
 
 Harvestエンコーダーは入力文字列を文節に分け、その順番を無視して単語ごとに数を
-数える方法で文字列のベクトル化する。形態素ではなく文節を単位とすることで、
-
+数える方法で文字列のベクトル化する。形態素ではなく文節を単位とすることで
+文節レベルでの順序の融通性に対応しつつ必要な単語の抽出精度向上を図っている。
 
 スクリプトを記憶したインスタンスに文字列を入力すると、スクリプトの中で
 その文字列に最もよく似た行の番号リストと、類似度を表すscoreを返す。
@@ -17,6 +17,7 @@ Harvestエンコーダーは入力文字列を文節に分け、その順番を�
   "script": [
     {
       "in": ["入力文字列1","入力文字列2", ...],
+      "intent": "greeting",
       "out": ["出力文字列候補1","出力文字列候補2",...]
     },
     ...
@@ -25,7 +26,7 @@ Harvestエンコーダーは入力文字列を文節に分け、その順番を�
 
 # 文節区切りの方法
 
-Tiny
+pharase-segmenter参照
 
 
 # 使用法
@@ -58,13 +59,18 @@ import BowEncoder from './bow-encoder';
 import PhraseSegmenter from './phrase-segmenter';
 
 export default class HarvestEncoder extends BowEncoder {
-  constructor() {
-    super(new PhraseSegmenter());
+  constructor(script) {
+    super(script, new PhraseSegmenter());
     this.slots = {}; // *文節の種類
+    this._learn();
   }
 
   learn(script) {
     super.learn(script);
+    this._learn();
+  }
+
+  _learn(){
     this.slots = {};
 
     for (let v in this.vocab) {
@@ -73,12 +79,9 @@ export default class HarvestEncoder extends BowEncoder {
         this.slots[word] = this.vocab[v]
       }
     }
-
   }
 
   retrieve(text) {
-    const check = this._precheck();
-    if (check.status !== 'ok') return check;
 
     let nodes = this.segmenter.segment(text);
 
@@ -96,7 +99,8 @@ export default class HarvestEncoder extends BowEncoder {
       }
       return node;
     })
-    let result = this._similarity(nodes);
+
+    let result = super._retrieveIntent(code) || this._similarity(nodes);
 
     if (result.index === null || founds.length === 0) {
       return {

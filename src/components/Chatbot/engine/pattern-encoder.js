@@ -14,25 +14,25 @@ intentを格納する。
     {
       intent: "summon",
       in: ["^ねえ(.+?)さん"],
+      out: ["こんにちは！"]
     },
     {
-      intent: "u_*",
-      in: ["*"],
+      in: ["入力正規表現1"],
+      out: ["出力文字列候補1"]
     }
-
-正規表現 * はあらゆる入力にマッチするため辞書の末尾に置く。
 
 
 # 使用法
 
-let ptnEncoder = new PatternEndocer();
+let ptnEncoder = new PatternEndocer(script);
 
-ptnEncoder.learn(script); // スクリプトを読み込む
+ptnEncoder.learn(script); // スクリプトを別途読み込む場合はこちら
 
-code = ptnEncoder.retrieve(text, chomp); 
+code = ptnEncoder.retrieve(inputCode, chomp); 
 
 codeは以下の内容になる
 {
+  intent: 意図を示す文字列
   index: スクリプト中でヒットした行番号,
   score: 1,
   harvests: その行の正規表現に()があれば抽出内容が格納される,
@@ -40,18 +40,14 @@ codeは以下の内容になる
 }
 */
 
-import { IntegrationInstructions } from "@mui/icons-material";
-import {
-  randomInt
-} from "mathjs";
-
 import { InvalidScriptException } from './exceptions.js';
 
 export default class PatternEncoder {
 
   constructor() {
     this.script = [];
-    this.intents = [];
+    this.index = [];
+    this.intents = {};
   }
 
   // -----------------------------------------------------
@@ -74,19 +70,27 @@ export default class PatternEncoder {
     }
     const _script = script.script;
     let inScript = [];
-    let intents = [];
 
-    // in-intentスクリプトの抽出
+    // inスクリプトの抽出
 
     for (let i = 0, l = _script.length; i < l; i++) {
       let line = _script[i];
       if ('in' in line && Array.isArray(line.in) && line.in.length !== 0) {
         inScript.push(line.in);
-        intents.push(line.intent);
       }
       else {
         throw new InvalidScriptException(`${i}行のinの形式が正しくありません`)
       }
+    }
+
+    // intents
+    if ('intent' in line && typeof line.intent === 'string' && line.intent !== '*') {
+      if (line.intent in this.intents) {
+        throw new InvalidScriptException(
+          `スクリプト中でintent "${line.intent}"が重複しています`
+        )
+      }
+      this.intents[line.intent] = i
     }
 
     // 正規表現化
@@ -94,7 +98,7 @@ export default class PatternEncoder {
     for (let i = 0, l = inScript.length; i < l; i++) {
       for (let text of inScript[i]) {
         this.script.push(new RegExp(text));
-        this.intents.push(intents[i])
+        this.index.push(i)
       }
     }
   }
@@ -102,14 +106,22 @@ export default class PatternEncoder {
   // ----------------------------------------------------
   //
   // 類似テキストの検索
-  // __start__のようなコマンドも通常の文字列として扱われる
-  // text: 入力文字列
-  // chomp: 入力文字列のうち、検索にヒットした部分を
-  //        除去した文字列も返す
   //
   // ---------------------------------------------------- 
 
-  retrieve(text, chomp = false) {
+  retrieve(code, chomp = false) {
+    /* code={intent: string, text: string, owner: string}　*/
+
+    // intentが設定されており'*'以外なら探してcodeとする
+    let result = this._retrieveIntent(code);
+    if (result !== false) {
+      // 入力文字列に対してこのintentに対応する正規表現(inScript)を
+      // 実行し、hitしたら後方参照文字列を取り出してreturnに含める
+
+      // intentに対応するthis.indexを抽出
+      return result
+    }
+
     text.replace('_', '＿');
     return this.resolve(text, chomp);
   }
