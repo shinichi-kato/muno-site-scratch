@@ -27,13 +27,13 @@ BNF記法はこのサイトで可視化できる。https://www.bottlecaps.de/rr/
 ver1           
 ------------------------------------------------------------------------------------------
 main     ::= 'start' 'accept()' ( ( '*' | 'not_found'| naming ) 'accept()' )* 'bye'
-naming   ::= ( 'get_name()' 'confirm' 'test()' )+ ( 'memorize' | '*' )
+naming   ::= ( 'apply_name()' 'confirm' 'test()' )+ ( 'memorize' | '*' )
 ------------------------------------------------------------------------------------------
 
 ver2
 main     ::= 'start' ('absent()' ('*' 'absent()')* 'summon') ?
                       'accept()' ( ( '*' | 'not_found'| naming ) 'accept()' )* 'bye'
-naming   ::= ( 'get_name()' 'confirm' 'accept()' )+ ( 'memorize' | '*' )
+naming   ::= ( 'apply_name()' 'confirm' 'accept()' )+ ( 'memorize' | '*' )
 
 */
 
