@@ -81,9 +81,9 @@ export default class HarvestEncoder extends BowEncoder {
     }
   }
 
-  retrieve(text) {
+  retrieve(code) {
 
-    let nodes = this.segmenter.segment(text);
+    let nodes = this.segmenter.segment(code.text);
 
     // 類似度計算のときは「猫が」→「* 主語」のように文節の種類が与えられた
     // ノードは*に置き換える。foundsに*だったものを格納する。

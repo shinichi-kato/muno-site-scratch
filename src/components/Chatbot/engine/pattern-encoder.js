@@ -81,17 +81,19 @@ export default class PatternEncoder {
       else {
         throw new InvalidScriptException(`${i}行のinの形式が正しくありません`)
       }
+      
+      // intents
+      if ('intent' in line && typeof line.intent === 'string' && line.intent !== '*') {
+        if (line.intent in this.intents) {
+          throw new InvalidScriptException(
+            `スクリプト中でintent "${line.intent}"が重複しています`
+          )
+        }
+        this.intents[line.intent] = i
+      }
     }
 
-    // intents
-    if ('intent' in line && typeof line.intent === 'string' && line.intent !== '*') {
-      if (line.intent in this.intents) {
-        throw new InvalidScriptException(
-          `スクリプト中でintent "${line.intent}"が重複しています`
-        )
-      }
-      this.intents[line.intent] = i
-    }
+
 
     // 正規表現化
 
@@ -122,7 +124,7 @@ export default class PatternEncoder {
       return result
     }
 
-    text.replace('_', '＿');
+    let text = code.text.replace('_', '＿');
     return this.resolve(text, chomp);
   }
 
