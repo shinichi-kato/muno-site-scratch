@@ -22,6 +22,7 @@ import RetrieverDemo from '../Chatbot/RetrieverDemo';
 import PhraseSegmenterDemo from "../Chatbot/PhraseSegmenterDemo";
 import ArticleLink from './ArticleLink';
 import Flavor from './Flavor';
+import ContactForm from './ContactForm';
 
 import "./mdx.css";
 
@@ -39,6 +40,7 @@ const components = {
   Link: Link,
   ArticleLink: ArticleLink,
   StaticImage: StaticImage,
+  ContactForm: ContactForm,
   Box: Box,
   ul: props => <ul className="mdx-ul">{props.children}</ul>,
   table: props => <table className="mdx-table" {...props}/>,

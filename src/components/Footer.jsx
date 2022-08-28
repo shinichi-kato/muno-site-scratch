@@ -22,6 +22,15 @@ const query = graphql`
   }
 `;
 
+const subMenuItems = [
+  {
+    slug: 'sub/author',
+    frontmatter:{
+      title: 'About'
+    }
+  }
+];
+
 function generateMenuItems(items){
     return items.map(node=>
       <MenuItem
@@ -33,9 +42,11 @@ function generateMenuItems(items){
   );
 }
 
+
 export default function Footer(){
   const data = useStaticQuery(query);
-  const menu = generateMenuItems(data.allMdx.nodes);
+  const mainMenu = generateMenuItems(data.allMdx.nodes);
+  const subMenu = generateMenuItems(subMenuItems);
 
   return(
     <Box
@@ -54,10 +65,12 @@ export default function Footer(){
         sx={{
           display: "flex",
           flexDirection: "row",
-          alignItems: "center",
+          alignItems: "flex-start",
         }}
       >
-        <Box>
+        <Box
+          sx={{alignSelf: "center"}}
+        >
         <Crest 
           style={{width: "100px", height: "100px"}}
         />
@@ -66,10 +79,15 @@ export default function Footer(){
           <MenuList
             dense
           >
-            {menu}
+            {mainMenu}
           </MenuList>
         </Box>
         <Box>
+          <MenuList
+            dense
+          >
+            {subMenu}
+          </MenuList>
   
         </Box>
       </Box>
