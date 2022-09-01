@@ -1,0 +1,18 @@
+{
+    "avatar": "man.svg",
+    "name": "",
+    "backgroundColor": "#c7a2e0",
+    "encoder":"BowEncoder",
+    "decoder":"EchoDecoder",
+    "precision": 0.3,
+    "script": [
+        {
+            "intent": "start",
+            "in": [
+                "どうしたらいいの？", "何しようか"
+            ],
+            "out": [
+                "あなたの言葉に傾聴で返事をします。なにか気になっていることを話してください。"
+            ]
+        }
+    }
