@@ -1,6 +1,6 @@
 {
-    "avatar": "man.svg",
-    "name": "",
+    "avatar": "plant-fairy.svg",
+    "name": "ミドリ",
     "backgroundColor": "#c7a2e0",
     "encoder": "PatternEncoder",
     "stateMachine":"NamingStateMachine",
