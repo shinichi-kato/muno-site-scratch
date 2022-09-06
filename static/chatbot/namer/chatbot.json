@@ -1,5 +1,5 @@
 {
-    "avatar": "plant-fairy.svg",
+    "avatar": "plant-creature.svg",
     "name": "ミドリ",
     "backgroundColor": "#c7a2e0",
     "encoder": "PatternEncoder",
@@ -10,11 +10,31 @@
         {
             "intent": "start",
             "in": [
-                "どうしたらいいの？",
-                "何しようか"
+                "こんにちは"
             ],
             "out": [
-                "あなたの言葉に傾聴で返事をします。なにか気になっていることを話してください。"
+                "こんにちは"
+            ]
+        },
+        {
+            "intent": "silence",
+            "out": [
+                "{nop}"
+            ]
+        },
+        {
+            "intent": "summon",
+            "in": [
+                "{bot_name}"
+            ],
+            "out":[
+                "はーい"
+            ]
+        },
+        {
+            "intent": "naming",
+            "in": [
+                "(?)って呼んでいい？"
             ]
         }
     ]
