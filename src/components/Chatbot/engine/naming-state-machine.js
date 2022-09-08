@@ -12,7 +12,7 @@ BNF記法は https://www.bottlecaps.de/rr/ui で可視化できる。
 ------------------------------------------------------------------------------------------
 main     ::= ('start' | ('absent' 'stand-by'* 'summon'))
                       'accept()' ( ( '*' | 'not_found'| naming ) 'accept()' )* 'bye'
-naming   ::= ( 'apply_name()' 'confirm' )+ ( 'memorized' | '*' )
+naming   ::= ( 'apply_name()' 'confirm' )+ ( 'memorized' | 'break' )
 ------------------------------------------------------------------------------------------
 
 それぞれの状態では以下のような動作をする
@@ -22,7 +22,7 @@ naming   ::= ( 'apply_name()' 'confirm' )+ ( 'memorized' | '*' )
 | start         | チャットボット在室の状態でスタート。挨拶を行う。                         |
 | absent        | チャットボット不在の状態でスタート。不在を説明するシステムメッセージ出力 |
 | summon        | ユーザの呼びかけに応えてチャットボットが現れる                           |
-| silence       | summon以外の入力に対しては沈黙                                           |
+| stand-by      | summon以外の入力に対しては沈黙                                           |
 | accept()      | ユーザの入力を受取り、scoreが低ければintentをnot_foundに                 |
 | not_found     | 辞書中に対応する言葉が見つからない場合の対応                             |
 | naming        | ユーザによるチャットボットの命名が行われた                               |
@@ -30,7 +30,7 @@ naming   ::= ( 'apply_name()' 'confirm' )+ ( 'memorized' | '*' )
 | apply_name()  | ユーザ発言から抽出したニックネームを仮に記憶                             |
 | confirm       | 仮に記憶したニックネームが正しいかどうかの確認を求める                   |
 | memorized     | ニックネームを記憶した旨を知らせる                                       |
-| cancelled     | ニックネーム記憶をキャンセルした旨を知らせる                             |
+| break         | ニックネーム記憶をキャンセルした旨を知らせる                             |
 
 
 この状態機械を利用するには「ニックネームらしき部分を入力文字列から抽出する」という機能がひ
@@ -53,8 +53,8 @@ codeには以下の情報を格納する
 
 */
 
-import { CodeTwoTone } from '@mui/icons-material';
-import { parseTables, dispatchTables, dispatch } from './phrase-segmenter';
+import { parseTables, dispatchTables } from './phrase-segmenter';
+
 const STATE_TABLES = parseTables({
   main: [
     //           0  1  2  3  4  5  6  7
@@ -77,11 +77,15 @@ const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
 const LEX = {
   '*': c => false,
   'start': c => c.intent === 'start',
+  'absent': c => c.intent === 'absent',
+  'summon': c => c.intent === 'summon',
+  'stand-by': c => c.intent !== 'summon',
   'not_found': c => c.intent === 'not_found',
   'bye': c => c.intent === 'bye',
   'naming': c => c.intent === 'naming',
   'confirm': c => c.intent === 'confirm',
-  'memorize': c => c.intent === 'memorize'
+  'memorized': c => c.intent === 'memorized',
+  'break': c => c.intent !== 'memorized',
 };
 
 function assignPos(code, currentState) {
@@ -119,7 +123,7 @@ export default class NamingStateMachine {
       status: "ok"
     }
     */
-    let table, state;
+    let table, state, pos;
     let loop = 0;
 
     while (true) {
@@ -144,7 +148,7 @@ export default class NamingStateMachine {
       }
 
       if (pos in STATE_TABLES) {
-        states.push([pos, 0]);
+        this.states.push([pos, 0]);
         continue;
       }
 
@@ -158,25 +162,26 @@ export default class NamingStateMachine {
       }
 
       if (table === 'naming' && state === 2) {
-        // get_name()
+        // apply_name()
         this.harvest = code.harvests[0];
-        continue;
+        // continueしない
       }
 
       break;
     }
 
     // 通常の処理
-    if(pos === '*'){
+    if (pos === '*') {
       return code
     }
-    if(pos === 'memorize'){
+
+    if (pos === 'memorize') {
       this.names.push(this.harvest);
     }
     return {
       ...code,
       intent: pos,
-      
+
     }
   }
 }

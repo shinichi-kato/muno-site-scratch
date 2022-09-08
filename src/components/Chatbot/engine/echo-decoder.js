@@ -74,12 +74,12 @@ export default class EchoDecoder {
 
     for (let i = 0, l = _script.length; i < l; i++) {
       let line = _script[i];
-      if ('out' in line && Array.isArray(line.in) && line.in.length !== 0) {
+      if ('out' in line && Array.isArray(line.out) && line.out.length !== 0) {
         this.outScript.push(line.out);
       }
       else {
         throw new InvalidScriptException(
-          `${i}行のoutの形式が正しくありません`
+          `${i}行のoutがないか、形式が正しくありません`
         )
       }
 

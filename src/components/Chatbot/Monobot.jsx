@@ -23,7 +23,7 @@ import EchoDecoder from './engine/echo-decoder';
 import HarvestDecoder from './engine/harvest-decoder';
 import IntentDecoder from './engine/intent-decoder';
 import BasicStateMachine from './engine/basic-state-machine';
-// import NamingStateMachine from './engine/naming-state-machine';
+import NamingStateMachine from './engine/naming-state-machine';
 
 const modules = {
   'BowEncoder': BowEncoder,
@@ -33,7 +33,7 @@ const modules = {
   'HarvestDecoder': HarvestDecoder,
   'IntentDecoder': IntentDecoder,
   'BasicStateMachine': BasicStateMachine,
-  // 'NamingStateMachine': NamingStateMachine,
+  'NamingStateMachine': NamingStateMachine,
 }
 
 function getModules(name) {
