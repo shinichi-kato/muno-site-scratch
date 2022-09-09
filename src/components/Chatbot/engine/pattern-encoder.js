@@ -44,10 +44,12 @@ import { InvalidScriptException } from './exceptions.js';
 
 export default class PatternEncoder {
 
-  constructor() {
+  constructor(script) {
     this.script = [];
     this.index = [];
     this.intents = {};
+
+    this.learn(script);
   }
 
   // -----------------------------------------------------
@@ -81,7 +83,7 @@ export default class PatternEncoder {
       else {
         throw new InvalidScriptException(`${i}行のinの形式が正しくありません`)
       }
-      
+
       // intents
       if ('intent' in line && typeof line.intent === 'string' && line.intent !== '*') {
         if (line.intent in this.intents) {
@@ -89,6 +91,7 @@ export default class PatternEncoder {
             `スクリプト中でintent "${line.intent}"が重複しています`
           )
         }
+        console.log("line.intent",line.intent)
         this.intents[line.intent] = i
       }
     }
@@ -180,6 +183,29 @@ export default class PatternEncoder {
     return {
       status: 'ok'
     }
+  }
+
+  _retrieveIntent(code) {
+    // intentが設定されており'*'以外なら探してoutとする
+    console.log("intents",this.intents,"code",code)
+    if (code.intent && code.intent !== "" && code.intent !== '*') {
+      if (code.intent in this.intents) {
+        return {
+          intent: code.intent,
+          index: this.intents[code.intent],
+          score: 1,
+          status: 'ok'
+        }
+      }
+      return {
+        intent: "*",
+        index: null,
+        score: 0,
+        status: `辞書にない intent "${code.intent}"が使用されました`
+      }
+    }
+
+    return false;
   }
 }
 

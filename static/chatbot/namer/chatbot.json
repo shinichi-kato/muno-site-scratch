@@ -1,5 +1,5 @@
 {
-    "avatar": "plant-creature.svg",
+    "avatar": "plant-fairy.svg",
     "name": "ミドリ",
     "backgroundColor": "#c7a2e0",
     "encoder": "PatternEncoder",
@@ -37,7 +37,7 @@
         {
             "intent": "naming",
             "in": [
-                "(?)って呼んでいい？"
+                "(.+?)って呼んでいい？"
             ],
             "out": [
                 "(?)ですね。"

@@ -57,19 +57,20 @@ import { parseTables, dispatchTables } from './phrase-segmenter';
 
 const STATE_TABLES = parseTables({
   main: [
-    //           0  1  2  3  4  5  6  7
-    '*         : 0  0  3  4  3  3  3  0',
-    'start     : 2  0  0  0  0  0  0  0',
-    'not_found : 0  0  0  5  0  0  0  0',
-    'naming    : 0  0  0  6  0  0  0  0',
-    'bye       : 0  0  0  7  0  0  0  0',
+    //           0  1  2  3  4  5  6  7  8  9 10
+    '*         : 0  0  6  4  4  6  7  6  6  6  0',
+    'start     : 2  0  0  0  0  0  0  0  0  0  0',
+    'absent    : 3  0  0  0  0  0  0  0  0  0  0',
+    'summon    : 0  0  0  5  5  0  0  0  0  0  0',
+    'not_found : 0  0  0  0  0  0  8  0  0  0  0',
+    'naming    : 0  0  0  0  0  0  9  0  0  0  0',
+    'bye       : 0  0  0  0  0  0 10  0  0  0  0',
   ],
   naming: [
     //          0  1  2  3  4  5  6
-    '*        : 0  0  0  4  6  1  1',
-    'get_name : 2  0  0  0  2  0  0',
-    'confirm  : 0  0  3  0  0  0  0',
-    'memorize : 0  0  0  0  5  0  0',
+    '*        : 2  0  3  4  6  1  1',
+    'confirm  : 0  0  0  0  0  0  0',
+    'memorize : 0  0  0  4  5  0  0',
   ],
 });
 
@@ -79,7 +80,6 @@ const LEX = {
   'start': c => c.intent === 'start',
   'absent': c => c.intent === 'absent',
   'summon': c => c.intent === 'summon',
-  'stand-by': c => c.intent !== 'summon',
   'not_found': c => c.intent === 'not_found',
   'bye': c => c.intent === 'bye',
   'naming': c => c.intent === 'naming',
@@ -125,6 +125,7 @@ export default class NamingStateMachine {
     */
     let table, state, pos;
     let loop = 0;
+    console.log("code=",code)
 
     while (true) {
       // 管理ループ
@@ -136,6 +137,7 @@ export default class NamingStateMachine {
       pos = assignPos(code, this.states[this.states.length - 1]);
       this.states[this.states.length - 1] = [table, STATE_TABLES[table][pos][state]];
       state = this.states[this.states.length - 1][1];
+      console.log("states",table,state)
 
       if (state === 0) {
         this.states = [['main', 0]];
