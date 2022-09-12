@@ -21,6 +21,9 @@ intentを格納する。
       out: ["出力文字列候補1"]
     }
 
+## 辞書
+
+
 
 # 使用法
 
@@ -41,6 +44,7 @@ codeは以下の内容になる
 */
 
 import { InvalidScriptException } from './exceptions.js';
+import { db } from './dbio';
 
 export default class PatternEncoder {
 
@@ -91,7 +95,7 @@ export default class PatternEncoder {
             `スクリプト中でintent "${line.intent}"が重複しています`
           )
         }
-        console.log("line.intent",line.intent)
+        console.log("line.intent", line.intent)
         this.intents[line.intent] = i
       }
     }
@@ -155,6 +159,7 @@ export default class PatternEncoder {
       if (match) {
         return {
           intent: this.intents[i],
+          index: i,
           score: 1,
           harvests: match.slice(1, match.length),
           text: chomp ? text.replace(match[0], "") : text,
@@ -165,6 +170,7 @@ export default class PatternEncoder {
 
     return {
       intent: null,
+      index: null,
       score: 0,
       harvests: [],
       text: text,
@@ -187,7 +193,7 @@ export default class PatternEncoder {
 
   _retrieveIntent(code) {
     // intentが設定されており'*'以外なら探してoutとする
-    console.log("intents",this.intents,"code",code)
+    console.log("intents", this.intents, "code", code)
     if (code.intent && code.intent !== "" && code.intent !== '*') {
       if (code.intent in this.intents) {
         return {

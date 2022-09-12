@@ -149,6 +149,11 @@ export default class NamingStateMachine {
         continue;
       }
 
+      if(pos === 'naming'){
+        // code.harvestに取得したニックネームが格納されている。
+        // これを辞書に追加する
+      }
+
       if (pos in STATE_TABLES) {
         this.states.push([pos, 0]);
         continue;
