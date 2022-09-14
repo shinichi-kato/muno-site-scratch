@@ -24,7 +24,7 @@ import HarvestDecoder from './engine/harvest-decoder';
 import IntentDecoder from './engine/intent-decoder';
 import BasicStateMachine from './engine/basic-state-machine';
 import NamingStateMachine from './engine/naming-state-machine';
-import {db} from './dbio';
+import { db } from './dbio';
 
 const modules = {
   'BowEncoder': BowEncoder,
@@ -203,7 +203,9 @@ export default function Chatbot({ source }) {
           result => {
             dispatch({ type: "Message", message: "計算中 ..." });
             dispatch({ type: "Load", script: result, source: source });
-            db.initialize(source);
+            db.initialize(source, {
+              '%BOT_NAME%': result.name
+            });
           },
           error => {
             dispatch({ type: "Error", message: error.message });
@@ -244,13 +246,13 @@ export default function Chatbot({ source }) {
     event.preventDefault();
     renderMessage('user', userText);
     setUserText("");
-    
+
     let code = {
       intent: '*',
       text: userText,
       owner: 'user',
     };
-    
+
     code = state.encoder.retrieve(code);
     code = state.stateMachine.run(code);
     let h = harvests;

@@ -17,6 +17,12 @@ class dbio {
   }
 
   initialize(botId, obj) {
+    /*
+      DBを作り、objの内容で初期化する。
+      DBが既に存在していた場合はobjで上書きしない。
+      
+    */
+
     if (!botId) {
       throw error("botIdが与えられていません")
     }
@@ -28,6 +34,11 @@ class dbio {
 
     this.botId = botId;
 
+    (async () => {
+      if (await this.db.main.count() === 0) {
+        await this.putItems(obj)
+      }
+    })();
   }
 
   async putItems(dict) {
@@ -41,7 +52,7 @@ class dbio {
     */
     let data = [];
     for (let key in dict) {
-      for (let val in dict[key]){
+      for (let val in dict[key]) {
         data.push({
           botId: this.botId,
           key: key,
@@ -79,6 +90,15 @@ class dbio {
     return arr;
   }
 
+  async toArray() {
+    /*
+      main辞書の全アイテムをリストにして出力
+    */
+    return await this.db.main
+      .where('[botId+key]')
+      .between([this.botId, Dexie.minKey], [this.botId, Dexie.maxKey])
+      .toArray();
+  }
 }
 
 export const db = new dbio();

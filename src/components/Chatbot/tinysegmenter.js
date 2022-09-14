@@ -12,7 +12,7 @@ export function TinySegmenter() {
     // "[a-zA-Zａ-ｚＡ-Ｚ]":"A",
     //  ASCII letters (normal and fullwidth) and Latin1 supplement's letters, then extended Latin A.
     // modified by shinichi-kato↓
-    "[a-zA-Zａ-ｚＡ-ＺÀ-ÖØ-öø-ÿĀ-ſ_<>{}+\\-$!.]": "A",
+    "[a-zA-Zａ-ｚＡ-ＺÀ-ÖØ-öø-ÿĀ-ſ_%<>{}+\\-$!.]": "A",
     //  originally:
     // # "[a-zA-Zａ-ｚＡ-ＺÀ-ÖØ-öø-ÿĀ-ſ]":"A",
     "[0-9０-９]": "N"

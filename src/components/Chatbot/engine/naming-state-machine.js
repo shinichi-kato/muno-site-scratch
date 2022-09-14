@@ -54,6 +54,7 @@ codeには以下の情報を格納する
 */
 
 import { parseTables, dispatchTables } from './phrase-segmenter';
+import { db } from './dbio';
 
 const STATE_TABLES = parseTables({
   main: [
@@ -109,7 +110,6 @@ export default class NamingStateMachine {
 
   learn(script) {
     this.precision = script.precision;
-    this.names = [script.name || "noname"];
     this.harvest = "";
   }
 
@@ -183,8 +183,9 @@ export default class NamingStateMachine {
     }
 
     if (pos === 'memorize') {
-      this.names.push(this.harvest);
+      db.addItem('%bot_name%',this.harvest);
     }
+
     return {
       ...code,
       intent: pos,

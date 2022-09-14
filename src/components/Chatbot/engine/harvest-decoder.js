@@ -47,6 +47,7 @@ codeは以下の情報で構成される
 
 import { randomInt } from "mathjs";
 import EchoDecoder from "./echo-decoder";
+import { db } from './dbio';
 
 const RE_TAG = /\*/g;
 
@@ -65,10 +66,26 @@ export default class HarvestDecoder extends EchoDecoder {
 
     // 「*」をとりあえず先頭のharvestで置き換える。
     let harvest = "";
-    if(code.harvests !== undefined && code.harvests.length !== 0){
+    if (code.harvests !== undefined && code.harvests.length !== 0) {
       harvest = code.harvests[0][0]
     }
-    cand = cand.replace(RE_TAG,harvest)
+    cand = cand.replace(RE_TAG, harvest)
+
+    /*
+      %~%タグを文字列に戻す。
+      複数の候補がある場合はその中からランダムに選んだ一つを用いる。
+      %bot_name%にニックネームを追加した場合、ランダムに選ぶか？
+    */
+    cand = cand.replace(/%[a-zA-Z0-9_+]%/g, (match) => {
+      (async () => {
+        const arr = await db.getItems(match);
+        if (arr.length === 0) {
+          const key = match.slice(1, -1);
+          return `**error:"% ${key} %"が見つかりません**`
+        }
+        cand = arr[randomInt(arr.length)]
+      })();
+    })
 
     return cand;
   }

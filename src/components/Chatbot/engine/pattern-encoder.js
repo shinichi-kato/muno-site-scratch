@@ -76,13 +76,22 @@ export default class PatternEncoder {
     }
     const _script = script.script;
     let inScript = [];
+    const mainDict = db.toArray();
+    let text;
 
     // inスクリプトの抽出
 
     for (let i = 0, l = _script.length; i < l; i++) {
       let line = _script[i];
       if ('in' in line && Array.isArray(line.in) && line.in.length !== 0) {
-        inScript.push(line.in);
+        
+        // メイン辞書に記載された文字列をタグに置き換える
+        text = line.in;
+        for(let i of mainDict){
+          text = text.replace(i.value, i.key)
+        }
+
+        inScript.push(text);
       }
       else {
         throw new InvalidScriptException(`${i}行のinの形式が正しくありません`)
@@ -213,5 +222,6 @@ export default class PatternEncoder {
 
     return false;
   }
+
 }
 
