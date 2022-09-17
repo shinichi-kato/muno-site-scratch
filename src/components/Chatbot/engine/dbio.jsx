@@ -5,26 +5,29 @@
 得られた記憶を永続的に保持する。botごとに記憶を区別するため、
 chatbot.jsonのパス名などをbotIdとして与える。
 
+この情報はdecoderやencoderでタグ展開に使われる。
+replace関数内で再帰的に使われるため、メモリ内にデータのキャッシュを保持する。
+
 */
 
+import { ThreeSixty } from "@mui/icons-material";
 import Dexie from "dexie";
 
 class dbio {
-  constructor(botId) {
-    if (botId) {
-      this.initialize(botId);
-    }
+  constructor(){
+    this.botId = undefined;
+    this.db = null;
+    this.cache = {};
+
   }
 
-  initialize(botId, obj) {
-    /*
-      DBを作り、objの内容で初期化する。
-      DBが既に存在していた場合はobjで上書きしない。
-      
-    */
+  initialize(botId, dict) {
+    // botId: botごとにユニークな名前
+    // dict: dbが空だった場合にdictの内容をputする。
+    //       dictは{key:[vals], ...}という形式。
 
     if (!botId) {
-      throw error("botIdが与えられていません")
+      throw new Error("botIdが指定されていません");
     }
 
     this.db = new Dexie('Chatbot');
@@ -32,13 +35,23 @@ class dbio {
       main: "++id,[botId+key]",  // id,botId,key,val 
     });
 
-    this.botId = botId;
+    // mainが空の場合dictで指定した内容を書き込みcacheに保持する
+    // 空でない場合は内容を読み出しcacheに保持する
+
+    const count = this.db.main
+      .where('[botId+key]')
+      .between([this.botId, Dexie.minKey], [this.botId, Dexie.maxKey])
+      .count();
 
     (async () => {
-      if (await this.db.main.count() === 0) {
-        await this.putItems(obj)
+      if (count === 0) {
+        await this.putItems(dict);
+        this.cache = { ...dict }
+      } else {
+        this.cache = await this.getItems();
       }
     })();
+
   }
 
   async putItems(dict) {
@@ -52,53 +65,52 @@ class dbio {
     */
     let data = [];
     for (let key in dict) {
-      for (let val in dict[key]) {
+      for (let vals in dict[key]) {
         data.push({
           botId: this.botId,
           key: key,
-          value: val
+          values: vals
         });
       }
     }
 
-    await db.main.bulkAdd(data);
+    await this.db.main.bulkAdd(data);
   }
 
-  async addItem(key, value) {
+  addItem(key, value) {
     /* 
        keyにvalueを追加する。
        既にkeyにvalueが存在する場合、既存のvalueは温存される。
     */
 
-    await this.db.main.put({
-      botId: this.botId,
-      key: key,
-      value: value
-    })
+    (async () => {
+      let item = await this.db.main
+        .where({ botId: this.botId, key: key })
+        .first();
+      if (item) {
+        item.values.push(value);
+        this.cache[key] = [...item.values];
+      } else {
+        await this.db.main.put({
+          botId: this.botId,
+          key: key,
+          values: [value]
+        });
+        this.cache[key] = [value];
+      }
+
+    })();
   }
 
-  async getItems(key) {
+  getValues(key) {
     /*
-       keyのvalueを読み出す。
+       keyのvalueをcacheから読み出す。
        返り値はvalueのリストで、valueが存在しない場合[]を返す
     */
 
-    const arr = await this.db.main
-      .where({ botId: this.botId, key: key })
-      .toArray();
-
-    return arr;
+    return this.cache[key];
   }
 
-  async toArray() {
-    /*
-      main辞書の全アイテムをリストにして出力
-    */
-    return await this.db.main
-      .where('[botId+key]')
-      .between([this.botId, Dexie.minKey], [this.botId, Dexie.maxKey])
-      .toArray();
-  }
 }
 
 export const db = new dbio();

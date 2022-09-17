@@ -46,13 +46,15 @@ const text = echoDecoder.render(code); // textを内部コードとスコアに�
 
 import { randomInt } from "mathjs";
 import { InvalidScriptException } from './exceptions.js';
+import { db } from './dbio';
+
+const RE_MAIN_TAG = /{[A-Z_][A-Z0-9_]*}/g;
 
 export default class EchoDecoder {
 
-  constructor(script) {
+  constructor() {
     this.outScript = [];
     this.intents = {};
-    this.learn(script);
   }
 
   learn(script) {
@@ -106,16 +108,33 @@ export default class EchoDecoder {
 
     let cands;
 
-    if (code.intent && code.intent !== "" && code.intent !== "*"){
-      if(code.intent in this.intents){
+    if (code.intent && code.intent !== "" && code.intent !== "*") {
+      if (code.intent in this.intents) {
         cands = this.outScript[this.intents[code.intent]]
-      }else {
+      } else {
         cands = [`error: 辞書にないintent "${code.intent}"が指定されました`]
       }
-    }else {
+    } else {
       cands = this.outScript[code.index];
     }
 
-    return cands[randomInt(cands.length)];
+    let cand = cands[randomInt(cands.length)];
+
+    // candに含まれるタグをテキストに戻す
+    return cand.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag));
+  }
+
+  expand(tag) {
+    /* 
+    タグ文字列を再帰的に展開する。
+    {CAPITAL}はメイン辞書のタグを置き換える。
+    {non_capital}は同じ辞書の中から候補を探して展開する
+    */
+    if (!(tag in this.cache)) return tag;
+
+    let vals = db.getValues(tag);
+    let val = vals[randomInt(vals.length)];
+
+    item = item.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag))
   }
 }

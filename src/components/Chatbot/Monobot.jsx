@@ -21,10 +21,9 @@ import HarvestEncoder from './engine/harvest-encoder';
 import PatternEncoder from './engine/pattern-encoder';
 import EchoDecoder from './engine/echo-decoder';
 import HarvestDecoder from './engine/harvest-decoder';
-import IntentDecoder from './engine/intent-decoder';
 import BasicStateMachine from './engine/basic-state-machine';
 import NamingStateMachine from './engine/naming-state-machine';
-import { db } from './dbio';
+import { db } from './engine/dbio';
 
 const modules = {
   'BowEncoder': BowEncoder,
@@ -32,7 +31,6 @@ const modules = {
   'PatternEncoder': PatternEncoder,
   'EchoDecoder': EchoDecoder,
   'HarvestDecoder': HarvestDecoder,
-  'IntentDecoder': IntentDecoder,
   'BasicStateMachine': BasicStateMachine,
   'NamingStateMachine': NamingStateMachine,
 }
@@ -131,20 +129,13 @@ function reducer(state, action) {
   switch (action.type) {
     case 'Load': {
       const script = action.script;
-
-      let encoder = getModules(script.encoder);
-      let decoder = getModules(script.decoder);
-      let stateMachine = getModules(script.stateMachine || 'BasicStateMachine');
-
-      encoder = new encoder(script);
-      decoder = new decoder(script);
-      stateMachine = new stateMachine(script);
+      const modules = action.modules;
 
       return {
         ...state,
-        encoder: encoder,
-        stateMachine: stateMachine,
-        decoder: decoder,
+        encoder: modules.encoder,
+        stateMachine: modules.stateMachine,
+        decoder: modules.decoder,
         avatar: script.avatar,
         name: script.name,
         backgroundColor: script.backgroundColor,
@@ -200,13 +191,31 @@ export default function Chatbot({ source }) {
       fetch(withPrefix(`${source}/chatbot.json`))
         .then(res => res.json())
         .then(
-          result => {
+          script => {
             dispatch({ type: "Message", message: "計算中 ..." });
-            dispatch({ type: "Load", script: result, source: source });
+
             db.initialize(source, {
-              '%BOT_NAME%': result.name
+              '{BOT_NAME}': [script.name]
             });
-          },
+
+              let encoder = getModules(script.encoder);
+              let decoder = getModules(script.decoder);
+              let stateMachine = getModules(script.stateMachine || 'BasicStateMachine');
+
+              encoder = new encoder(script);
+              decoder = new decoder(script);
+              stateMachine = new stateMachine(script);
+
+              dispatch({
+                type: "Load", script: script, source: source, modules: {
+                  encoder: encoder,
+                  decoder: decoder,
+                  stateMachine: stateMachine,
+                }
+              });
+
+          }
+          ,
           error => {
             dispatch({ type: "Error", message: error.message });
           }

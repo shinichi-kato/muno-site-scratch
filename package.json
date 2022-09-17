@@ -15,6 +15,7 @@
     "@mui/icons-material": "latest",
     "@mui/lab": "latest",
     "@mui/material": "latest",
+    "dexie": "^3.2.2",
     "gatsby": "latest",
     "gatsby-plugin-image": "latest",
     "gatsby-plugin-manifest": "latest",

@@ -62,11 +62,13 @@ import {
 
 import { TinySegmenter } from '../tinysegmenter';
 import { InvalidScriptException } from './exceptions.js';
+import { db } from './dbio';
 
+const RE_MAIN_TAG = /{[A-Z_][A-Z0-9_]*}/g;
 
 export default class BowEncoder {
 
-  constructor(script, segmenter) {
+  constructor(segmenter) {
     this.matrix = [];
     this.vocab = {};
     this.vocabLength = 0;
@@ -77,7 +79,6 @@ export default class BowEncoder {
     this.intents = {};
     this.segmenter = segmenter !== undefined ? segmenter : new TinySegmenter();
 
-    this.learn(script);
   }
 
 
@@ -196,10 +197,14 @@ export default class BowEncoder {
 
     // intentが設定されており'*'以外なら探してoutとする
     let result = this._retrieveIntent(code);
-    if(result !== false){ return result };
+    if (result !== false) { return result };
+
+    // メイン辞書に記載された文字列をタグに置き換える
+    let text = code.text.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag));
+
 
     // segment
-    let nodes = this.segmenter.segment(code.text);
+    let nodes = this.segmenter.segment(text);
     // similarity計算
     return this._similarity(nodes);
   }
@@ -226,7 +231,7 @@ export default class BowEncoder {
     return false;
   }
 
-  _similarity(nodes){
+  _similarity(nodes) {
     let wv = zeros(this.vocabLength);
     for (let word of nodes) {
       let pos = this.vocab[word];
@@ -275,5 +280,18 @@ export default class BowEncoder {
       score: maxScore,
       status: "ok"
     }
+  }
+
+  expand(tag) {
+    /* 
+    タグ文字列を再帰的に展開する。
+    {CAPITAL}はメイン辞書のタグを置き換える。
+    {non_capital}は同じ辞書の中から候補を探して展開する
+    */
+    let vals = db.getValues(tag);
+    let val = vals[randomInt(vals.length)];
+
+    return item.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag))
+
   }
 }

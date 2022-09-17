@@ -103,9 +103,8 @@ function assignPos(code, currentState) {
 
 
 export default class NamingStateMachine {
-  constructor(script) {
+  constructor() {
     this.states = [['main', 0]];
-    this.learn(script);
   }
 
   learn(script) {
