@@ -52,9 +52,10 @@ const RE_MAIN_TAG = /{[A-Z_][A-Z0-9_]*}/g;
 
 export default class EchoDecoder {
 
-  constructor() {
+  constructor(script) {
     this.outScript = [];
     this.intents = {};
+    this.learn(script);
   }
 
   learn(script) {
@@ -96,6 +97,7 @@ export default class EchoDecoder {
       }
     }
 
+
     return { status: "ok" };
   }
 
@@ -121,6 +123,7 @@ export default class EchoDecoder {
     let cand = cands[randomInt(cands.length)];
 
     // candに含まれるタグをテキストに戻す
+    console.log("cand",cand)
     return cand.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag));
   }
 
@@ -130,11 +133,11 @@ export default class EchoDecoder {
     {CAPITAL}はメイン辞書のタグを置き換える。
     {non_capital}は同じ辞書の中から候補を探して展開する
     */
-    if (!(tag in this.cache)) return tag;
+    if (!db.isExist(tag)) return tag;
 
     let vals = db.getValues(tag);
     let val = vals[randomInt(vals.length)];
 
-    item = item.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag))
+    return val.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag))
   }
 }

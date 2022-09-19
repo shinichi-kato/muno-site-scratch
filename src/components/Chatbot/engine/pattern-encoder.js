@@ -76,22 +76,13 @@ export default class PatternEncoder {
     }
     const _script = script.script;
     let inScript = [];
-    const mainDict = db.toArray();
-    let text;
 
     // inスクリプトの抽出
 
     for (let i = 0, l = _script.length; i < l; i++) {
       let line = _script[i];
       if ('in' in line && Array.isArray(line.in) && line.in.length !== 0) {
-        
-        // メイン辞書に記載された文字列をタグに置き換える
-        text = line.in;
-        for(let i of mainDict){
-          text = text.replace(i.value, i.key)
-        }
-
-        inScript.push(text);
+        inScript.push(line.in);
       }
       else {
         throw new InvalidScriptException(`${i}行のinの形式が正しくありません`)
@@ -104,11 +95,9 @@ export default class PatternEncoder {
             `スクリプト中でintent "${line.intent}"が重複しています`
           )
         }
-        console.log("line.intent", line.intent)
         this.intents[line.intent] = i
       }
     }
-
 
 
     // 正規表現化
@@ -140,9 +129,9 @@ export default class PatternEncoder {
       return result
     }
 
-    let text = code.text.replace('_', '＿');
-    return this.resolve(text, chomp);
+    return this.resolve(code.text, chomp);
   }
+
 
 
   // ----------------------------------------------------
@@ -158,6 +147,9 @@ export default class PatternEncoder {
 
     const check = this._precheck();
     if (check.status !== 'ok') return check;
+    
+    // メイン辞書に記載された一部の文字列をタグに置き換える
+    text = this._tagging(text, '{BOT_NAME}');
 
     // 正規表現のマッチした行はスコア1とする
     // 後方参照があればharvestに格納して返す
@@ -166,8 +158,19 @@ export default class PatternEncoder {
     for (let i = 0, l = this.script.length; i < l; i++) {
       match = this.script[i].exec(text);
       if (match) {
+
+        // i行のintentを探す
+        let intent;
+        for(let x in this.intents){
+          if(this.intents[x] === i){
+            intent = x;
+            break;
+          }
+        }
+        console.log("match",match)
+        
         return {
-          intent: this.intents[i],
+          intent: intent,
           index: i,
           score: 1,
           harvests: match.slice(1, match.length),
@@ -187,6 +190,7 @@ export default class PatternEncoder {
     }
   }
 
+
   _precheck() {
     if (this.script.length === 0) {
       return {
@@ -198,6 +202,14 @@ export default class PatternEncoder {
     return {
       status: 'ok'
     }
+  }
+
+  _tagging(text, key) {
+    let vals = db.getValues(key);
+    for (let val of vals) {
+      text = text.replace(val, key);
+    }
+    return text;
   }
 
   _retrieveIntent(code) {

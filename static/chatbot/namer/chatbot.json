@@ -3,7 +3,7 @@
     "name": "ミドリ",
     "backgroundColor": "#c7a2e0",
     "encoder": "PatternEncoder",
-    "stateMachine":"NamingStateMachine",
+    "stateMachine": "NamingStateMachine",
     "decoder": "HarvestDecoder",
     "precision": 0.3,
     "script": [
@@ -19,18 +19,18 @@
         {
             "intent": "silence",
             "in": [
-                "{nop}"
+                "{NOP}"
             ],
             "out": [
-                "{nop}"
+                "{NOP}"
             ]
         },
         {
             "intent": "summon",
             "in": [
-                "{bot_name}"
+                "{BOT_NAME}"
             ],
-            "out":[
+            "out": [
                 "はーい"
             ]
         },
@@ -40,7 +40,28 @@
                 "(.+?)って呼んでいい？"
             ],
             "out": [
-                "(?)ですね。"
+                "{LAST}でいいですか？"
+            ]
+        },
+        {
+            "intent": "memorized",
+            "in": [
+                "うん。",
+                "そう",
+                "やったー"
+            ],
+            "out": [
+                "分かりました(笑",
+                "{LAST}です。よろしくね"
+            ]
+        },
+        {
+            "intent": "not_found",
+            "in": [
+                "ん"
+            ],
+            "out": [
+                "そうなの？","よくわからないよ・・・","？"
             ]
         }
     ]

@@ -47,9 +47,8 @@ codeは以下の情報で構成される
 
 import { randomInt } from "mathjs";
 import EchoDecoder from "./echo-decoder";
-import { db } from './dbio';
 
-const RE_TAG = /\*/g;
+const RE_MAIN_TAG = /{[A-Z_][A-Z0-9_]*}/g;
 
 export default class HarvestDecoder extends EchoDecoder {
 
@@ -61,33 +60,32 @@ export default class HarvestDecoder extends EchoDecoder {
     if (code.status === 'error') {
       return code.message;
     }
-    const cands = this.outScript[code.index];
+
+    let cands;
+    
+    console.log("code",code)
+
+    if (code.intent && code.intent !== "" && code.intent !== "*") {
+      if (code.intent in this.intents) {
+        cands = this.outScript[this.intents[code.intent]]
+      } else {
+        cands = [`error: 辞書にないintent "${code.intent}"が指定されました`]
+      }
+    } else {
+      cands = this.outScript[code.index];
+    }
+    
     let cand = cands[randomInt(cands.length)];
 
-    // 「*」をとりあえず先頭のharvestで置き換える。
-    let harvest = "";
-    if (code.harvests !== undefined && code.harvests.length !== 0) {
-      harvest = code.harvests[0][0]
-    }
-    cand = cand.replace(RE_TAG, harvest)
+    console.log("cand",cand)
 
     /*
-      %~%タグを文字列に戻す。
+      タグを文字列に戻す。
       複数の候補がある場合はその中からランダムに選んだ一つを用いる。
-      %bot_name%にニックネームを追加した場合、ランダムに選ぶか？
-    */
-    cand = cand.replace(/%[a-zA-Z0-9_+]%/g, (match) => {
-      (async () => {
-        const arr = await db.getItems(match);
-        if (arr.length === 0) {
-          const key = match.slice(1, -1);
-          return `**error:"% ${key} %"が見つかりません**`
-        }
-        cand = arr[randomInt(arr.length)]
-      })();
-    })
+      取得した名前は{LAST}に、それを含めた全ての名前は{BOT_NAME}に格納されている。
 
-    return cand;
+    */
+    return cand.replace(RE_MAIN_TAG, (itemTag) => this.expand(itemTag));
   }
 
 }

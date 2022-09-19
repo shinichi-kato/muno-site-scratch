@@ -199,14 +199,34 @@ export default class BowEncoder {
     let result = this._retrieveIntent(code);
     if (result !== false) { return result };
 
-    // メイン辞書に記載された文字列をタグに置き換える
-    let text = code.text.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag));
+    // メイン辞書に記載された一部の文字列をタグに置き換える
+    let text = code.text;
+    text = this._tagging(text,'{BOT_NAME}');
+    
 
 
     // segment
     let nodes = this.segmenter.segment(text);
     // similarity計算
-    return this._similarity(nodes);
+    result = this._similarity(nodes);
+    
+    // i行のintentを探す
+    for(let x in this.intents){
+      if(this.intents[x] === result.index){
+        result.intent = x;
+      }
+      break;
+    }
+
+    return result;
+  }
+
+  _tagging(text, key){
+    let vals = this.db.getValues(key);
+    for(let val of vals){
+      text = text.replace(val,key);
+    }
+    return text;
   }
 
   _retrieveIntent(code) {
@@ -291,7 +311,7 @@ export default class BowEncoder {
     let vals = db.getValues(tag);
     let val = vals[randomInt(vals.length)];
 
-    return item.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag))
+    return val.replace(RE_MAIN_TAG, (itemTag) => this.expand(itemTag))
 
   }
 }

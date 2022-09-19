@@ -82,8 +82,15 @@ export default class HarvestEncoder extends BowEncoder {
   }
 
   retrieve(code) {
+    // intentが設定されており'*'以外なら探してoutとする
+    let result = this._retrieveIntent(code);
+    if (result !== false) { return result };
 
-    let nodes = this.segmenter.segment(code.text);
+    // メイン辞書に記載された一部の文字列をタグに置き換える
+    let text = code.text;
+    text = this._tagging(text,'{BOT_NAME}');
+
+    let nodes = this.segmenter.segment(text);
 
     // 類似度計算のときは「猫が」→「* 主語」のように文節の種類が与えられた
     // ノードは*に置き換える。foundsに*だったものを格納する。
@@ -100,7 +107,7 @@ export default class HarvestEncoder extends BowEncoder {
       return node;
     })
 
-    let result = super._retrieveIntent(code) || this._similarity(nodes);
+    result = super._retrieveIntent(code) || this._similarity(nodes);
 
     if (result.index === null || founds.length === 0) {
       return {

@@ -174,13 +174,11 @@ function reducer(state, action) {
   }
 }
 
-const initialHarvest = [];
 
 export default function Chatbot({ source }) {
   const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [harvests, setHarvests] = useState(initialHarvest);
 
   //-------------------------------------------
   // chatbotのロード
@@ -192,11 +190,14 @@ export default function Chatbot({ source }) {
         .then(res => res.json())
         .then(
           script => {
-            dispatch({ type: "Message", message: "計算中 ..." });
+            (async () => {
 
-            db.initialize(source, {
-              '{BOT_NAME}': [script.name]
-            });
+              dispatch({ type: "Message", message: "計算中 ..." });
+
+              await db.initialize(
+                source,
+                { '{BOT_NAME}': [script.name] }
+              );
 
               let encoder = getModules(script.encoder);
               let decoder = getModules(script.decoder);
@@ -207,13 +208,14 @@ export default function Chatbot({ source }) {
               stateMachine = new stateMachine(script);
 
               dispatch({
-                type: "Load", script: script, source: source, modules: {
+                type: "Load", script: script, source: source, 
+                modules: {
                   encoder: encoder,
                   decoder: decoder,
                   stateMachine: stateMachine,
                 }
               });
-
+            })();
           }
           ,
           error => {
@@ -264,11 +266,7 @@ export default function Chatbot({ source }) {
 
     code = state.encoder.retrieve(code);
     code = state.stateMachine.run(code);
-    let h = harvests;
-    if (code.harvests !== undefined && code.harvests.length !== 0) {
-      h = code.harvests;
-      setHarvests(h);
-    }
+    console.log("code",code)
     let text = state.decoder.render(code);
 
     if (text !== '__nop__') {

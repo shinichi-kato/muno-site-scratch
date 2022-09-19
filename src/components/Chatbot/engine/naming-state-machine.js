@@ -86,13 +86,15 @@ const LEX = {
   'naming': c => c.intent === 'naming',
   'confirm': c => c.intent === 'confirm',
   'memorized': c => c.intent === 'memorized',
-  'break': c => c.intent !== 'memorized',
 };
 
 function assignPos(code, currentState) {
   const [table, state] = currentState;
 
   for (let st in DISPATCH_TABLES[table][state]) {
+    if(!(st in LEX)){
+      console.log("st not found",st)
+    }
     if (LEX[st](code)) {
       return st
     }
@@ -103,13 +105,13 @@ function assignPos(code, currentState) {
 
 
 export default class NamingStateMachine {
-  constructor() {
+  constructor(script) {
     this.states = [['main', 0]];
+    this.learn(script);
   }
 
   learn(script) {
     this.precision = script.precision;
-    this.harvest = "";
   }
 
   run(code) {
@@ -124,7 +126,6 @@ export default class NamingStateMachine {
     */
     let table, state, pos;
     let loop = 0;
-    console.log("code=",code)
 
     while (true) {
       // 管理ループ
@@ -151,6 +152,8 @@ export default class NamingStateMachine {
       if(pos === 'naming'){
         // code.harvestに取得したニックネームが格納されている。
         // これを辞書に追加する
+        db.setItem('{LAST}',code.harvests[0]);
+        console.log("naming", code.harvests)
       }
 
       if (pos in STATE_TABLES) {
@@ -158,18 +161,18 @@ export default class NamingStateMachine {
         continue;
       }
 
-      if ((table === 'main' && state === 3) ||
+      if ((table === 'main' && state === 6) ||
         (table === 'naming' && state === 4)) {
         // accept()
         if (code.score < this.precision) {
           code.intent = 'not_found'
         }
+        console.log("accept",code,this.precision)
         continue;
       }
 
       if (table === 'naming' && state === 2) {
         // apply_name()
-        this.harvest = code.harvests[0];
         // continueしない
       }
 
@@ -182,7 +185,8 @@ export default class NamingStateMachine {
     }
 
     if (pos === 'memorize') {
-      db.addItem('%bot_name%',this.harvest);
+      let last = db.getValues('{LAST}');
+      db.addItem('{BOT_NAME}', last[0]);
     }
 
     return {
