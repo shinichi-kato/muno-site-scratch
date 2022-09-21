@@ -160,14 +160,14 @@ export default class PatternEncoder {
       if (match) {
 
         // i行のintentを探す
-        let intent;
+        let intent = '*';
         for(let x in this.intents){
           if(this.intents[x] === i){
             intent = x;
             break;
           }
         }
-        console.log("match",match)
+        console.log("text=",text,"intent=",intent,"index=",i)
         
         return {
           intent: intent,
@@ -214,7 +214,6 @@ export default class PatternEncoder {
 
   _retrieveIntent(code) {
     // intentが設定されており'*'以外なら探してoutとする
-    console.log("intents", this.intents, "code", code)
     if (code.intent && code.intent !== "" && code.intent !== '*') {
       if (code.intent in this.intents) {
         return {

@@ -3,141 +3,94 @@ naming state machine
 
 名付けをおこなう内的プロセスの状態機械
 ==========================================
-この状態機械は
-・ユーザによるチャットボットへのニックネーム付与、
-・ニックネームによりチャットボットが「呼ばれた」ことを認識する、
-・チャットボットが不在の状態で呼ばれたら現れる、
-という動作を行う。ロジックの詳細は以下にBNF記法で示す。
-BNF記法は https://www.bottlecaps.de/rr/ui で可視化できる。
-------------------------------------------------------------------------------------------
-main     ::= ('start' | ('absent' 'stand-by'* 'summon'))
-                      'accept()' ( ( '*' | 'not_found'| naming ) 'accept()' )* 'bye'
-naming   ::= ( 'apply_name()' 'confirm' )+ ( 'memorized' | 'break' )
-------------------------------------------------------------------------------------------
 
-それぞれの状態では以下のような動作をする
+この状態機械は PatternEncoder によりコード化されたユーザの入力を受取り、
+内部状態を伴った
+・ユーザによるチャットボットへのニックネーム付与
+・ニックネームや名前を呼ばれたらチャットボットが答える
+・チャットボットが不在の状態で呼ばれたら現れる
+という制御を行う。
 
-| 状態の名前    | 動作内容                                                                 |
-|---            |---                                                                       |
-| start         | チャットボット在室の状態でスタート。挨拶を行う。                         |
-| absent        | チャットボット不在の状態でスタート。不在を説明するシステムメッセージ出力 |
-| summon        | ユーザの呼びかけに応えてチャットボットが現れる                           |
-| stand-by      | summon以外の入力に対しては沈黙                                           |
-| accept()      | ユーザの入力を受取り、scoreが低ければintentをnot_foundに                 |
-| not_found     | 辞書中に対応する言葉が見つからない場合の対応                             |
-| naming        | ユーザによるチャットボットの命名が行われた                               |
-| bye           | ユーザが退室を希望した                                                   |
-| apply_name()  | ユーザ発言から抽出したニックネームを仮に記憶                             |
-| confirm       | 仮に記憶したニックネームが正しいかどうかの確認を求める                   |
-| memorized     | ニックネームを記憶した旨を知らせる                                       |
-| break         | ニックネーム記憶をキャンセルした旨を知らせる                             |
-
-
-この状態機械を利用するには「ニックネームらしき部分を入力文字列から抽出する」という機能がひ
-まずpattern-encoderなどでユーザからの入力をコード化する。このとき辞書の形式を
-in-outではなくin-intentとして、encoderからは行番号でなくcodeを受け取る。
-{
-  in: ["^ねえ(.+?)さん"],
-  intent: "summon"
-},
-
-
-
-
-codeには以下の情報を格納する
-{
-  index: スクリプト中でヒットした行番号,
-  harvests: その行の正規表現に()があれば抽出内容を格納,
-}
-
+システムは基本的にプッシュダウン・オートマトンであるが、
+エンコーダーが決めるコードは文脈によらない一方、状態によって解釈が
+変わるため、
+状態機械には全てチャットボットの状態のみを表現する。
 
 */
 
 import { parseTables, dispatchTables } from './phrase-segmenter';
+import BasicStateMachine from './basic-state-machine.js';
 import { db } from './dbio';
 
 const STATE_TABLES = parseTables({
   main: [
-    //           0  1  2  3  4  5  6  7  8  9 10
-    '*         : 0  0  6  4  4  6  7  6  6  6  0',
-    'start     : 2  0  0  0  0  0  0  0  0  0  0',
-    'absent    : 3  0  0  0  0  0  0  0  0  0  0',
-    'summon    : 0  0  0  5  5  0  0  0  0  0  0',
-    'not_found : 0  0  0  0  0  0  8  0  0  0  0',
-    'naming    : 0  0  0  0  0  0  9  0  0  0  0',
-    'bye       : 0  0  0  0  0  0 10  0  0  0  0',
+    //            0  1  2  3  4  5  6  7  8  9
+    '*          : 0  0  6  0  0  6  6  6  6  0',
+    'start      : 2  0  0  0  0  0  0  0  0  0',
+    'absent     : 3  0  0  0  0  0  0  0  0  0',
+    'stand_by   : 0  0  0  4  4  0  0  0  0  0',
+    'summon     : 0  0  0  5  5  0  0  0  0  0',
+    'not_found  : 0  0  7  0  0  7  7  7  7  0',
+    'naming     : 0  0  8  0  0  8  8  8  8  0',
+    'bye        : 0  0  0  0  0  9  9  9  9  0',
   ],
   naming: [
-    //          0  1  2  3  4  5  6
-    '*        : 2  0  3  4  6  1  1',
-    'confirm  : 0  0  0  0  0  0  0',
-    'memorize : 0  0  0  4  5  0  0',
+    //           0  1  2  3  4  5
+    '*         : 0  0  0  0  1  1',
+    'naming2   : 2  0  0  0  1  1',
+    'renaming  : 0  0  3  3  0  0',
+    'memorized : 0  0  4  4  0  0',
+    'break     : 0  0  5  5  0  0',
   ],
 });
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
-const LEX = {
-  '*': c => false,
-  'start': c => c.intent === 'start',
-  'absent': c => c.intent === 'absent',
-  'summon': c => c.intent === 'summon',
-  'not_found': c => c.intent === 'not_found',
-  'bye': c => c.intent === 'bye',
-  'naming': c => c.intent === 'naming',
-  'confirm': c => c.intent === 'confirm',
-  'memorized': c => c.intent === 'memorized',
-};
 
-function assignPos(code, currentState) {
-  const [table, state] = currentState;
+export default class NamingStateMachine extends BasicStateMachine {
+  constructor(){
+    super();
 
-  for (let st in DISPATCH_TABLES[table][state]) {
-    if(!(st in LEX)){
-      console.log("st not found",st)
-    }
-    if (LEX[st](code)) {
-      return st
-    }
-  }
-  return '*'
-}
-
-
-
-export default class NamingStateMachine {
-  constructor(script) {
-    this.states = [['main', 0]];
-    this.learn(script);
+    this.lex= {
+      '*': c => false,
+      'start': c=> c.intent === 'start',
+      'absent': c=> c.intent === 'absent',
+      'stand_by': c=> c.intent !== 'summon',
+      'summon': c=> c.intent === 'summon',
+      'not_found': c=> c.score < this.precision,
+      'naming': c=> c.intent === 'naming',
+      'naming2': c=> c.intent === 'naming',
+      'bye': c=>c.intent === 'bye',
+      'renaming': c=> c.intent === 'renaming',
+      'memorized': c=> c.intent === 'memorized',
+      'break': c=>c.intent !== 'renaming' && c.intent !== 'memorized',
+    };
   }
 
-  learn(script) {
-    this.precision = script.precision;
+  _assignPos(code, table, state) {
+    for (let st in DISPATCH_TABLES[table][state]) {
+      if (this.lex[st](code)) {
+        return st;
+      }
+    }
+    return '*';
   }
 
   run(code) {
-    /* 以下の内容を格納したcodeを受取り、次の状態を決める 
-    code={
-      intent: intent名,
-      score: 1,
-      harvests: 正規表現で獲得した後方参照文字列のリスト
-      text: 入力文字列
-      status: "ok"
-    }
-    */
-    let table, state, pos;
+    let table, state, pos, lastIndex;
     let loop = 0;
 
     while (true) {
-      // 管理ループ
       loop++;
       if (loop > 100) {
-        throw new Error(`Trapped in infinite loop at ${code.intent}`);
+        throw new Error(`maybe infinite loop at ${code}`);
       }
-      [table, state] = this.states[this.states.length - 1];
-      pos = assignPos(code, this.states[this.states.length - 1]);
-      this.states[this.states.length - 1] = [table, STATE_TABLES[table][pos][state]];
-      state = this.states[this.states.length - 1][1];
-      console.log("states",table,state)
+
+      lastIndex = this.states.length - 1;
+      [table, state] = this.states[lastIndex];
+      pos = this._assignPos(code, table, state);
+      this.states[lastIndex] = [table, STATE_TABLES[table][pos][state]];
+      state = this.states[lastIndex][1];
+      console.log("st=",table,state,"pos=",pos)
 
       if (state === 0) {
         this.states = [['main', 0]];
@@ -149,50 +102,29 @@ export default class NamingStateMachine {
         continue;
       }
 
-      if(pos === 'naming'){
-        // code.harvestに取得したニックネームが格納されている。
-        // これを辞書に追加する
-        db.setItem('{LAST}',code.harvests[0]);
-        console.log("naming", code.harvests)
-      }
-
       if (pos in STATE_TABLES) {
         this.states.push([pos, 0]);
         continue;
       }
 
-      if ((table === 'main' && state === 6) ||
-        (table === 'naming' && state === 4)) {
-        // accept()
-        if (code.score < this.precision) {
-          code.intent = 'not_found'
-        }
-        console.log("accept",code,this.precision)
-        continue;
-      }
-
-      if (table === 'naming' && state === 2) {
-        // apply_name()
-        // continueしない
-      }
-
       break;
     }
-
+    
     // 通常の処理
-    if (pos === '*') {
-      return code
-    }
+     if(pos === 'renaming' || pos === 'naming2'){
+      db.setItem('{LAST}', code.harvests[0]);
+     }
 
-    if (pos === 'memorize') {
+     if (pos === 'memorized') {
       let last = db.getValues('{LAST}');
       db.addItem('{BOT_NAME}', last[0]);
     }
-
+    
     return {
       ...code,
-      intent: pos,
-
+      intent: pos
     }
+
   }
+
 }
