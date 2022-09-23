@@ -17,7 +17,12 @@
             ]
         },
         {
-            "intent": "stand-by",
+            "intent": "absent",
+            "in": ["{NOP}"],
+            "out":["{NOP}"]
+        },
+        {
+            "intent": "stand_by",
             "in": [
                 "{NOP}"
             ],
@@ -44,15 +49,6 @@
             ]
         },
         {
-            "intent": "naming2",
-            "in": [
-                "(.+?)って呼んでいい？"
-            ],
-            "out": [
-                "{LAST}でいいですか？"
-            ]
-        },
-        {
             "intent": "renaming",
             "in": [
                 "(.+?)だ",
@@ -64,12 +60,11 @@
             ]
         },
         {
-            "intent": "memorized",
+            "intent": "confirm",
             "in": [
-                "うん。",
-                "そう",
-                "うん",
-                "やったー"
+                "^うん。?$",
+                "^そう",
+                "^やったー*"
             ],
             "out": [
                 "分かりました(笑",

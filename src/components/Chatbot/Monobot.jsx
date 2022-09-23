@@ -2,7 +2,9 @@
 Monobot
 ==================
 
-一つの辞書のみからなるチャットボット
+チャットボット デモンストレーションUI
+
+チャットボットはencoder, stateMachine, docoderの組み合わせで構成される。
 
 
 */
@@ -123,6 +125,7 @@ const initialState = {
   status: "unload",
   message: null,
   source: null,
+  options: null,
 };
 
 function reducer(state, action) {
@@ -143,6 +146,7 @@ function reducer(state, action) {
         status: "loaded",
         message: "",
         source: action.source,
+        options: { ...action.options },
       }
     }
 
@@ -175,10 +179,11 @@ function reducer(state, action) {
 }
 
 
-export default function Chatbot({ source }) {
+export default function Chatbot({ source, options }) {
   const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   //-------------------------------------------
   // chatbotのロード
@@ -208,7 +213,9 @@ export default function Chatbot({ source }) {
               stateMachine = new stateMachine(script);
 
               dispatch({
-                type: "Load", script: script, source: source, 
+                type: "Load", script: script,
+                source: source,
+                options: options,
                 modules: {
                   encoder: encoder,
                   decoder: decoder,
@@ -233,8 +240,11 @@ export default function Chatbot({ source }) {
 
     if (state.status === 'loaded') {
       // stale effect化を防ぐためrun()の内容を展開
+      const startingState = state.options ? state.options.startingState : null;
+      console.log("startingState", startingState)
+
       let code = {
-        intent: 'start',
+        intent: startingState || 'start',
         text: '',
         owner: 'system'
       };
@@ -244,7 +254,7 @@ export default function Chatbot({ source }) {
       let text = state.decoder.render(code);
 
       dispatch({ type: "Start" });
-      renderMessage('bot', text);
+      renderMessage('bot', text, code);
     }
   }, [state.encoder, state.decoder, state.stateMachine, state.status])
 
@@ -266,23 +276,30 @@ export default function Chatbot({ source }) {
 
     code = state.encoder.retrieve(code);
     code = state.stateMachine.run(code);
-    console.log("code",code)
     let text = state.decoder.render(code);
 
-    if (text !== '__nop__') {
-      renderMessage('bot', text);
+    renderMessage('bot', text, code);
+  }
+
+  function renderMessage(person, text, code) {
+    if(text!=="{NOP}"){
+      setLog(prev =>
+        [...prev.slice(-MAX_LOG_LENGTH),
+        { person: person, text: text }
+        ]
+      );
+  
+    }
+
+    if(code){
+      setAvatarUrl(withPrefix(
+        code.intent === 'absent' || code.intent === 'stand_by'
+          ? `${source}/absent.svg`
+          : `${source}/${state.avatar}`
+      ))
+  
     }
   }
-
-  function renderMessage(person, text) {
-    setLog(prev =>
-      [...prev.slice(-MAX_LOG_LENGTH),
-      { person: person, text: text }
-      ]
-    )
-  }
-
-  const avatarUrl = withPrefix(`${source}/${state.avatar}`);
 
   return (
     <Box

@@ -101,6 +101,7 @@ export default class PatternEncoder {
 
 
     // 正規表現化
+    this.script = [];
 
     for (let i = 0, l = inScript.length; i < l; i++) {
       for (let text of inScript[i]) {
@@ -161,17 +162,19 @@ export default class PatternEncoder {
 
         // i行のintentを探す
         let intent = '*';
+        let i2 = this.index[i]
         for(let x in this.intents){
-          if(this.intents[x] === i){
+          if(this.intents[x] === i2){
             intent = x;
             break;
           }
         }
-        console.log("text=",text,"intent=",intent,"index=",i)
-        
+        console.log("text=",text,"intent=",intent,"index=",i2)
+        // このiはthis.scriptの添字で
+        // それをinscriptの添字に戻せてない
         return {
           intent: intent,
-          index: i,
+          index: i2,
           score: 1,
           harvests: match.slice(1, match.length),
           text: chomp ? text.replace(match[0], "") : text,
