@@ -19,8 +19,8 @@ naming state machine
 -------------------------------------------------------------
 
 main::= ('start'|('absent' 'stand_by'* 'summon'))
-        ('*'|'not_found'|'naming')* 'bye'
-naming::='naming2' 'reaming'* ('confirm'|'break')
+        ('*'|'not_found'|'namer')* 'bye'
+namer::='naming' 'renaming'* ('confirm'|'break')
 
 ------------------------------------------------------------
 
@@ -119,7 +119,7 @@ export default class NamingStateMachine extends BasicStateMachine {
     }
     
     // 通常の処理
-     if(pos === 'renaming' || pos === 'naming2'){
+     if(pos === 'renaming' || pos === 'naming'){
       db.setItem('{LAST}', code.harvests[0]);
      }
 
