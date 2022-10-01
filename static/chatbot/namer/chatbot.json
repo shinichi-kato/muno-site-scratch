@@ -3,7 +3,7 @@
     "name": "ミドリ",
     "backgroundColor": "#c7a2e0",
     "encoder": "PatternEncoder",
-    "stateMachine": "NamingStateMachine",
+    "stateMachine": "NamingStateMachine0",
     "decoder": "HarvestDecoder",
     "precision": 0.3,
     "script": [
@@ -42,7 +42,7 @@
         {
             "intent": "naming",
             "in": [
-                "([^、。]+?)って呼んでいい？"
+                "[こと|事]?([^、。]+?)って呼んでいい？"
             ],
             "out": [
                 "{LAST}でいいですか？"

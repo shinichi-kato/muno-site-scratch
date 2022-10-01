@@ -24,7 +24,9 @@ import PatternEncoder from './engine/pattern-encoder';
 import EchoDecoder from './engine/echo-decoder';
 import HarvestDecoder from './engine/harvest-decoder';
 import BasicStateMachine from './engine/basic-state-machine';
-import NamingStateMachine from './engine/naming-state-machine';
+import NamingStateMachine0 from './engine/naming-state-machine0';
+import NamingStateMachine from './engine/naming-state-machine0';
+
 import { db } from './engine/dbio';
 
 const modules = {
@@ -34,6 +36,7 @@ const modules = {
   'EchoDecoder': EchoDecoder,
   'HarvestDecoder': HarvestDecoder,
   'BasicStateMachine': BasicStateMachine,
+  'NamingStateMachine0': NamingStateMachine0,
   'NamingStateMachine': NamingStateMachine,
 }
 
@@ -201,7 +204,10 @@ export default function Chatbot({ source, options }) {
 
               await db.initialize(
                 source,
-                { '{BOT_NAME}': [script.name] }
+                { 
+                  '{BOT_NAME}': [script.name],
+                  '{USER_NAME}': ['ユーザ'],
+                }
               );
 
               let encoder = getModules(script.encoder);

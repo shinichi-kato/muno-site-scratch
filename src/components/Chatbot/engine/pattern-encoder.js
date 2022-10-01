@@ -151,6 +151,7 @@ export default class PatternEncoder {
     
     // メイン辞書に記載された一部の文字列をタグに置き換える
     text = this._tagging(text, '{BOT_NAME}');
+    text = this._tagging(text, '{USER_NAME}');
 
     // 正規表現のマッチした行はスコア1とする
     // 後方参照があればharvestに格納して返す
