@@ -1,0 +1,125 @@
+{
+    "avatar": "plant-fairy.svg",
+    "name": "ミドリ",
+    "backgroundColor": "#c7a2e0",
+    "encoder": "PatternEncoder",
+    "stateMachine": "NamingStateMachine",
+    "decoder": "HarvestDecoder",
+    "precision": 0.3,
+    "script": [
+        {
+            "intent": "start",
+            "in": [
+                "こんにちは"
+            ],
+            "out": [
+                "こんにちは"
+            ]
+        },
+        {
+            "intent": "absent",
+            "in": ["{NOP}"],
+            "out":["{NOP}"]
+        },
+        {
+            "intent": "stand_by",
+            "in": [
+                "{NOP}"
+            ],
+            "out": [
+                "{NOP}"
+            ]
+        },
+        {
+            "intent": "summon",
+            "in": [
+                "{BOT_NAME}"
+            ],
+            "out": [
+                "はーい"
+            ]
+        },
+        {
+            "intent": "bot_naming",
+            "in": [
+                "[こと|事]?([^、。]+?)って呼んでいい？"
+            ],
+            "out": [
+                "{LAST}でいいですか？"
+            ]
+        },
+        {
+            "intent": "bot_renaming",
+            "in": [
+                "(.+?)(?:だ|で)",
+                "(.+?)って呼んでいい？"
+            ],
+            "out": [
+                "じゃあ {LAST} ？",
+                "{LAST}でいいですか？"
+            ]
+        },
+        {
+            "intent": "bot_confirm",
+            "in": [
+                "^うん。?$",
+                "^そう",
+                "^やったー*"
+            ],
+            "out": [
+                "分かりました(笑",
+                "{LAST}です。よろしくね",
+                "{USER_NAME}さんのことは何て呼んだらいいですか？"
+            ]
+        },
+        {
+            "intent": "bot_break",
+            "in": [
+                "やっぱやめ"
+            ],
+            "out": [
+                "？"
+            ]
+        },
+        {
+            "intent": "user_naming",
+            "in": [
+                "(?:私|僕|わたし|ぼく)のことは([^、。]+?)って"
+            ],
+            "out": [
+                "{LAST}さんって呼んだらいい？"
+            ]
+        },
+        {
+            "intent": "user_renaming",
+            "in":[
+                "(.+?)って呼んで。",
+                "(.+?)だよ",
+                "そうじゃない"
+            ],
+            "out":[
+                "{LAST}さんですね。"
+            ]
+        },
+        {
+            "intent": "user_confirm",
+            "in": [
+                "^うん。?$",
+                "^そう",
+                "^やったー*"
+            ],
+            "out": [
+                "{LAST}さん。"
+            ]
+        },
+        {
+            "intent": "not_found",
+            "in": [
+                "{nop}"
+            ],
+            "out": [
+                "そうなの？","よくわからないよ・・・","？"
+            ]
+        }
+    ]
+}
