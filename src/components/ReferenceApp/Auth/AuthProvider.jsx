@@ -10,37 +10,17 @@ export const AuthContext = createContext();
 const initialState = {
   user: {
     displayName: "ゲスト",
-    photoURL: "",
+    photoURL: "guest",
     uid: "mock_UID_for_guest_user",
   },
   backgroundColor: null,
   page: false,
 };
 
-function reducer(state, action) {
-  switch (action.type) {
-    case 'init': {
-      return {
-        ...initialState
-      }
-    }
-
-    case 'toUpdate': {
-      return {
-        ...state,
-        page: 'update'
-      }
-    }
-  }
-}
-
 export default function AuthProvider(props) {
-  const [state, dispatch] = useRecuder(reducer, initialState);
+  const state = initialState;
 
-  function openUpdateDialog() {
-    dispatch({ type: 'toUpdate' });
-  }
-
+  function openUpdateDialog() {};
 
   return (
     <AuthContext.Provider
@@ -53,13 +33,6 @@ export default function AuthProvider(props) {
       }}
     >
       {
-        state.page !== false
-          ?
-          <AuthDialog
-            state={state}
-            updateUserInfo={updateUserInfo}
-          />
-          :
           props.children
       }
 

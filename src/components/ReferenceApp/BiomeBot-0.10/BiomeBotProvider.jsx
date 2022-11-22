@@ -12,25 +12,26 @@ BiomeBot-0.10.0
 いると考えることができる。
 
 BiomeBotはこれらの心のパートをそれぞれ単純な機能を持ったチャットボット
-(以降CellBotと呼ぶ)として実装し、複数のCellBotを集めて一つのキャラクタを
+(以降Cellと呼ぶ)として実装し、複数のCellBotを集めて一つのキャラクタを
 形成するように動作させることで一見複雑な雑談の実現を目指す。
 
-# CellBot
+# Cell
 
-## CellBotの機能的構成
-チャットボットは基本的な会話能力をつかさどる「基本のCellBot」や、
-チャットボットそれぞれのキャラクタにあわせたアドオンを任意に組み合わせる。
+## Cellの機能的構成
+チャットボットには会話よりも優先して動作する以下の状態がある。
+1. 不在/在室
+2. 睡眠/覚醒、
+3. 空腹、
+4. 名前を認識して注意状態になる
+これらの機能を実装したCellをセントラルセルと呼ぶ。セントラルセルの
+state machineは1-4をカスケード接続した構造で、他のCellよりも常に
+優先して動作する。
 
-基本のCellBot           概要
+個別の会話を司るCellを会話セルと呼び、例えば以下のような種類がある
+
+会話Cell                概要
 ----------------------------------------------------------------------
-眠り目覚め              季節や時刻によって睡眠・覚醒する
-空腹                    時刻により食事ネタを話す
-名付け                  チャットボットがニックネームを認識
 挨拶                    会話開始時に挨拶する
-----------------------------------------------------------------------
-
-アドオンのCellBot(例)   概要
-----------------------------------------------------------------------
 好奇心                  知らない言葉を聞いて覚える
 エピソード              ログに倣って返答する
 リフレーミング          ユーザのネガティブ発言をポジティブに言い換え
@@ -38,9 +39,9 @@ BiomeBotはこれらの心のパートをそれぞれ単純な機能を持った
 -----------------------------------------------------------------------
 
 
-## CellBotの実装
+## Cellの実装
 
-CellBotはEncoder, State Machine, Decoderという三要素からなる。
+CellはEncoder, State Machine, Decoderという三要素からなる。
 それぞれはモジュール化されており、CellBotのスクリプトでモジュールを選択する。
 
 ### Encoder
@@ -57,10 +58,17 @@ CellBotはEncoder, State Machine, Decoderという三要素からなる。
 
 # Biome
 
-## CellBot群の動作機序
+## Cell群の動作機序
 
-すべてのCellBotはリストに格納される。CellBotにはPrecisionとRetentionという
-固定のパラメータがあり、以下のルールにしたがって動作する。
+すべての会話セルはリストに格納される。会話セルにはPrecisionとRetentionという
+固定のパラメータがある。
+
+1. セントラルセルが入力を受取り、EncodeとStatemachineの動作を行う。
+   その結果セントラルセルの状態が「会話」になった場合2以降を実行する。そうで
+   ない場合は1に戻る
+2. すべての会話セルはユーザからの入力を受け取ってEncodeとStateMachineの動作を
+   行う。
+
 
 1. 全CellBotはユーザからの入力を受取ってEncodeとStateMachineの動作を行う。
 2. CellBotリストの順にEncodeのscoreがPrecision値よりも高いかどうか検査し、
@@ -72,7 +80,8 @@ CellBotはEncoder, State Machine, Decoderという三要素からなる。
 
 # アバター
 チャットボットの状態を表現する有力な手段がアバターで、BiomeBotでは下記の
-ようなAvatarを利用する。
+ようなAvatarを利用する。Avatarはセントラルセルの状態で変わるほか、
+会話セルにつき一つ
 
 アバター名   概要
 --------------------------------------------------------------
@@ -93,7 +102,8 @@ import React, {
   createContext
 } from 'react';
 
-import { db } from './dbio';
+
+export const AuthContext = createContext();
 
 function reducer(state, action){
   
@@ -102,4 +112,10 @@ function reducer(state, action){
 export default function BiomeBotProvider(props){
 
   const [state,dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <BiomeBotContext.Provider>
+      {props.children}
+    </BiomeBotContext.Provider>
+  )
 }
