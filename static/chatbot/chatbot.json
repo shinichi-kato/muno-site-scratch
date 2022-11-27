@@ -1,0 +1,20 @@
+{
+    "name": "reference-0.10",
+    "avatarPath":"avatar/reference/peace.svg",
+    "backgroundColor": "#db8ce6",
+    "encoder": "PatternEncoder",
+    "stateMachine": "MainStateMachine",
+    "decoder": "HarvestDecoder",
+    "precision": 0.5,
+    "retention": 1,
+    "subCellOrder": [],
+    "script": [
+        {
+            "intent": "start",
+            "in":[
+                "start",
+
+            ]
+        }
+    ]
+}

@@ -16,20 +16,42 @@ BiomeBotはこれらの心のパートをそれぞれ単純な機能を持った
 形成するように動作させることで一見複雑な雑談の実現を目指す。
 
 # Cell
+## 各Cellの構造
+
+CellはEncoder, State Machine, Decoderで構成される。
+
+* Encoderは入力されたテキストに対して自然言語処理のための前処理を行う。また
+辞書を利用してユーザの入力を内部表現に変換する。内部表現は辞書の
+インデックスや特定のコードである。
+
+* StateMachineはEncoderが出力した内部表現を入力として受取り、出力のための
+内部表現を生成する。入力と出力の関係はプッシュダウン・オートマトンなどを
+利用して実装し、ロジックや内部状態の変化を実現する。
+
+* DecoderはStateMachineが出力した内部表現を、自然言語やアバターなどから
+なる出力に変換する。変換には辞書を用いる。
+内部表現はDecoderによりテキスト化してユーザに表示するだけでなく、システムの
+状態を変えるコマンドを記述することができる
+  * {push *.json}  *.jsonで示されたセルに移動する。
+  * {pop} pushしたセルに戻る
+
+
 
 ## Cellの機能的構成
-チャットボットには会話よりも優先して動作する以下の状態がある。
+Biomebotは一つのメインセルと複数のサブセルを組み合わせて動作する。
+メインセルは下記に示すような会話以前の基本的な振る舞いを司る。
+
 1. 不在/在室
 2. 睡眠/覚醒、
 3. 空腹、
 4. 名前を認識して注意状態になる
-これらの機能を実装したCellをセントラルセルと呼ぶ。セントラルセルの
-state machineは1-4をカスケード接続した構造で、他のCellよりも常に
-優先して動作する。
+5. 会話セルの実行
 
-個別の会話を司るCellを会話セルと呼び、例えば以下のような種類がある
+メインセルのstate machineは1-5をカスケード接続した構造になっている。
+メインセルの5は複数の会話セルが競争的に動作する構成になっており、
+サブセルには例えば以下のような種類がある
 
-会話Cell                概要
+サブCell                概要
 ----------------------------------------------------------------------
 挨拶                    会話開始時に挨拶する
 好奇心                  知らない言葉を聞いて覚える
@@ -38,34 +60,12 @@ state machineは1-4をカスケード接続した構造で、他のCellよりも
 傾聴                    
 -----------------------------------------------------------------------
 
-
-## Cellの実装
-
-CellはEncoder, State Machine, Decoderという三要素からなる。
-それぞれはモジュール化されており、CellBotのスクリプトでモジュールを選択する。
-
-### Encoder
-入力されたテキストに対して自然言語処理のための前処理を行う。また
-辞書を利用してユーザの入力を内部表現に変換する。内部表現は辞書のインデックスや
-特定のコードである。
-
-### StateMachine
-チャットボットの動作ロジックを表現する。Biomebotではプッシュダウン・オートマトンを
-主に利用し、入力された内部表現から出力のための内部表現を生成する。
-
-### Decoder
-出力のための内部表現を自然言語に戻す。
-
-# Biome
-
-## Cell群の動作機序
-
-すべての会話セルはリストに格納される。会話セルにはPrecisionとRetentionという
+すべてのサブセルはリストに格納される。セルにはPrecisionとRetentionという
 固定のパラメータがある。
 
 1. セントラルセルが入力を受取り、EncodeとStatemachineの動作を行う。
-   その結果セントラルセルの状態が「会話」になった場合2以降を実行する。そうで
-   ない場合は1に戻る
+   その結果セントラルセルの状態が `5.会話セルの実行` になった場合2以降を
+   実行する。そうでない場合は1に戻る
 2. すべての会話セルはユーザからの入力を受け取ってEncodeとStateMachineの動作を
    行う。
 
@@ -101,20 +101,42 @@ import React, {
   useContext,
   createContext
 } from 'react';
-
+import { AuthContext } from "../Auth/AuthProvider";
 
 export const AuthContext = createContext();
+
+export const defaultSettings = {
+  botId: null,
+  config: {
+    backgroundColor: "",
+    avatarPath: "",
+    keepAliveMinutes: 10,
+  },
+  main: {
+    "NAME": "undefined",
+  },
+  work: {
+    updatedAt: "",
+    status: "",
+    talkCellOrder: [],
+    celtralCell: null,
+    talkCells: null
+  }
+}
 
 function reducer(state, action){
   
 }
 
 export default function BiomeBotProvider(props){
-
   const [state,dispatch] = useReducer(reducer, initialState);
 
   return (
-    <BiomeBotContext.Provider>
+    <BiomeBotContext.Provider
+      value={{
+        execute: handleExecute,
+      }}
+    >
       {props.children}
     </BiomeBotContext.Provider>
   )
