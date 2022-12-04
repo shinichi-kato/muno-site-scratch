@@ -1,0 +1,21 @@
+{
+    "description": "biomebot参照モデル",
+    "updatedAt": "2022-12-05",
+    "creator": "skato",
+    "avatarDir": "chatbot/avatar/faily-girl/",
+    "defaultAvatar": "peace.svg",
+    "backgroundColor": "#7f2dce",
+    "encoder": "PatternEncoder",
+    "stateMachine": "CentralStateMachine",
+    "decoder": "HarvestDecoder",
+    "precision": 0.5,
+    "retention": 1,
+    "biome":["greeting.json"],
+    "script": [
+        {
+            "intent": "*",
+            "in": [],
+            "out": []
+        }
+    ]
+}
