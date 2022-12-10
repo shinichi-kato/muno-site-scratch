@@ -103,7 +103,7 @@ Cell                概要
 
 # アバター
 チャットボットの状態を表現する有力な手段がアバターで、BiomeBotでは下記の
-ようなAvatarを利用する。Avatarは状態機械の状態に応じて変更される。
+ようなAvatarを利用する。Avatarは状態機械が返すcodeのintentに応じて変更される。
 
 アバター名   概要
 --------------------------------------------------------------
@@ -153,15 +153,18 @@ class Biomebot {
     let cell;
     for (cell of this.biome.cells()) {
       code = cell.run(code)
-      if (code.score > 0) {
+      if (code.command === 'to_biome'){
+        this.biome.changeMode('biome');
+      }
+      else if (code.score > 0) {
         break;
       }
     }
 
     // hoist,drop処理
-    if (code.intent === 'hoist') {
+    if (code.command === 'hoist') {
       this.biome.hoist(cell);
-    } else if (code.intent === 'drop') {
+    } else if (code.command === 'drop') {
       this.biome.drop(cell);
     }
 

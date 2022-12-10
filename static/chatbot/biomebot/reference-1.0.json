@@ -10,12 +10,77 @@
     "decoder": "HarvestDecoder",
     "precision": 0.5,
     "retention": 1,
-    "biome":["greeting.json"],
+    "refractory": 4,
+    "biome": [
+        "greeting.json"
+    ],
     "script": [
         {
-            "intent": "*",
+            "intent": "enter",
+            "in": [""],
+            "out": ["やってきましたよ！"]
+        },
+        {
+            "intent": "absent",
+            "in": ["{NOP}"],
+            "out": ["{NOP}"]
+        },
+        {
+            "intent": "std_by",
+            "in": ["{NOP}"],
+            "out": ["{NOP}"]
+        },
+        {
+            "intent": "summon",
+            "in": ["{BOT_NAME}"],
+            "out": ["はーい！"]
+        },
+        {
+            "intent": "bot_naming",
             "in": [],
             "out": []
+        },
+        {
+            "intent": "bot_naming",
+            "in": [
+                "[こと|事]?([^、。]+?)って呼んでいい？"
+            ],
+            "out": [
+                "{LAST}でいいですか？"
+            ]
+        },
+        {
+            "intent": "bot_renaming",
+            "in": [
+                "(.+?)(?:だ|で)",
+                "(.+?)って呼んでいい？"
+            ],
+            "out": [
+                "じゃあ {LAST} ？",
+                "{LAST}でいいですか？"
+            ]
+        },
+        {
+            "intent": "bot_confirm",
+            "in": [
+                "^うん。?$",
+                "^そう",
+                "^やったー*"
+            ],
+            "out": [
+                "分かりました(笑",
+                "{LAST}です。よろしくね",
+                "{USER_NAME}さんのことは何て呼んだらいいですか？"
+            ]
+        },
+        {
+            "intent": "bot_break",
+            "in": [
+                "やっぱやめ"
+            ],
+            "out": [
+                "？"
+            ]
         }
     ]
 }
