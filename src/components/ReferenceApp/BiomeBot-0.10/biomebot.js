@@ -31,7 +31,6 @@ cellは以下のプロパティで構成される。
   creator,         // 作成者
   
   avatarDir,       // 画面に表示するアバターを格納したディレクトリ
-  defaultAvatar,   // 初期のアバター
   backgroundColor, // アバターと吹き出しの背景色
 
   encoder,         // エンコーダのモジュール名
@@ -40,7 +39,7 @@ cellは以下のプロパティで構成される。
   precision,       // 返答を生成する閾値
   retention,       // 
   
-  biome: [],       // 「deploy_biome」コマンドで実行されるcellのリスト
+  biome: [],       // 「to_biome」コマンドで実行されるcellのリスト
   script: []       // スクリプト
 }
 
@@ -66,7 +65,7 @@ DecoderはStateMachineが出力した内部表現を、自然言語やアバタ�
 
 ### biome
 同じディレクトリに格納されたcellの定義ファイル(*.json)のリスト。
-{deploy_biome}コマンドが実行されると、biomeの0番目のcellのencodeが実行される。
+{to_biome}コマンドが実行されると、biomeの0番目のcellのencodeが実行される。
 encodeのスコアがprecisionより小さい場合、biomeの順にencodeとprecisionチェックを
 繰り返す。
 
@@ -150,22 +149,32 @@ class Biomebot {
       text: userText,
       owner: 'user',
     }
-    let cell;
+    let cell, retcode;
     for (cell of this.biome.cells()) {
-      code = cell.run(code)
-      if (code.command === 'to_biome'){
+      retcode = cell.encoder.retrieve(code);
+      retcode = cell.stateMachine.run(code); 
+      if (retcode.command === 'to_biome'){
         this.biome.changeMode('biome');
       }
-      else if (code.score > 0) {
+      else if (retcode.intent !== 'pass') {
         break;
       }
     }
 
     // hoist,drop処理
-    if (code.command === 'hoist') {
+    if (retcode.command === 'hoist') {
       this.biome.hoist(cell);
-    } else if (code.command === 'drop') {
+    } else if (retcode.command === 'drop') {
       this.biome.drop(cell);
+    }
+
+    // decode
+
+    retcode = this.cell.decode.render(retcode);
+
+    return {
+      ...retcode,
+      owner: 'bot'
     }
 
 

@@ -15,6 +15,28 @@ central state machine 1
 5. 
 という動作を行う。
 
+このstatemachineは以下の中間コードを受け入れる
+{
+      intent: ,
+      index: ,
+      score: float,
+      harvests: [],
+      text: text,
+      status: "ok",
+}
+
+このstateMachineは以下の処理結果を返す。
+{
+  intent:
+  index:
+  score:
+  harvests:
+  text
+  status: 
+  avatar
+  command
+}
+
 ■ main→biome遷移
 状態遷移の中で「to_biome」という状態は、他のどの遷移も起きない場合、
 つまりpos=='*'で遷移する。biome側での状態は各状態機械の状態とCellOrder
@@ -41,7 +63,7 @@ bot_namer::='B_naming' 'B_renaming'* ('B_confirm'|'B_break')
 import { parseTables, dispatchTables } from './phrase-segmenter';
 import BasicStateMachine from './basic-state-machine';
 
-STATE_TABLES = parseTables({
+const STATE_TABLES = parseTables({
   main: [
     //            0  1  2  3  4  5  6  7  8  9 10
     '*          : 0  0  0  0  0  0  7  0  0  0  0',
@@ -50,7 +72,6 @@ STATE_TABLES = parseTables({
     'std_by     : 0  0  0  4  4  0  0  0  0  0  0',
     'summon     : 0  0  0  5  5  0  0  0  0  0  0',
     'to_biome   : 0  0  6  0  0  6  0  6  6  6  0',
-    'from_biome : 0  0  0  0  0  0  0  0  0  0  0',
     'bot_namer  : 0  0  9  0  0  9  0  9  9  9  0',
     'not_found  : 0  0  0  0  0  0  0  8  0  0  0',
     'exit       : 0  0 10  0  0 10  0 10 10 10  0',
@@ -64,6 +85,18 @@ STATE_TABLES = parseTables({
     'B_break     : 0  0  5  5  0  0',
   ],
 });
+
+const AVATARS = {
+  '*': 'peace',
+  'enter': 'waving',
+  'std_by': 'absent',
+  'absent': 'absent',
+  'summon': 'waving',
+  'to_biome': 'peace',
+  'bot_namer': 'peace',
+  'not_found': 'peace',
+  'exit': 'waving',
+};
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
 
@@ -88,7 +121,10 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       'B_confirm': c => c.intent === 'bot_confirm',
       'B_break': c => c.intent !== 'bot_renaming' && c.intent !== 'bot_confirm',
     };
+
+
   }
+
 
   learn(script){
     this.precision = script.precision;
@@ -170,7 +206,8 @@ export default class CentralStateMachine1 extends BasicStateMachine {
 
     return {
       ...code,
-      intent: pos
+      intent: pos,
+      avatar: AVATARS[pos]
     }
   }
 }

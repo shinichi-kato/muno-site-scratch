@@ -3,6 +3,14 @@ Basic State Machine
 ===============================
 基本の内的プロセス状態機械
 
+セルが初めて実行されたとき、ユーザ入力に対して返答可能な場合 *enter 状態に
+遷移して返答を行う。
+
+返答可能な内容をユーザが話した場合は状態*に移動し、
+それに対応した内容を返する。そうでなければ状態はenterに移り、自発的な発言を
+行う。その後、scoreが低い場合はpassに移動し、次のcellに制御が映る
+exitは明示的にdropする
+
 セルは初期状態('main',0)から始まり、
 起動準備ができたらチャットボットに{intent:'start'}を渡す。
 それによりチャットボットは{intent:'start'}を出力するとともに稼働状態になる。
@@ -12,7 +20,7 @@ Basic State Machine
 で可視化できる。
 --------------------------------------------------------------------------------
 
-main     ::= 'start' ( '*' )* 'bye'
+main ::= ('*'|'*enter') ('*'|'pass()')+ 'exit'
 
 --------------------------------------------------------------------------------
 
@@ -22,12 +30,21 @@ import { parseTables, dispatchTables } from './phrase-segmenter';
 
 const STATE_TABLES = parseTables({
   main: [
-    //           0  1  2  3  4  5
-    '*         : 0  0  3  3  3  0',
-    'start     : 2  0  0  0  0  0',
-    'bye       : 0  0  5  5  5  0',
+    //         0  1  2  3  4  5  6
+    '*       : 0  0  4  4  4  4  0',
+    'enter   : 3  0  0  0  0  0  0',
+    '*enter  : 2  0  0  0  0  0  0',
+    'pass    : 0  0  5  5  5  5  0',
+    'exit    : 0  0  0  0  6  6  0',
   ],
 });
+
+const AVATARS = {
+  'enter': 'waving',
+  '*enter': 'waving',
+  'pass': 'peace',
+  'exit': 'peace'
+};
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
 
@@ -39,9 +56,10 @@ export default class BasicStateMachine {
 
     this.lex = {
       '*': c => false,
-      'start': c => c.intent === 'start',
-      'not_found': c => c.score < this.precision,
-      'bye': c => c.intent === 'bye',
+      'enter': c => c.intent === 'enter',
+      '*enter': c => c.score < this.precision,
+      'pass': c => c.score < this.precision,
+      'exit': c => c.intent === 'exit',
     }
   }
 
@@ -89,7 +107,8 @@ export default class BasicStateMachine {
 
     return {
       ...code,
-      intent: pos
+      intent: pos,
+      avatar: AVATARS[pos]
     }
 
   }

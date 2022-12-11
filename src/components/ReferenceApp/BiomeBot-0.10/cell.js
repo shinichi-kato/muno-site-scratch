@@ -4,10 +4,12 @@
 import CentralStateMachine from './engine/central-state-machine';
 import PatternEncoder from '../../Chatbot/engine/pattern-encoder';
 import HarvestDecoder from '../../Chatbot/engine/harvest-decoder';
+import BasicStateMachine from './engine/basic-state-machine';
 
 const modules = {
     'PatternEncoder': PatternEncoder,
     'CentralStateMachine': CentralStateMachine,
+    'BasicStateMachine': BasicStateMachine,
     'HarvestDecoder': HarvestDecoder,
 }
 
@@ -29,7 +31,6 @@ export class Cell {
             this.creator = "";
     
             this.avatarDir = "";
-            this.defaultAvatar = "";
             this.backgroundColor = "";
     
             this.encoder = "";
@@ -54,7 +55,6 @@ export class Cell {
         this.creator = script.creator;
 
         this.avatarDir = script.avatarDir;
-        this.defaultAvatar = script.defaultAvatar;
         this.backgroundColor = script.backgroundColor;
 
         this.encoder = new encoder(script);
@@ -67,21 +67,6 @@ export class Cell {
         this.biome = [...script.biome];
     }
 
-    run(code){
-        code = this.encoder.retrieve(code);
-        if(code.score<this.precision){
-            return false;
-        }
-
-        code = this.stateMachine.run(code);
-        let text = this.decoder.render(code);
-
-        return {
-            intent: code.intent,
-            text:text,
-            owner:'bot'
-        }
-    }
 
 
 
