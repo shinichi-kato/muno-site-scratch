@@ -40,10 +40,10 @@ const STATE_TABLES = parseTables({
 });
 
 const AVATARS = {
-  'enter': 'waving',
-  '*enter': 'waving',
-  'pass': 'peace',
-  'exit': 'peace'
+  'enter': 'waving.svg',
+  '*enter': 'waving.svg',
+  'pass': 'peace.svg',
+  'exit': 'peace.svg'
 };
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);

@@ -15,8 +15,8 @@
 
   usage:
   let cellOrder = new CellOrder();
-  setBiome(['a','b','c']);
-  setMain('main');
+  setBiomeCell(biomeCell);
+  setMain(mainCell);
 
   for(let cell of cellOrder.biome()){
     code = cell.run(code);
@@ -27,37 +27,50 @@
 */
 class CellOrder {
   constructor() {
-    this.spool = {
+    this.spool = {};
+    this.order = {
       'main': [],
       'biome': [],
-    };
+    }
     this.mode = "main";
     this.generator_is_running = false;
   }
 
   get main(){
-    return this.spool.main[0];
+    return this.spool[this.order.main[0]];
   }
 
   setBiome(arr) {
     if (this.generator_is_running) {
       throw new Error('関数CellOrder.cells()実行中はsetBiomeできません')
     }
-    this.spool.biome = [...arr];
+    for(cell of arr){
+      this._add_biome_cell(cell);
+    }
   }
 
   addBiomeCell(cell) {
     if (this.generator_is_running) {
       throw new Error('関数CellOrder.cells()実行中はaddBiomeCellできません')
     }
-    this.spool.biome.push(cell);
+
+    this._add_biome_cell(cell);
   }
 
+  _add_biome_cell(cell){
+    if(cell.name in this.spool){
+      throw new Error(`同じセル ${cell.name} は複数使用できません`)
+    }
+    this.spool[cell.name] = cell;
+    this.order.biome.push(cell.name);
+  }
+  
   setMainCell(cell) {
     if (this.generator_is_running) {
       throw new Error('関数CellOrder.cells()実行中はsetMainCellできません')
     }
-    this.spool.main = [cell];
+    this.spool[cell.name] = cell;
+    this.order.main = [cell];
   }
 
   changeMode(modeName) {
@@ -66,31 +79,31 @@ class CellOrder {
 
   *cells(){
     this.generator_is_running = true;
-    let cell;
+    let cellName;
     let currentMode;
 
     while(this.mode !== currentMode){
       currentMode = this.mode;
-      for(cell of this.spool[this.mode]){
+      for(cellName of this.order[this.mode]){
         if(this.mode !== currentMode){
           break;
         }
-        yield cell;
+        yield this.spool[cellName];
       }
     }
     this.generator_is_running = false;
   }
 
-  hoist(cell) {
+  hoist(cellName) {
     if (this.generator_is_running) {
       throw new Error('関数CellOrder.cells()実行中はhoistできません')
     }
 
-    function _hoist(spool, cell) {
-      let pos = spool.indexOf(cell);
+    function _hoist(order, cellName) {
+      let pos = order.indexOf(cellName);
       if (pos > 0) {
-        let removed = spool.splice(pos, 1);
-        spool.unshift(removed[0]);
+        let removed = order.splice(pos, 1);
+        order.unshift(removed[0]);
         return true;
       }
       return false;
@@ -100,20 +113,20 @@ class CellOrder {
 
     // _hoist(this.spool.biome, cell) || _hoist(this.spool.main, cell);
 
-    _hoist(this.spool.biome, cell);
+    _hoist(this.order.biome, cellName);
 
   }
 
-  drop(cell) {
+  drop(cellName) {
     if (this.generator_is_running) {
       throw new Error('関数CellOrder.biome実行中はdropできません')
     }
 
-    function _drop(spool, cell) {
-      let pos = spool.indexOf(cell);
-      if (pos !== -1 && pos < spool.length - 1) {
-        let removed = spool.splice(pos, 1);
-        spool.push(removed[0]);
+    function _drop(order, cell) {
+      let pos = order.indexOf(cell);
+      if (pos !== -1 && pos < order.length - 1) {
+        let removed = order.splice(pos, 1);
+        order.push(removed[0]);
         return true;
       }
       return false;
@@ -122,7 +135,7 @@ class CellOrder {
     // cell をspoolの中から見つけてその末尾に移動
     // _drop(this.spool.biome, cell) || _drop(this.spool.main, cell);
 
-    _drop(this.spool.biome, cell);
+    _drop(this.order.biome, cellName);
   }
 
 }

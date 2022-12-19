@@ -87,15 +87,15 @@ const STATE_TABLES = parseTables({
 });
 
 const AVATARS = {
-  '*': 'peace',
-  'enter': 'waving',
-  'std_by': 'absent',
-  'absent': 'absent',
-  'summon': 'waving',
-  'to_biome': 'peace',
-  'bot_namer': 'peace',
-  'not_found': 'peace',
-  'exit': 'waving',
+  '*': 'peace.svg',
+  'enter': 'waving.svg',
+  'std_by': 'absent.svg',
+  'absent': 'absent.svg',
+  'summon': 'waving.svg',
+  'to_biome': 'peace.svg',
+  'bot_namer': 'peace.svg',
+  'not_found': 'peace.svg',
+  'exit': 'waving.svg',
 };
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
