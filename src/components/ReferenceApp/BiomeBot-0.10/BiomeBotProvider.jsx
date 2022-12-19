@@ -146,7 +146,7 @@ const initialState = {
   status: 'init',
   url: '',
   avatarUrl: '',
-  memory: {}
+  backgroundColor: '',
 }
 
 function reducer(state, action) {
@@ -155,7 +155,8 @@ function reducer(state, action) {
       return {
         status: 'mainLoaded',
         url: action.url,
-        avatarUrl: ''
+        avatarUrl: '',
+        backgroundColor: action.backgroundColor
       }
     }
 
@@ -175,7 +176,11 @@ export default function BiomeBotProvider(props) {
 
   useEffect(() => {
     if (biomeState.status === 'mainLoded') {
-      dispatch({ type: 'mainLoaded', url: props.url, })
+      dispatch({
+        type: 'mainLoaded',
+        url: props.url,
+        backgroundColor: biomeState.backgroundColor
+      })
     }
   }, [props.url, biomeState]);
 
@@ -220,7 +225,8 @@ export default function BiomeBotProvider(props) {
     <BiomeBotContext.Provider
       value={{
         execute: handleExecute,
-        avatarUrl: state.avatarUrl
+        avatarUrl: state.avatarUrl,
+        backgroundColor: state.backgroundColor,
       }}
     >
       {props.children}

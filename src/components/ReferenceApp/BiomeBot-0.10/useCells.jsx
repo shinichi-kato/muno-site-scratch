@@ -1,5 +1,7 @@
 import { useReducer, useEffect, useState } from 'react';
 
+import { db } from './db'
+
 import CentralStateMachine from './engine/central-state-machine';
 import PatternEncoder from '../../Chatbot/engine/pattern-encoder';
 import HarvestDecoder from '../../Chatbot/engine/harvest-decoder';
@@ -54,20 +56,20 @@ function reducer(state, action) {
         }
 
         biomes[d.filename] = [...d.biome];
-        memory = merge(memory,d.memory);
+        memory = merge(memory, d.memory);
       }
       return {
         status: 'loaded',
-        cellNames: action.data.map(d=>d.filename),
+        cellNames: action.data.map(d => d.filename),
         spool: spool,
         biomes: biomes,
-        memory:memory
+        memory: memory
       }
     }
   }
 }
 
-function createProcess(func, code, avatarDir){
+function createProcess(func, code, avatarDir) {
   const result = func(code);
   return {
     ...result,
@@ -90,7 +92,7 @@ export function useCells(urls) {
       }));
   }
 
-  function load(urls){
+  function load(urls) {
     // duplicate check
     const dups = duplicated(urls.map(url => splitPath(url)[1]));
     if (dups) {
@@ -99,14 +101,14 @@ export function useCells(urls) {
 
 
     Promise.all(urls.map(fetchCell))
-      .then(data => {
-        let settings = {};
-        for (let d of data) {
+      .then(payload => {
+        let data = {};
+        for (let d of payload) {
           const encoder = newModules(d.encoder);
           const stateMachine = newModules(d.stateMachine || 'BasicStateMachine');
           const decoder = newModules(d.decoder);
 
-          settings[d.filename] = {
+          data[d.filename] = {
             avatarDir: d.avatarDir,
             backgroundColor: d.backgroundColod,
             encoder: new encoder(d.script),
@@ -116,9 +118,10 @@ export function useCells(urls) {
             precision: d.precision,
             retention: d.retention,
             biome: d.biome,
+            memory: d.memory
           }
         }
-        dispatch({ type: 'loaded', data: settings });
+        dispatch({ type: 'loaded', data: data });
       })
       .catch((e) => {
         throw new Error(e)
@@ -126,17 +129,17 @@ export function useCells(urls) {
   }
 
 
-  useEffect(()=>{
-    if(typeof urls === 'string'){
+  useEffect(() => {
+    if (typeof urls === 'string') {
       load([urls])
     }
-    else if(Array.isArray(urls)){
+    else if (Array.isArray(urls)) {
       load(urls)
     }
-  },[urls]);
+  }, [urls]);
 
   return [state, load]
-} 
+}
 
 function duplicated(arr) {
   let d = {};
@@ -151,19 +154,19 @@ function duplicated(arr) {
 
 function merge(target, source) {
   /*see: https://qiita.com/riversun/items/60307d58f9b2f461082a */
-  
+
   const isObject = obj => obj && typeof obj === 'object' && !Array.isArray(obj);
   let result = Object.assign({}, target);
   if (isObject(target) && isObject(source)) {
-      for (const [sourceKey, sourceValue] of Object.entries(source)) {
-          const targetValue = target[sourceKey];
-          if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
-              result[sourceKey] = targetValue.concat(...sourceValue);
-          }
-          else {
-              Object.assign(result, {[sourceKey]: sourceValue});
-          }
+    for (const [sourceKey, sourceValue] of Object.entries(source)) {
+      const targetValue = target[sourceKey];
+      if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
+        result[sourceKey] = targetValue.concat(...sourceValue);
       }
+      else {
+        Object.assign(result, { [sourceKey]: sourceValue });
+      }
+    }
   }
   return result;
 }

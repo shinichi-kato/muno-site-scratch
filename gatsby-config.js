@@ -62,4 +62,5 @@ module.exports = {
     lang: 'ja',
     image: '',
   },
+
 };

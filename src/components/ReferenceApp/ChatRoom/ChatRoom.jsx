@@ -98,8 +98,8 @@ export default function ChatRoom() {
       >
         <FairyPanel
           panelWidth={panelWidth[panelSize]}
-          backgroundColor={bot.state.config.backgroundColor}
-          photoURL={bot.photoURL}
+          backgroundColor={bot.state.backgroundColor}
+          photoURL={bot.avatarUrl}
           status={bot.state.status}
         />
       </Box>

@@ -5,6 +5,7 @@ initialState = {
   status: 'init',
   dir: '',
   mode: '',
+  backgroundColor: '',
   spool: {},
   order: {
     'main': [],
@@ -27,6 +28,7 @@ function reducer(state, action) {
       return {
         ...state,
         status: 'mainReady',
+        backgroundColor: action.backgroundColor,
         spool: {
           ...action.spool
         },
@@ -124,10 +126,15 @@ export function useBiome(url) {
         type: 'main_loaded',
         spool: mainState.spool,
         order: mainState.cellNames,
+        backgroundColor: mainState.spool[mainState.biomes[0]].backgroundColor 
       });
 
       // db上でmemoryが空の場合、取得したmemoryをコピー
-      // 未実装
+      if(db.isMemoryEmpty()){
+        db.putsMemory(mainState.memory);
+        db.putsMemory(biomeState.memory);
+      }
+
     }
   }, [mainState.status]);
 
