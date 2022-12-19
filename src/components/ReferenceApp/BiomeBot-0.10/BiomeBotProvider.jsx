@@ -210,7 +210,7 @@ export default function BiomeBotProvider(props) {
     rettext = cell.decode(retcode);
 
     emitter({
-      avatar: retcode.avatar
+      avatar: retcode.avatar,
       ...retcode,
       owner: 'bot'
     });
