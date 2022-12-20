@@ -62,6 +62,7 @@ bot_namer::='B_naming' 'B_renaming'* ('B_confirm'|'B_break')
 
 import { parseTables, dispatchTables } from './phrase-segmenter';
 import BasicStateMachine from './basic-state-machine';
+import {db} from '../db';
 
 const STATE_TABLES = parseTables({
   main: [
@@ -110,7 +111,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       'enter': c => c.intent === 'enter',
       'absent': c => c.intent === 'absent',
       'std_by': c => c.intent !== 'summon',
-      'summon': c => { this.refractory < 1 && c.intent === 'summon' },
+      'summon': c => ( this.refractory < 1 && c.intent === 'summon' ),
       'to_biome': c => c.score <= this.precision,
       'not_found': c => c.score <= this.precision,
       'exit': c => c.intent === 'exit',
@@ -196,12 +197,12 @@ export default class CentralStateMachine1 extends BasicStateMachine {
     }
 
     if (pos.test(/naming$/)) {
-      db.setItem('{LAST}', code.harvests[0]);
+      db.setMemoryItem('{LAST}', code.harvests[0]);
     }
 
     if (pos === 'B_confirm') {
       let last = db.getValues('{LAST}');
-      db.addItem('{BOT_NAME}', last[0]);
+      db.addMemoryItem('{BOT_NAME}', last[0]);
     }
 
     return {

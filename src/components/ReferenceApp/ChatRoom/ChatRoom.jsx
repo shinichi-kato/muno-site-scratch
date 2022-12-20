@@ -4,11 +4,18 @@ import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
 import SendIcon from '@mui/icons-material/Send';
 
-import { BiomebotContext } from '../biomebot/BiomebotProvider';
+import { BiomebotContext } from '../BiomeBot-0.10/BiomeBotProvider';
 import { AuthContext } from "../Auth/AuthProvider";
 import { EcosystemContext } from '../Ecosystem/EcosystemProvider';
 
-export default function ChatRoom() {
+import LogViewer from './LogViewer';
+import FairyPanel from '../Panel/FairyPanel';
+import UserPanel from '../Panel/UserPanel';
+import {Message} from '../message';
+
+const panelWidth = 192; // 120,160,192
+
+export default function ChatRoom(props) {
   const auth = useContext(AuthContext);
   const ecosystem = useContext(EcosystemContext);
   const ecosystemRef = useRef(ecosystem);
@@ -28,7 +35,6 @@ export default function ChatRoom() {
       mood: 'peace',
       avatarPath: auth.photoURL,
       backgroundColor: auth.backgroundColor,
-      site: ecosystem.site,
     }));
 
     // 後でtextの中身を直接いじるのでMessageのコピーを新たに作って渡す
@@ -47,10 +53,10 @@ export default function ChatRoom() {
   
   const memorizedUserPanel = useMemo(() =>
   <UserPanel
-    panelWidth={panelWidth[panelSize]}
+    panelWidth={panelWidth}
     user={auth}
   />
-  , [auth, panelSize]);
+  , [auth]);
 
   return (
     <Box
@@ -87,7 +93,7 @@ export default function ChatRoom() {
       <Box
         flexGrow={1}
       >
-        <LogViewer log={log} />
+        <LogViewer log={props.log} />
       </Box>
       <Box
         sx={{
@@ -97,7 +103,7 @@ export default function ChatRoom() {
         }}
       >
         <FairyPanel
-          panelWidth={panelWidth[panelSize]}
+          panelWidth={panelWidth}
           backgroundColor={bot.state.backgroundColor}
           photoURL={bot.avatarUrl}
           status={bot.state.status}

@@ -1,7 +1,8 @@
 import { useReducer, useEffect } from 'react';
 import { useCells } from './useCells';
+import { db } from '../BiomeBot-0.10/db';
 
-initialState = {
+const initialState = {
   status: 'init',
   dir: '',
   mode: '',
@@ -92,7 +93,7 @@ function reducer(state, action) {
     }
 
     case 'drop': {
-      let pos = order.indexOf(action.cellName);
+      let pos = state.order.indexOf(action.cellName);
       let newOrder = [...state.order.biome];
       if (pos !== -1 && pos < newOrder.length - 1) {
         let removed = newOrder.splice(pos, 1);

@@ -16,9 +16,9 @@ class Message {
     if(!obj){
       this.text = "";
       this.backgroundColor = "";
-      this.avatar = "";
+      this.avatarPath = "";
       this.name = "";
-      this.ownerType ="";
+      this.person ="";
     }
     else if(obj !== null && typeof obj === 'object'){
       for(let key in obj){

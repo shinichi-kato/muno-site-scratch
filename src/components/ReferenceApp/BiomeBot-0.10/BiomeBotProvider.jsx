@@ -138,9 +138,10 @@ import React, {
   createContext
 } from 'react';
 
+import { useBiome } from './useBiome';
+
 export const BiomeBotContext = createContext();
 
-import { useBiome } from './useBiome';
 
 const initialState = {
   status: 'init',

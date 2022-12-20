@@ -1,7 +1,6 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
-import Badge from '@mui/material/Badge';
 import Typography from '@mui/material/Typography';
 
 
@@ -23,7 +22,7 @@ function LeftBalloon(props) {
       alignSelf="flex-start"
     >
       <Box>
-          <Avatar alt={message.name} src={avatarSrc} />
+        <Avatar alt={message.name} src={avatarSrc} />
       </Box>
       <Box
         sx={{
@@ -68,12 +67,7 @@ function RightBalloon(props) {
 
       </Box>
       <Box>
-        <Badge
-          badgeContent={moodBadgeIcon[message.mood]}
-          invisible={moodBadgeIcon[message.mood] === null}
-        >
-          <Avatar alt={message.name} src={avatarSrc} />
-        </Badge>
+        <Avatar alt={message.name} src={avatarSrc} />
       </Box>
     </Box>
   )
@@ -108,7 +102,7 @@ export default function LogViewer(props) {
 
   useLayoutEffect(() => {
     // 書き換わるたびに最上行へ自動スクロール
-    scrollBottomRef?.current?.scrollTo({top:0, left:0, behavior: 'smooth'})
+    scrollBottomRef?.current?.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
   }, [props.log]);
 
 

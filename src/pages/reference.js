@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
-import AuthProvider from '../src/components/ReferenceApp/Auth/AuthProvider';
-import BiomebotProvider from '../src/components/ReferenceApp/Biomebot-0.10/BiomebotProvider';
-import EcosystemProvider from '../src/components/ReferenceApp/EcosystemProvider/EcosystemProvider';
-import ChatRoom from '../src/components/ReferenceApp/ChatRoom/ChatRoom';
+import AuthProvider from '../components/ReferenceApp/Auth/AuthProvider';
+import BiomebotProvider from '../components/ReferenceApp/BiomeBot-0.10/BiomeBotProvider';
+import EcosystemProvider from '../components/ReferenceApp/Ecosystem/EcosystemProvider';
+import ChatRoom from '../components/ReferenceApp/ChatRoom/ChatRoom';
 
 const URL = './chatbot/biomebot/reference-1.0.json';
 
@@ -33,7 +33,7 @@ export default function RefAppPage() {
                 log={log}
               />
               :
-              <Landing />
+              "ロード中"
           }
         </BiomebotProvider>
       </EcosystemProvider>

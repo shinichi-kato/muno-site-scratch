@@ -1,10 +1,10 @@
-import { useReducer, useEffect, useState } from 'react';
-
+import { useReducer, useEffect } from 'react';
+import { withPrefix } from 'gatsby';
 import { db } from './db'
 
 import CentralStateMachine from './engine/central-state-machine';
 import PatternEncoder from '../../Chatbot/engine/pattern-encoder';
-import HarvestDecoder from '../../Chatbot/engine/harvest-decoder';
+import HarvestDecoder from './engine/harvest-decoder';
 import BasicStateMachine from './engine/basic-state-machine';
 
 const modules = {

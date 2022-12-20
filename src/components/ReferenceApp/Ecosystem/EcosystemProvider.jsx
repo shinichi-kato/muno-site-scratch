@@ -1,12 +1,9 @@
 import React, {
     useState,
     createContext,
-    useRef,
     useEffect,
     useReducer
   } from 'react';
-  import { Noise } from 'noisejs';
-  import { useStaticQuery, graphql } from "gatsby";
   import useInterval from '../use-interval';
   import Container from '@mui/material/Container';
   import { getDateRad, getHourRad } from '../calendar-rad.jsx';
@@ -14,7 +11,7 @@ import React, {
   
   export const EcosystemContext = createContext();
   
-  const changeRage = 0.0001
+  const updateInterval = 10*60*1000;
 
   //                1    2     3    4     5     6     7     8    9    10   11    12   
   const SEASONS = ['winter', 'winter', 'spring', 'spring', 'spring', 'spring', 'summer', 'summer', 'summer', 'autumn', 'autumn', 'winter'];
@@ -171,7 +168,7 @@ import React, {
         return d;
       })
   
-    }, config.updateInterval, true);
+    }, updateInterval, true);
   
     return (
       <EcosystemContext.Provider

@@ -11,6 +11,36 @@ chatbot.jsonのurlなどをbotIdとして与える。
 replace関数内で再帰的に使われるため、メモリ内にデータのキャッシュを保持する。
 
 
+* config: チャットボットの基本設定
+
+```
+  config: {
+    botId: "firebaseのIDやuuidライクな文字列",
+    description: "チャットボットの説明"
+    backgroundColor: "#87DEDE",
+    avatarDir: "/chatbot/???/",
+    initialCellOrder: [],
+    keepAliveMin: 10,
+  }
+```
+会話中に変化しないチャットボットの情報
+
+* work:
+
+``` 
+  work: {
+    updatedAt: string
+    partOrder: []
+    queue: []
+    site: string
+  }
+```
+
+
+// main: 
+part: {
+
+}
 
 */
 
@@ -58,7 +88,7 @@ class dbio {
   }
 
   async isMemoryEmpty(){
-    assert(this.chatbotId, "DBがopenされていません");
+    console.assert(this.chatbotId, "DBがopenされていません");
     const count = await this.db.memory
       .where('[chatbotId+key]')
       .between([this.chatbotId, Dexie.minKey], [this.chatbotId, Dexie.maxKey])
@@ -69,7 +99,7 @@ class dbio {
 
   async getMemory() {
 
-    assert(this.chatbotId, "DBがopenされていません");
+    console.assert(this.chatbotId, "DBがopenされていません");
 
     const items = await this.db.memory
       .where('[chatbotId+key]')
@@ -97,7 +127,7 @@ class dbio {
        という形式になっている。これをbulkAddに対応したリストに書き換える
     */
 
-    assert(this.chatbotId, "DBがopenされていません");
+    console.assert(this.chatbotId, "DBがopenされていません");
 
     let data = [];
     for (let key in dict) {
@@ -110,6 +140,62 @@ class dbio {
 
     await this.db.memory.bulkAdd(data);
     this.cache = { ...dict }
+  }
+
+  addMemoryItem(key, value) {
+    /* 
+       keyにvalueを追加する。
+       既にkeyにvalueが存在する場合、既存のvalueは温存される。
+       cacheを介することでsync呼び出しが可能になり遅延を避ける
+    */
+
+    (async () => {
+      let prev = await this.db.memory
+        .where({ chatbotId: this.chatbotId, key: key })
+        .first();
+
+      if(prev){
+        await this.db.memory.put({
+          id: prev.id,
+          chatbotId: this.chatbotId,
+          key:key,
+          values: [...prev.values, value]
+        })
+      } else {
+        await this.db.memory.put({
+          chatbotId: this.chatbotId,
+          key:key,
+          values: [value]
+        })
+      }
+    })();
+
+    if (key in this.cache){
+      this.cache[key].push(value);
+    } else {
+      this.cache[key] = [value];
+    }
+    
+  }
+  setMemoryItem(key, value) {
+    /*
+      keyにvalueを格納する。
+      既にvalueが存在する場合、既存のvalueは削除される。
+      cacheを介することでsync呼び出しが可能になり遅延を避ける
+    */
+
+    (async () => {
+      let prev = await this.db.memory
+        .where({chatbotId:this.chatbotId,key:key})
+        .first();
+        
+      await this.db.memory.update(
+        prev.id,{
+        values: [value]
+      });
+    })();
+
+    this.cache[key] = [value];
   }
 }
 

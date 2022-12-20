@@ -33,7 +33,7 @@ indep::='しかし'|'なので'|'それで'|'、|。|？|！'
 ------------------------------------------------------------------------------------------
 */
 
-import { TinySegmenter } from "../tinysegmenter";
+import { TinySegmenter } from "./tinysegmenter";
 
 
 

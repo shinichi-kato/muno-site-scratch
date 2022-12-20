@@ -46,7 +46,7 @@ const text = echoDecoder.render(code); // textを内部コードとスコアに�
 
 import { randomInt } from "mathjs";
 import { InvalidScriptException } from './exceptions.js';
-import { db } from './dbio';
+import { db } from '../db';
 
 const RE_MAIN_TAG = /{[A-Z_][A-Z0-9_]*}/g;
 
