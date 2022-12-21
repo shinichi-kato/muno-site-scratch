@@ -191,14 +191,14 @@ export function useBiome(url) {
     dispatch({ type: 'drop', cellName: cellName })
   }
 
-  return {
-    state: state,
-    load: load,
-    cells: cells,
-    changeMode: changeMode,
-    hoist: hoist,
-    drop: drop,
-  }
+  return [
+    state,
+    load,
+    cells,
+    changeMode,
+    hoist,
+    drop,
+  ]
 }
 
 function splitPath(url) {

@@ -3,7 +3,7 @@ import { withPrefix } from 'gatsby';
 import { db } from './db'
 
 import CentralStateMachine from './engine/central-state-machine';
-import PatternEncoder from '../../Chatbot/engine/pattern-encoder';
+import PatternEncoder from './engine/pattern-encoder';
 import HarvestDecoder from './engine/harvest-decoder';
 import BasicStateMachine from './engine/basic-state-machine';
 
@@ -22,7 +22,8 @@ function newModules(name) {
 }
 
 function splitPath(url) {
-  const match = url.match("(.+/)(.+?)([\?#;].*)?$")
+  console.log("url:",url)
+  const match = url.match(/(.*?)([^/]+$)/)
   return [
     match[1],
     match[2]
@@ -66,6 +67,9 @@ function reducer(state, action) {
         memory: memory
       }
     }
+
+    default:
+      throw new Error(`invalid action.type ${action.type}`)
   }
 }
 
@@ -82,14 +86,16 @@ export function useCells(urls) {
 
   function fetchCell(url) {
     const [dir, filename] = splitPath(url);
-    fetch(withPrefix(url), {
+    return fetch(withPrefix(url), {
       headers: { 'Content-Type': 'application/json' }
     })
       .then((response) => response.json())
-      .then((data) => ({
-        ...data,
-        filename: filename,
-      }));
+      .then((data) => {
+        return {
+          ...data,
+          filename: filename
+        }        
+      });
   }
 
   function load(urls) {
@@ -100,7 +106,7 @@ export function useCells(urls) {
     }
 
 
-    Promise.all(urls.map(fetchCell))
+    Promise.all(urls.map(url => fetchCell(url)))
       .then(payload => {
         let data = {};
         for (let d of payload) {
@@ -111,9 +117,9 @@ export function useCells(urls) {
           data[d.filename] = {
             avatarDir: d.avatarDir,
             backgroundColor: d.backgroundColod,
-            encoder: new encoder(d.script),
-            stateMachine: new stateMachine(d.script),
-            decoder: new decoder(d.script),
+            encoder: new encoder(d),
+            stateMachine: new stateMachine(d),
+            decoder: new decoder(d),
 
             precision: d.precision,
             retention: d.retention,
@@ -124,7 +130,7 @@ export function useCells(urls) {
         dispatch({ type: 'loaded', data: data });
       })
       .catch((e) => {
-        throw new Error(e)
+        throw new Error(e.message)
       })
   }
 
@@ -136,7 +142,7 @@ export function useCells(urls) {
     else if (Array.isArray(urls)) {
       load(urls)
     }
-  }, [urls]);
+  }, [urls,load]);
 
   return [state, load]
 }

@@ -1,10 +1,10 @@
-import React, { useContext, useRef, useEffect, useState, useMemo } from 'react';
+import React, { useContext, useRef,  useState, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
 import SendIcon from '@mui/icons-material/Send';
 
-import { BiomebotContext } from '../BiomeBot-0.10/BiomeBotProvider';
+import { BiomeBotContext } from '../BiomeBot-0.10/BiomeBotProvider';
 import { AuthContext } from "../Auth/AuthProvider";
 import { EcosystemContext } from '../Ecosystem/EcosystemProvider';
 
@@ -19,7 +19,7 @@ export default function ChatRoom(props) {
   const auth = useContext(AuthContext);
   const ecosystem = useContext(EcosystemContext);
   const ecosystemRef = useRef(ecosystem);
-  const bot = useContext(BiomebotContext);
+  const bot = useContext(BiomeBotContext);
   const botRef = useRef(bot);
 
   const [userInput, setUserInput] = useState("");

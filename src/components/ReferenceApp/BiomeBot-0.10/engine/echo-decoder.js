@@ -55,18 +55,19 @@ export default class EchoDecoder {
   constructor(script) {
     this.outScript = [];
     this.intents = {};
+    this.filename=script.filename;
     this.learn(script);
   }
 
   learn(script) {
     if (!("script" in script)) {
       throw new InvalidScriptException(
-        "decoder error:スクリプトはscriptという要素に含まれている必要があります"
+        `EchoDecoder: ${this.filename}のスクリプトはscriptという要素に含まれている必要があります`
       )
     }
     if ((!Array.isArray(script.script)) || script.script.length === 0) {
       throw new InvalidScriptException(
-        "スクリプトが空です"
+        `${this.filename}: スクリプトが空です`
       )
     }
 
@@ -82,7 +83,7 @@ export default class EchoDecoder {
       }
       else {
         throw new InvalidScriptException(
-          `${i}行のoutがないか、形式が正しくありません`
+          `${this.filename}: ${i}行のoutがないか、形式が正しくありません`
         )
       }
 

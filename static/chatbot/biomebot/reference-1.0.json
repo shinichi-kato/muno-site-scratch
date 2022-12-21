@@ -37,11 +37,6 @@
         },
         {
             "intent": "bot_naming",
-            "in": [],
-            "out": []
-        },
-        {
-            "intent": "bot_naming",
             "in": [
                 "[こと|事]?([^、。]+?)って呼んでいい？"
             ],

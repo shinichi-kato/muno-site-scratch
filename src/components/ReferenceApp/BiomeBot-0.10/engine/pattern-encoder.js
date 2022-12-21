@@ -44,7 +44,7 @@ codeは以下の内容になる
 */
 
 import { InvalidScriptException } from './exceptions.js';
-import { db } from './dbio';
+import { db } from '../db';
 
 export default class PatternEncoder {
 
@@ -52,6 +52,7 @@ export default class PatternEncoder {
     this.script = [];
     this.index = [];
     this.intents = {};
+    this.filename=script.filename;
 
     this.learn(script);
   }
@@ -67,12 +68,12 @@ export default class PatternEncoder {
     if (!("script" in script)) {
       console.log("script=",script)
       throw new InvalidScriptException(
-        "スクリプトはscriptという要素に含まれている必要があります"
+        `${this.filename}: スクリプトはscriptという要素に含まれている必要があります`
       )
     }
     if ((!Array.isArray(script.script)) || script.script.length === 0) {
       throw new InvalidScriptException(
-        "スクリプトが空です"
+        `${this.filename}スクリプトが空です`
       )
     }
     const _script = script.script;
