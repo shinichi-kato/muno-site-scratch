@@ -144,7 +144,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
   run(code) {
     let table, state, pos, lastIndex;
     let loop = 0;
-
+    console.log("lex",this.lex,"states",this.states)
     while (true) {
       loop++;
       if (loop > 100) {

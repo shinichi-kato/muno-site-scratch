@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import { withPrefix } from 'gatsby';
 import { db } from './db'
 
@@ -21,13 +21,9 @@ function newModules(name) {
   throw new Error(`invalid module name ${name}`);
 }
 
-function splitPath(url) {
-  console.log("url:",url)
-  const match = url.match(/(.*?)([^/]+$)/)
-  return [
-    match[1],
-    match[2]
-  ]
+function getFilename(url) {
+  const match = url.match(/.*?([^/]+$)/)
+  return match[1]
 }
 
 const initialState = {
@@ -35,7 +31,7 @@ const initialState = {
   cellNames: [],
   spool: {},
   biomes: [],
-  memory: {},
+  memory: {}
 };
 
 
@@ -48,10 +44,13 @@ function reducer(state, action) {
       for (let d of action.data) {
         spool[d.filename] = {
           avatarDir: d.avatarDir,
-          backgroundColor: d.backgroundColod,
-          encode: code => d.encoder.retrieve(code),
-          process: code => createProcess(d.stateMachine.run, code, d.avatarUrl),
-          decode: code => d.decoder.render(code),
+          backgroundColor: d.backgroundColor,
+          encoder: d.encoder,
+          stateMachine: d.stateMachine,
+          decoder: d.decoder,
+          // encode: code => d.encoder.retrieve(code),
+          // process: code => createProcess(d.stateMachine.run, code, d.avatarUrl),
+          // decode: code => d.decoder.render(code),
           precision: d.precision,
           retention: d.retention,
         }
@@ -64,7 +63,7 @@ function reducer(state, action) {
         cellNames: action.data.map(d => d.filename),
         spool: spool,
         biomes: biomes,
-        memory: memory
+        memory: memory,
       }
     }
 
@@ -81,42 +80,41 @@ function createProcess(func, code, avatarDir) {
   }
 }
 
-export function useCells(urls) {
+export function useCells(cellUrls) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  function fetchCell(url) {
-    const [dir, filename] = splitPath(url);
-    return fetch(withPrefix(url), {
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        return {
-          ...data,
-          filename: filename
-        }        
-      });
-  }
-
-  function load(urls) {
+  const load = useCallback((urls) => {
     // duplicate check
-    const dups = duplicated(urls.map(url => splitPath(url)[1]));
+    const dups = duplicated(urls.map(url => getFilename(url)));
     if (dups) {
       throw new Error(`セル名 ${dups} は重複して使用できません`)
     }
 
 
-    Promise.all(urls.map(url => fetchCell(url)))
+    Promise.all(urls.map(async url => {
+
+      const filename = getFilename(url);
+      const response = await fetch(withPrefix(url), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      return {
+        ...data,
+        filename: filename
+      };
+
+    }))
       .then(payload => {
-        let data = {};
+        let data = [];
         for (let d of payload) {
           const encoder = newModules(d.encoder);
           const stateMachine = newModules(d.stateMachine || 'BasicStateMachine');
           const decoder = newModules(d.decoder);
 
-          data[d.filename] = {
+          data.push({
+            filename: d.filename,
             avatarDir: d.avatarDir,
-            backgroundColor: d.backgroundColod,
+            backgroundColor: d.backgroundColor,
             encoder: new encoder(d),
             stateMachine: new stateMachine(d),
             decoder: new decoder(d),
@@ -125,24 +123,25 @@ export function useCells(urls) {
             retention: d.retention,
             biome: d.biome,
             memory: d.memory
-          }
+          });
         }
+        
         dispatch({ type: 'loaded', data: data });
       })
       .catch((e) => {
         throw new Error(e.message)
       })
-  }
+  },[]);
 
 
   useEffect(() => {
-    if (typeof urls === 'string') {
-      load([urls])
+    if (typeof cellUrls === 'string') {
+      load([cellUrls])
     }
-    else if (Array.isArray(urls)) {
-      load(urls)
+    else if (Array.isArray(cellUrls)) {
+      load(cellUrls)
     }
-  }, [urls,load]);
+  }, [cellUrls,load]);
 
   return [state, load]
 }
@@ -157,6 +156,7 @@ function duplicated(arr) {
   }
   return false;
 }
+
 
 function merge(target, source) {
   /*see: https://qiita.com/riversun/items/60307d58f9b2f461082a */

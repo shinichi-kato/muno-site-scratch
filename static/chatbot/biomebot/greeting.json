@@ -3,16 +3,14 @@
     "updatedAt": "2022-12-05",
     "creator": "skato",
     "avatarDir": "chatbot/avatar/faily-girl/",
-    "backgroundColor": "#7f2dce",
+    "backgroundColor": "",
     "encoder": "PatternEncoder",
     "stateMachine": "CentralStateMachine",
     "decoder": "HarvestDecoder",
     "precision": 0.5,
     "retention": 1,
     "refractory": 4,
-    "biome": [
-        "greeting.json"
-    ],
+    "biome": [],
     "script": [
         {
             "intent": "enter",

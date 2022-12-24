@@ -1,12 +1,20 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useCallback } from 'react';
 import { useCells } from './useCells';
 import { db } from '../BiomeBot-0.10/db';
 
+const BIOME_LOADING = 0;
+export const BIOME_MAIN_READY = 1;
+export const BIOME_READY = 2;
+const BIOME_GENERATOR_IS_RUNNING = 3;
+
+
 const initialState = {
   status: 'init',
+  isReady: false,
   dir: '',
-  mode: '',
+  mode: 'main',
   backgroundColor: '',
+  avatarDir: '',
   spool: {},
   order: {
     'main': [],
@@ -20,7 +28,7 @@ function reducer(state, action) {
     case 'loading': {
       return {
         ...initialState,
-        status: 'loading',
+        status: BIOME_LOADING,
         dir: action.dir,
       }
     }
@@ -28,7 +36,9 @@ function reducer(state, action) {
     case 'main_loaded': {
       return {
         ...state,
-        status: 'mainReady',
+        isReady: false,
+        status: BIOME_MAIN_READY,
+        avatarDir: '',
         backgroundColor: action.backgroundColor,
         spool: {
           ...action.spool
@@ -43,7 +53,8 @@ function reducer(state, action) {
     case 'biome_loaded': {
       return {
         ...state,
-        status: 'ready',
+        status: BIOME_READY,
+        isReady: true,
         spool: {
           ...state.spool,
           ...action.spool,
@@ -58,14 +69,14 @@ function reducer(state, action) {
     case 'start_generator': {
       return {
         ...state,
-        status: 'generator_is_running'
+        status: BIOME_GENERATOR_IS_RUNNING
       }
     }
 
     case 'end_generator': {
       return {
         ...state,
-        status: 'ready'
+        status: BIOME_READY
       }
     }
 
@@ -107,6 +118,9 @@ function reducer(state, action) {
         }
       }
     }
+
+    default:
+      throw new Error(`invalid action.type ${action.type}`);
   }
 }
 
@@ -116,50 +130,66 @@ export function useBiome(url) {
   const [biomeState, biomeLoad] = useCells();
 
   useEffect(() => {
-    if (mainState.status === 'loaded') {
-      const [dir, filename] = splitPath(url);
-      dispatch({ type: 'loading', dir: dir });
+    if (mainState.status === 'loaded' && biomeState.status === 'init') {
+      db.open(url).then(() => {
+        db.appendMemoryItems(mainState.memory);
 
-      const biomeUrls = mainState.cellName.map(filename => `${dir}${filename}`);
-      biomeLoad(biomeUrls);
-      // この時点でチャットボットはmainのみ返答可能になる
-      dispatch({
-        type: 'main_loaded',
-        spool: mainState.spool,
-        order: mainState.cellNames,
-        backgroundColor: mainState.spool[mainState.biomes[0]].backgroundColor 
-      });
+        const dir = getDir(url);
+        dispatch({ type: 'loading', dir: dir });
 
-      // db上でmemoryが空の場合、取得したmemoryをコピー
-      if(db.isMemoryEmpty()){
-        db.putsMemory(mainState.memory);
-        db.putsMemory(biomeState.memory);
-      }
-
+        const mainCellName = mainState.cellNames[0];
+        const biomeUrls = mainState.biomes[mainCellName].map(filename => `${dir}${filename}`);
+        biomeLoad(biomeUrls);
+        // この時点でチャットボットはmainのみ返答可能になる
+        dispatch({
+          type: 'main_loaded',
+          avatarDir: mainState.spool[mainCellName].avatarDir,
+          spool: mainState.spool,
+          order: mainState.cellNames,
+          backgroundColor: mainState.spool[mainCellName].backgroundColor
+        });
+      })
     }
-  }, [mainState.status]);
+  }, [
+    url,
+    mainState.status,
+    biomeState.status,
+    biomeLoad,
+    mainState.biomes,
+    mainState.cellNames,
+    mainState.spool,
+    mainState.memory,
+  ]);
 
   useEffect(() => {
     if (biomeState.status === 'loaded') {
-      dispatch({
-        type: 'biome_loaded',
-        spool: biomeState.spool,
-        order: biomeState.cellNames
-      });
+      db.open(url)
+        .then(() => {
+          dispatch({
+            type: 'biome_loaded',
+            spool: biomeState.spool,
+            order: biomeState.cellNames
+          });
 
+        })
     }
-  }, [biomeState.status]);
+  }, [url,
+    biomeState.status,
+    biomeState.cellNames,
+    biomeState.spool,
+    biomeState.order]);
 
-  function load(url){
+  const load = useCallback(url=>{
     // チャットボットを切り替えるとき用。後で実装
-  }
+    mainLoad(url);
+  },[mainLoad]);
 
-  function changeMode(modeName) {
+  const changeMode = useCallback((modeName) => {
     dispatch({ type: 'changeMode', modeName: modeName })
-  }
+  }, []);
 
-  function* cells() {
-    if (state.status !== 'ready') return;
+  const cells = useCallback(function* () {
+    if (state.status !== BIOME_READY) return;
     let cellName;
     let currentMode;
 
@@ -175,21 +205,21 @@ export function useBiome(url) {
       }
     }
     dispatch({ type: 'end_generator' })
-  }
+  }, [state.status, state.mode, state.spool, state.order]);
 
-  function hoist(cellName) {
-    if (state.status === 'generator_is_running') {
+  const hoist = useCallback((cellName) => {
+    if (state.status === BIOME_GENERATOR_IS_RUNNING) {
       throw new Error('関数useBiome.cells()実行中はhoistできません')
     }
     dispatch({ type: 'hoist', cellName: cellName })
-  }
+  }, [state.status]);
 
-  function drop(cellName) {
-    if (state.status === 'generator_is_running') {
+  const drop = useCallback((cellName) => {
+    if (state.status === BIOME_GENERATOR_IS_RUNNING) {
       throw new Error('関数useBiome.cells()実行中はhoistできません')
     }
     dispatch({ type: 'drop', cellName: cellName })
-  }
+  }, [state.status]);
 
   return [
     state,
@@ -201,10 +231,15 @@ export function useBiome(url) {
   ]
 }
 
-function splitPath(url) {
-  const match = url.match("(.+/)(.+?)([\?#;].*)?$")
-  return [
-    match[1],
-    match[2]
-  ]
+// function splitPath(url) {
+//   const match = url.match(/(.+\/)(.+?)([?#;].*)?$/)
+//   return [
+//     match[1],
+//     match[2]
+//   ]
+// }
+
+function getDir(url) {
+  const match = url.match(/(.+\/)(.+?)([?#;].*)?$/)
+  return match[1];
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useRef,  useState, useMemo } from 'react';
+import React, { useContext, useRef, useState, useMemo, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
@@ -6,19 +6,19 @@ import SendIcon from '@mui/icons-material/Send';
 
 import { BiomeBotContext } from '../BiomeBot-0.10/BiomeBotProvider';
 import { AuthContext } from "../Auth/AuthProvider";
-import { EcosystemContext } from '../Ecosystem/EcosystemProvider';
+// import { EcosystemContext } from '../Ecosystem/EcosystemProvider';
 
 import LogViewer from './LogViewer';
 import FairyPanel from '../Panel/FairyPanel';
 import UserPanel from '../Panel/UserPanel';
-import {Message} from '../message';
+import { Message } from '../message';
 
 const panelWidth = 192; // 120,160,192
 
 export default function ChatRoom(props) {
   const auth = useContext(AuthContext);
-  const ecosystem = useContext(EcosystemContext);
-  const ecosystemRef = useRef(ecosystem);
+  // const ecosystem = useContext(EcosystemContext);
+  // const ecosystemRef = useRef(ecosystem);
   const bot = useContext(BiomeBotContext);
   const botRef = useRef(bot);
 
@@ -26,6 +26,17 @@ export default function ChatRoom(props) {
   function handleChangeUserInput(event) {
     setUserInput(event.target.value);
   }
+
+  useEffect(() => {
+    if (bot.isReady) {
+      let code = {
+        intent: 'enter',
+        text: '',
+        owner: 'system'
+      };
+      bot.execute(code, props.writeLog)
+    }
+  }, [bot.isReady, bot, props.writeLog]);
 
   function handleUserSubmit(event) {
     props.writeLog(new Message('speech', {
@@ -50,13 +61,13 @@ export default function ChatRoom(props) {
     setUserInput("");
     event.preventDefault();
   }
-  
+
   const memorizedUserPanel = useMemo(() =>
-  <UserPanel
-    panelWidth={panelWidth}
-    user={auth}
-  />
-  , [auth]);
+    <UserPanel
+      panelWidth={panelWidth}
+      user={auth}
+    />
+    , [auth]);
 
   return (
     <Box
@@ -104,9 +115,9 @@ export default function ChatRoom(props) {
       >
         <FairyPanel
           panelWidth={panelWidth}
-          backgroundColor={bot.state.backgroundColor}
+          backgroundColor={bot.backgroundColor}
           photoURL={bot.avatarUrl}
-          status={bot.state.status}
+          status={bot.isReady}
         />
       </Box>
       <Box

@@ -134,11 +134,12 @@ waving       手を振っている
 
 */
 import React, {
-  useEffect, useReducer,
+  useEffect, useReducer, useCallback,
   createContext
 } from 'react';
 
-import { useBiome } from './useBiome';
+import { BIOME_READY, useBiome } from './useBiome';
+// import {db} from './db';
 
 export const BiomeBotContext = createContext();
 
@@ -152,9 +153,9 @@ const initialState = {
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'mainLoaded': {
+    case 'biomeReady': {
       return {
-        status: 'mainLoaded',
+        status: 'biomeLoaded',
         url: action.url,
         avatarUrl: '',
         backgroundColor: action.backgroundColor
@@ -165,39 +166,50 @@ function reducer(state, action) {
       return {
         ...state,
         status: 'ready',
-        url: action.url
+        avatarUrl: action.avatarUrl,
       }
     }
+
+    default:
+      throw new Error(`invalid action.type ${action.type}`);
   }
 }
 
 export default function BiomeBotProvider(props) {
-  const [biomeState, cells, changeMode, hoist, drop] = useBiome(props.url);
+  const [biomeState, biomeLoad, cells, changeMode, hoist, drop] = useBiome(props.url);
   const [state, dispatch] = useReducer(reducer, initialState);
+  const handleBotReady = props.handleBotReady;
+  const url = props.url;
 
   useEffect(() => {
-    if (biomeState.status === 'mainLoded') {
+    if (biomeState.isReady) {
       dispatch({
-        type: 'mainLoaded',
-        url: props.url,
+        type: 'biomeReady',
+        url: url,
         backgroundColor: biomeState.backgroundColor
-      })
+      });
+      handleBotReady();
+      console.log("botReady");
+
     }
-  }, [props.url, biomeState]);
+  }, [biomeState.isReady, handleBotReady, url, biomeState.backgroundColor]);
 
+  function handleLoad(url) {
+    biomeLoad(url);
+  }
 
-  function handleExecute(userMessage, emitter) {
+  const handleExecute = useCallback((userMessage, emitter) => {
     let code = {
       intent: '*',
-      text: entag(userText),
+      text: userMessage.text,  // {BOT_NAME} {USER_NAME}をタグ化（未実装)
       owner: 'user',
     }
 
     let cell, retcode;
     for (cell of cells()) {
-      retcode = cell.encode(code);
-      retcode = cell.process(code);
-      if (retcode.command === 'to_biome' && biomeState.status === 'ready') {
+      retcode = cell.encoder.retrieve(code);
+      retcode = cell.stateMachine.run(code);
+      if (retcode.command === 'to_biome' && biomeState.status >= BIOME_READY) {
         changeMode('biome');
       }
       else if (retcode.intent !== 'pass') {
@@ -211,20 +223,31 @@ export default function BiomeBotProvider(props) {
       drop(cell);
     }
 
+    const avatarUrl = `${biomeState.avatarDir}${retcode.avatar}`;
+
     // decode
-    dispatch({ type: 'execute', avatarUrl: retcode.avatarUrl })
-    rettext = cell.decode(retcode);
+    dispatch({ type: 'execute', avatarUrl: avatarUrl})
+    let rettext = cell.decoder.render(retcode);
 
     emitter({
-      avatar: retcode.avatar,
       ...retcode,
+      avatar: avatarUrl,
+      text: rettext,
       owner: 'bot'
     });
-  }
+  }, [
+    cells,
+    changeMode,
+    drop, hoist,
+    biomeState.status,
+    biomeState.avatarDir,
+  ]);
 
   return (
     <BiomeBotContext.Provider
       value={{
+        isReady: biomeState.isReady,
+        load: handleLoad,
         execute: handleExecute,
         avatarUrl: state.avatarUrl,
         backgroundColor: state.backgroundColor,

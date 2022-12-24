@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 
 import AuthProvider from '../components/ReferenceApp/Auth/AuthProvider';
 import BiomebotProvider from '../components/ReferenceApp/BiomeBot-0.10/BiomeBotProvider';
@@ -10,12 +10,13 @@ const URL = './chatbot/biomebot/reference-1.0.json';
 export default function RefAppPage() {
   const [appState, setAppState] = useState(null);
   const [log, setLog] = useState([]);
-
+  
   const handleWriteLog = useCallback(message => {
     setLog(prev => [message, ...prev]);
-  });
+  },[]);
 
   function handleBotReady() { setAppState('chatroom'); }
+
 
 
   return (

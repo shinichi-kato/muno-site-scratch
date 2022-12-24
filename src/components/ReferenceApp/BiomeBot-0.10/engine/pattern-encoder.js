@@ -211,7 +211,7 @@ export default class PatternEncoder {
   }
 
   _tagging(text, key) {
-    let vals = db.getValues(key);
+    let vals = db.getMemoryValues(key);
     for (let val of vals) {
       text = text.replace(val, key);
     }

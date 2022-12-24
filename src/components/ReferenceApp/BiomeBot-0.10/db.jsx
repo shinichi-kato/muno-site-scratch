@@ -66,7 +66,7 @@ class dbio {
       return 
     }
     this.url = url;
-    this.db = new Dexie('Biomebot');
+    this.db = new Dexie('Biomebot-0.10');
     this.db.version(1).stores({
       chatbots: "++id, &url", // id, url 
       memory: "++id,[chatbotId+key]",  // id,botId,key,val 
@@ -85,6 +85,8 @@ class dbio {
     } else {
       this.chatbotId = data[0].id;
     }
+
+    this.cache=await this.getMemory();
   }
 
   async isMemoryEmpty(){
@@ -115,6 +117,19 @@ class dbio {
       dict[item.key] = [...item.values];
     }
     return dict;
+  }
+  async appendMemoryItems(dict){
+    /*
+    dictの内容をmemoryに書き込む。
+    与えられたkeyが既存の場合はvalueに追加する
+    */
+    console.assert(this.chatbotId, "DBがopenされていません");
+    let val = [];
+    for(let key in dict){
+      val = await this.db.get({chatbotId:this.chatbotId,key:key});
+      val = val ? val.push(dict[key]) : [val]
+      await this.db.put({chatbotId:this.chatbotId, key:key, val:val});
+    }
   }
 
   async putsMemory(dict) {
@@ -196,6 +211,19 @@ class dbio {
     })();
 
     this.cache[key] = [value];
+  }
+
+  getMemoryValues(key) {
+    /*
+       keyのvalueをcacheから読み出す。
+       返り値はvalueのリストで、valueが存在しない場合[]を返す
+    */
+
+    return this.cache[key] || [];
+  }
+
+  isExist(key){
+    return key in this.cache;
   }
 }
 

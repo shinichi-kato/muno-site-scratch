@@ -50,7 +50,7 @@ const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
 
 
 export default class BasicStateMachine {
-  constructor() {
+  constructor(script) {
     this.states = [['main', 0]];
     this.precision = 0;
 
@@ -61,6 +61,8 @@ export default class BasicStateMachine {
       'pass': c => c.score < this.precision,
       'exit': c => c.intent === 'exit',
     }
+
+    this.learn(script)
   }
 
   learn(script) {

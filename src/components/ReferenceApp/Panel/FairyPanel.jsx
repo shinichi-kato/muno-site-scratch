@@ -7,23 +7,15 @@ export default function FairyPanel(props) {
     fairyのavatarと背景を表示する。
     props.status | 説明
   ---------------|----------
-  unload         | 透明
-  loaded         | 灰色の背景のみ
-  deploying      | 色付きの背景のみ
-  ready          | 色付きの背景＋avatar
+  false          | 灰色の背景のみ
+  true           | 色付きの背景＋avatar
   */
 
   const status = props.status;
   const width = props.panelWidth;
   const height = width * 1.5;
 
-  let bgColor = props.backgroundColor;
-  if (status === 'loaded') {
-    bgColor = '#DDDDDD';
-  } else if (status === 'unload') {
-    bgColor = '#00000000';
-  }
-
+  let bgColor = status ? props.backgroundColor : '#dddddd33';
   
   return (
     <Box
