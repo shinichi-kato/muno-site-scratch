@@ -20,7 +20,6 @@ function LeftBalloon(props) {
       display="flex"
       flexDirection="row"
       alignSelf="flex-start"
-      key={props.key}
     >
       <Box>
         <Avatar alt={message.name} src={avatarSrc} />
@@ -53,7 +52,6 @@ function RightBalloon(props) {
       display="flex"
       flexDirection="row"
       alignSelf="flex-end"
-      key={props.key}
     >
 
       <Box
@@ -83,7 +81,6 @@ function SystemMessage(props) {
       display="flex"
       flexDirection="row"
       alignItems="center"
-      key={props.key}
     >
       <Box>
         <Typography>{message.text}</Typography>

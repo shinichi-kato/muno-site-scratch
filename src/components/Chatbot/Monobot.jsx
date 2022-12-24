@@ -186,7 +186,7 @@ export default function Chatbot({ source, options }) {
   const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarURL, setavatarURL] = useState("");
 
   //-------------------------------------------
   // chatbotのロード
@@ -298,7 +298,7 @@ export default function Chatbot({ source, options }) {
     }
 
     if(code){
-      setAvatarUrl(withPrefix(
+      setavatarURL(withPrefix(
         code.intent === 'absent' || code.intent === 'stand_by'
           ? `${source}/absent.svg`
           : `${source}/${state.avatar}`
@@ -325,7 +325,7 @@ export default function Chatbot({ source, options }) {
           p: 1
         }}
       >
-        <img src={avatarUrl} alt={avatarUrl}
+        <img src={avatarURL} alt={avatarURL}
           style={{
             width: "120px",
             height: "180px"

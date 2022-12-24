@@ -23,7 +23,7 @@ export default class Message {
     else if(obj !== null && typeof obj === 'object'){
       this.text = obj.text;
       this.backgroudColor=obj.backgroundColod;
-      this.avatarPath = obj.avatarPath;
+      this.photoURL = obj.photoURL;
       this.person=obj.person;
       this.name=obj.name;
     }

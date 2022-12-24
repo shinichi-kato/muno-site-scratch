@@ -36,7 +36,7 @@ export default function FairyPanel(props) {
           left:0,
         }}
       />
-      {(status === 'ready' || status === 'loaded') &&
+      {status &&
         <Box
           sx={{
             width: width,
@@ -52,7 +52,8 @@ export default function FairyPanel(props) {
               height: height,
             }}
             src={props.photoURL}
-            alt="" />
+            alt={props.photoURL}
+             />
         </Box>
       }
     </Box>

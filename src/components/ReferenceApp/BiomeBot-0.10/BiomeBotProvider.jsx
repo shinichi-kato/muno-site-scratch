@@ -148,7 +148,7 @@ export const BiomeBotContext = createContext();
 const initialState = {
   status: 'init',
   url: '',
-  avatarUrl: '',
+  avatarURL: '',
   backgroundColor: '',
 }
 
@@ -158,7 +158,7 @@ function reducer(state, action) {
       return {
         status: 'biomeLoaded',
         url: action.url,
-        avatarUrl: '',
+        avatarURL: '',
         backgroundColor: action.backgroundColor
       }
     }
@@ -167,7 +167,7 @@ function reducer(state, action) {
       return {
         ...state,
         status: 'ready',
-        avatarUrl: action.avatarUrl,
+        avatarURL: action.avatarURL,
       }
     }
 
@@ -228,14 +228,14 @@ export default function BiomeBotProvider(props) {
     }
     // そのほか明示的hoist.dropは後で考える
 
-    const avatarUrl = `${biomeState.avatarDir}${retcode.avatar}`;
+    const avatarURL = `${biomeState.avatarDir}${retcode.avatar}`;
 
     // decode
-    dispatch({ type: 'execute', avatarUrl: avatarUrl})
+    dispatch({ type: 'execute', avatarURL: avatarURL})
     let rettext = cell.decoder.render(retcode);
 
     emitter(new Message({
-      avatar: avatarUrl,
+      photoURL: avatarURL,
       text: rettext,
       person: 'bot'
     }));
@@ -253,7 +253,7 @@ export default function BiomeBotProvider(props) {
         isReady: biomeState.isReady,
         load: handleLoad,
         execute: handleExecute,
-        avatarUrl: state.avatarUrl,
+        avatarURL: state.avatarURL,
         backgroundColor: state.backgroundColor,
       }}
     >

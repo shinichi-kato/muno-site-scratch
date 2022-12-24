@@ -40,7 +40,7 @@ function reducer(state, action) {
         ...state,
         isReady: false,
         status: BIOME_MAIN_READY,
-        avatarDir: '',
+        avatarDir: action.avatarDir,
         backgroundColor: action.backgroundColor,
         spool: {
           ...action.spool

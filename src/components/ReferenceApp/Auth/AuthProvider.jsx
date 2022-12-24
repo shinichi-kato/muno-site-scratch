@@ -10,7 +10,7 @@ export const AuthContext = createContext();
 const initialState = {
   user: {
     displayName: "ゲスト",
-    photoURL: "guest",
+    photoURL: "user/boy1/",
     uid: "mock_UID_for_guest_user",
   },
   backgroundColor: null,

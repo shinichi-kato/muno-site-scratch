@@ -116,7 +116,7 @@ export default function ChatRoom(props) {
         <FairyPanel
           panelWidth={panelWidth}
           backgroundColor={bot.backgroundColor}
-          photoURL={bot.avatarUrl}
+          photoURL={bot.avatarURL}
           status={bot.isReady}
         />
       </Box>
