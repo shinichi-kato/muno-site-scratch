@@ -88,6 +88,13 @@ import React, {
     return "night";
   
   }
+
+  const BACKGROUNDS = {
+    'morning': 'linear-gradient(3deg, rgba(216,254,254,1) 0%, rgba(182,191,252,1) 100%);',
+    'noon': 'linear-gradient(3deg, rgba(217,255,255,1) 0%, rgba(122,206,220,1) 100%);',
+    'evening':'linear-gradient(3deg, rgba(245,235,80,1) 0%, rgba(245,171,159,1) 100%);',
+    'night':'linear-gradient(3deg, rgba(121,144,144,1) 0%, rgba(33,41,98,1) 100%);',
+  }
   
   const initialState = {
     change: null,
@@ -185,7 +192,7 @@ import React, {
           disableGutters
           sx={{
             height: "100vh",
-            background: "linear-gradient(3deg, rgba(217,255,255,1) 0%, rgba(71,204,255,1) 100%)",
+            background: BACKGROUNDS[dayPart],
           }}
         >
           {props.children}

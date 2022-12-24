@@ -34,9 +34,9 @@ export default function ChatRoom(props) {
         text: '',
         owner: 'system'
       };
-      bot.execute(code, props.writeLog)
+      botRef.current.execute(code, props.writeLog)
     }
-  }, [bot.isReady, bot, props.writeLog]);
+  }, [bot.isReady, props.writeLog]);
 
   function handleUserSubmit(event) {
     props.writeLog(new Message('speech', {

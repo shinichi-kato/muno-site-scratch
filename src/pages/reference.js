@@ -15,7 +15,9 @@ export default function RefAppPage() {
     setLog(prev => [message, ...prev]);
   },[]);
 
-  function handleBotReady() { setAppState('chatroom'); }
+  const handleBotReady = useCallback(()=>{
+     setAppState('chatroom'); 
+    },[]);
 
 
 

@@ -5,7 +5,8 @@ import { db } from '../BiomeBot-0.10/db';
 const BIOME_LOADING = 0;
 export const BIOME_MAIN_READY = 1;
 export const BIOME_READY = 2;
-const BIOME_GENERATOR_IS_RUNNING = 3;
+const BIOME_RUN = 3;
+const BIOME_GENERATOR_IS_RUNNING = 4;
 
 
 const initialState = {
@@ -24,6 +25,7 @@ const initialState = {
 
 
 function reducer(state, action) {
+  console.log("useBiome reducer", action)
   switch (action.type) {
     case 'loading': {
       return {
@@ -76,7 +78,7 @@ function reducer(state, action) {
     case 'end_generator': {
       return {
         ...state,
-        status: BIOME_READY
+        status: BIOME_RUN
       }
     }
 
@@ -88,34 +90,58 @@ function reducer(state, action) {
     }
 
     case 'hoist': {
-      let pos = state.order.indexOf(action.cellName);
-      let newOrder = [...state.order.biome];
-      if (pos > 0) {
-        let removed = newOrder.splice(pos, 1)
-        newOrder.unshift(removed[0]);
+      // generator実行中はhoist禁止
+      if (state.status === BIOME_GENERATOR_IS_RUNNING) {
+        throw new Error('関数useBiome.cells()実行中はhoistできません')
       }
+
+      // mainとbiomeのどちらをhoistしたかをcellNameで判別
+      let pos = state.order.biome.indexOf(action.cellName);
+      let mode = 'biome';
+      if (pos === -1) {
+        pos = state.order.main.indexOf(action.cellName);
+        mode = 'main';
+      }
+      console.log("pos",pos,"mode",mode,"name",action.cellName)
+      let newOrder = {
+        'main': [...state.order.main],
+        'biome': [...state.order.biome]
+      }
+      if (pos > 0) {
+        let removed = newOrder[mode].splice(pos, 1)
+        newOrder[mode].unshift(removed[0]);
+      }
+      console.log("newOrder",newOrder)
       return {
         ...state,
-        order: {
-          'main': state.order.main,
-          'biome': newOrder
-        }
+        order: newOrder
       }
     }
 
     case 'drop': {
-      let pos = state.order.indexOf(action.cellName);
-      let newOrder = [...state.order.biome];
+      // generator実行中はhoist禁止
+      if (state.status === BIOME_GENERATOR_IS_RUNNING) {
+        throw new Error('関数useBiome.cells()実行中はdrop()は使用できません')
+      }
+
+      // mainとbiomeのどちらをhoistしたかをcellNameで判別
+      let pos = state.order['biome'].indexOf(action.cellName);
+      let mode = 'biome';
+      if (pos === -1) {
+        pos = state.order['main'].indexOf(action.cellName);
+        mode = 'main';
+      }
+      let newOrder = {
+        'main': [...state.order.main],
+        'biome': [...state.order.biome]
+      }
       if (pos !== -1 && pos < newOrder.length - 1) {
-        let removed = newOrder.splice(pos, 1);
-        newOrder.push(removed[0]);
+        let removed = newOrder[mode].splice(pos, 1);
+        newOrder[mode].push(removed[0]);
       }
       return {
         ...state,
-        order: {
-          'main': state.order.main,
-          'biome': newOrder
-        }
+        order: newOrder
       }
     }
 
@@ -179,10 +205,10 @@ export function useBiome(url) {
     biomeState.spool,
     biomeState.order]);
 
-  const load = useCallback(url=>{
+  const load = useCallback(url => {
     // チャットボットを切り替えるとき用。後で実装
     mainLoad(url);
-  },[mainLoad]);
+  }, [mainLoad]);
 
   const changeMode = useCallback((modeName) => {
     dispatch({ type: 'changeMode', modeName: modeName })
@@ -207,24 +233,23 @@ export function useBiome(url) {
     dispatch({ type: 'end_generator' })
   }, [state.status, state.mode, state.spool, state.order]);
 
+  const exitCells = useCallback(() => {
+    dispatch({ type: 'end_generator' })
+  }, []);
+
   const hoist = useCallback((cellName) => {
-    if (state.status === BIOME_GENERATOR_IS_RUNNING) {
-      throw new Error('関数useBiome.cells()実行中はhoistできません')
-    }
     dispatch({ type: 'hoist', cellName: cellName })
-  }, [state.status]);
+  }, []);
 
   const drop = useCallback((cellName) => {
-    if (state.status === BIOME_GENERATOR_IS_RUNNING) {
-      throw new Error('関数useBiome.cells()実行中はhoistできません')
-    }
     dispatch({ type: 'drop', cellName: cellName })
-  }, [state.status]);
+  }, []);
 
   return [
     state,
     load,
     cells,
+    exitCells,
     changeMode,
     hoist,
     drop,

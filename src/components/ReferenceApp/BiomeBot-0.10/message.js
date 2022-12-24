@@ -1,4 +1,4 @@
-class Message {
+export default class Message {
   /* ユーザとチャットボットのメッセージコンテナクラス 
     usege:
     m = new Message();
@@ -21,10 +21,13 @@ class Message {
       this.person ="";
     }
     else if(obj !== null && typeof obj === 'object'){
-      for(let key in obj){
-        this[key] = obj[key]
-      }
+      this.text = obj.text;
+      this.backgroudColor=obj.backgroundColod;
+      this.avatarPath = obj.avatarPath;
+      this.person=obj.person;
+      this.name=obj.name;
     }
+    this.id=Date.now()
   }
 
 

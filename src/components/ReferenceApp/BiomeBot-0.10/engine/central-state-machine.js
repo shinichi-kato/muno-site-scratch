@@ -63,6 +63,7 @@ bot_namer::='B_naming' 'B_renaming'* ('B_confirm'|'B_break')
 import { parseTables, dispatchTables } from './phrase-segmenter';
 import BasicStateMachine from './basic-state-machine';
 import {db} from '../db';
+const RE_NAME_TAG = /naming$/;
 
 const STATE_TABLES = parseTables({
   main: [
@@ -144,7 +145,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
   run(code) {
     let table, state, pos, lastIndex;
     let loop = 0;
-    console.log("lex",this.lex,"states",this.states)
+    console.log("code",code)
     while (true) {
       loop++;
       if (loop > 100) {
@@ -196,7 +197,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       }
     }
 
-    if (pos.test(/naming$/)) {
+    if (RE_NAME_TAG.test(pos)) {
       db.setMemoryItem('{LAST}', code.harvests[0]);
     }
 

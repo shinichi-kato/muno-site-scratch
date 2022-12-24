@@ -137,6 +137,7 @@ import React, {
   useEffect, useReducer, useCallback,
   createContext
 } from 'react';
+import Message from './message'
 
 import { BIOME_READY, useBiome } from './useBiome';
 // import {db} from './db';
@@ -176,7 +177,7 @@ function reducer(state, action) {
 }
 
 export default function BiomeBotProvider(props) {
-  const [biomeState, biomeLoad, cells, changeMode, hoist, drop] = useBiome(props.url);
+  const [biomeState, biomeLoad, cells, exitCells, changeMode, hoist, drop] = useBiome(props.url);
   const [state, dispatch] = useReducer(reducer, initialState);
   const handleBotReady = props.handleBotReady;
   const url = props.url;
@@ -200,28 +201,32 @@ export default function BiomeBotProvider(props) {
 
   const handleExecute = useCallback((userMessage, emitter) => {
     let code = {
-      intent: '*',
+      intent: userMessage.intent || '*',
       text: userMessage.text,  // {BOT_NAME} {USER_NAME}をタグ化（未実装)
       owner: 'user',
     }
 
     let cell, retcode;
     for (cell of cells()) {
+      console.log("cell",cell)
       retcode = cell.encoder.retrieve(code);
-      retcode = cell.stateMachine.run(code);
-      if (retcode.command === 'to_biome' && biomeState.status >= BIOME_READY) {
+      retcode = cell.stateMachine.run(retcode);
+      if (retcode.intent === 'to_biome' && biomeState.status >= BIOME_READY) {
         changeMode('biome');
       }
       else if (retcode.intent !== 'pass') {
         break;
       }
     }
+    exitCells();
     // hoist,drop処理
-    if (retcode.command === 'hoist') {
-      hoist(cell);
-    } else if (retcode.command === 'drop') {
-      drop(cell);
+    console.log("cell",cell)
+    if (cell.retention < Math.random()){
+      drop(cell.name);
+    } else {
+      hoist(cell.name);
     }
+    // そのほか明示的hoist.dropは後で考える
 
     const avatarUrl = `${biomeState.avatarDir}${retcode.avatar}`;
 
@@ -229,14 +234,13 @@ export default function BiomeBotProvider(props) {
     dispatch({ type: 'execute', avatarUrl: avatarUrl})
     let rettext = cell.decoder.render(retcode);
 
-    emitter({
-      ...retcode,
+    emitter(new Message({
       avatar: avatarUrl,
       text: rettext,
-      owner: 'bot'
-    });
+      person: 'bot'
+    }));
   }, [
-    cells,
+    cells, exitCells,
     changeMode,
     drop, hoist,
     biomeState.status,

@@ -42,25 +42,23 @@ function reducer(state, action) {
       let biomes = {};
       let memory = {};
       for (let d of action.data) {
-        spool[d.filename] = {
+        spool[d.name] = {
+          name: d.name,
           avatarDir: d.avatarDir,
           backgroundColor: d.backgroundColor,
           encoder: d.encoder,
           stateMachine: d.stateMachine,
           decoder: d.decoder,
-          // encode: code => d.encoder.retrieve(code),
-          // process: code => createProcess(d.stateMachine.run, code, d.avatarUrl),
-          // decode: code => d.decoder.render(code),
           precision: d.precision,
           retention: d.retention,
         }
 
-        biomes[d.filename] = [...d.biome];
+        biomes[d.name] = [...d.biome];
         memory = merge(memory, d.memory);
       }
       return {
         status: 'loaded',
-        cellNames: action.data.map(d => d.filename),
+        cellNames: action.data.map(d => d.name),
         spool: spool,
         biomes: biomes,
         memory: memory,
@@ -72,13 +70,6 @@ function reducer(state, action) {
   }
 }
 
-function createProcess(func, code, avatarDir) {
-  const result = func(code);
-  return {
-    ...result,
-    avatarUrl: `${avatarDir}${result.avatar}`
-  }
-}
 
 export function useCells(cellUrls) {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -112,7 +103,7 @@ export function useCells(cellUrls) {
           const decoder = newModules(d.decoder);
 
           data.push({
-            filename: d.filename,
+            name: d.filename,
             avatarDir: d.avatarDir,
             backgroundColor: d.backgroundColor,
             encoder: new encoder(d),
@@ -125,13 +116,13 @@ export function useCells(cellUrls) {
             memory: d.memory
           });
         }
-        
+
         dispatch({ type: 'loaded', data: data });
       })
       .catch((e) => {
         throw new Error(e.message)
       })
-  },[]);
+  }, []);
 
 
   useEffect(() => {
@@ -141,7 +132,7 @@ export function useCells(cellUrls) {
     else if (Array.isArray(cellUrls)) {
       load(cellUrls)
     }
-  }, [cellUrls,load]);
+  }, [cellUrls, load]);
 
   return [state, load]
 }
