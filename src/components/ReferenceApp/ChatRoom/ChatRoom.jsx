@@ -1,31 +1,19 @@
-import React, { useContext, useRef, useState, useMemo, useEffect } from 'react';
+import React, { useContext, useRef, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import InputBase from '@mui/material/InputBase';
-import SendIcon from '@mui/icons-material/Send';
 
+import Studio from './Studio';
 import { BiomeBotContext } from '../BiomeBot-0.10/BiomeBotProvider';
-import { AuthContext } from "../Auth/AuthProvider";
 // import { EcosystemContext } from '../Ecosystem/EcosystemProvider';
 
 import LogViewer from './LogViewer';
-import FairyPanel from '../Panel/FairyPanel';
-import UserPanel from '../Panel/UserPanel';
-import { Message } from '../message';
 
 const panelWidth = 192; // 120,160,192
 
-export default function ChatRoom(props) {
-  const auth = useContext(AuthContext);
+export default function ChatRoom({ log, writeLog }) {
   // const ecosystem = useContext(EcosystemContext);
   // const ecosystemRef = useRef(ecosystem);
   const bot = useContext(BiomeBotContext);
   const botRef = useRef(bot);
-
-  const [userInput, setUserInput] = useState("");
-  function handleChangeUserInput(event) {
-    setUserInput(event.target.value);
-  }
 
   useEffect(() => {
     if (bot.isReady) {
@@ -34,40 +22,10 @@ export default function ChatRoom(props) {
         text: '',
         owner: 'system'
       };
-      botRef.current.execute(code, props.writeLog)
+      botRef.current.execute(code, writeLog)
     }
-  }, [bot.isReady, props.writeLog]);
+  }, [bot.isReady, writeLog]);
 
-  function handleUserSubmit(event) {
-    props.writeLog(new Message('speech', {
-      text: userInput,
-      name: auth.displayName,
-      person: 'user',
-      mood: 'peace',
-      avatarPath: auth.photoURL,
-      backgroundColor: auth.backgroundColor,
-    }));
-
-    // 後でtextの中身を直接いじるのでMessageのコピーを新たに作って渡す
-    botRef.current.execute(new Message('speech', {
-      text: userInput,
-      name: auth.displayName,
-      person: 'user',
-      mood: 'peace',
-      avatarPath: auth.photoURL,
-      backgroundColor: auth.backgroundColor,
-    }), props.writeLog);
-
-    setUserInput("");
-    event.preventDefault();
-  }
-
-  const memorizedUserPanel = useMemo(() =>
-    <UserPanel
-      panelWidth={panelWidth}
-      user={auth}
-    />
-    , [auth]);
 
   return (
     <Box
@@ -81,52 +39,14 @@ export default function ChatRoom(props) {
         padding: "0px",
       }}
     >
-      <Box>
-        <InputBase
-          sx={{
-            ml: 1,
-            flex: 1,
-          }}
-          value={userInput}
-          onChange={handleChangeUserInput}
-          fullWidth
-          inputProps={{ 'aria-label': 'text' }}
-          endAdornment={
-            <IconButton
-              onClick={handleUserSubmit}
-              color="primary"
-            >
-              <SendIcon />
-            </IconButton>
-          }
-        />
-      </Box>
+      <Studio
+        panelWidth={panelWidth}
+        log={log}
+        writeLog={writeLog} />
       <Box
         flexGrow={1}
       >
-        <LogViewer log={props.log} />
-      </Box>
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0
-        }}
-      >
-        <FairyPanel
-          panelWidth={panelWidth}
-          backgroundColor={bot.backgroundColor}
-          photoURL={bot.avatarURL}
-          status={bot.isReady}
-        />
-      </Box>
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0
-        }}>
-        {memorizedUserPanel}
+        <LogViewer log={log} />
       </Box>
     </Box>
   )

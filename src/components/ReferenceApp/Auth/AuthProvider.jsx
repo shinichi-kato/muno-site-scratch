@@ -3,17 +3,17 @@ mock auth
 */
 
 
-import React, { createContext, useReducer } from 'react';
+import React, { createContext } from 'react';
 
 export const AuthContext = createContext();
 
 const initialState = {
   user: {
     displayName: "ゲスト",
-    photoURL: "user/boy1/",
+    photoURL: "user/boy1/peace.svg",
     uid: "mock_UID_for_guest_user",
   },
-  backgroundColor: null,
+  backgroundColor: "#dec28e",
   page: false,
 };
 
@@ -28,6 +28,7 @@ export default function AuthProvider(props) {
         displayName: state.user.displayName,
         authState: 'ok',
         backgroundColor: state.backgroundColor,
+        photoURL:state.user.photoURL,
         uid: state.user.uid,
         openUpdateDialog: openUpdateDialog,
       }}
