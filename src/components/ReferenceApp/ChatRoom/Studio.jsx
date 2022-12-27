@@ -1,6 +1,5 @@
 import React, { useState, useContext, useMemo, useRef } from 'react';
 import { alpha } from '@mui/material/styles';
-import { css } from '@emotion/react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -20,11 +19,14 @@ const SIDE = {
   'user': 'right',
 };
 const ALIGN_SELF = {
-  'bot': 'flex-start',
-  'user': 'flex-end'
+  'bot': 'flexStart',
+  'user': 'flexEnd'
 };
 
+const DELAY = 1000
+
 function LRBalloon({ message }) {
+  console.log(message)
   return (
     <Box
       display="flex"
@@ -32,28 +34,26 @@ function LRBalloon({ message }) {
       alignSelf={ALIGN_SELF[message.person]}
     >
       <Box
-        css={css`
-            {
-              position: relative;
-              background: ${message.backgroundColor};
-              color: #FFFFFF;
-              border-radius: 15px;
-              padding: 0.5em;
-            }
-            .bubble:after {
-                content: '';
-                position: absolute;
-                display: block;
-                width: 0;
-                z-index: 1;
-                border-style: solid;
-                border-color: ${message.backgroundColor} transparent;
-                border-width: 19px 12px 0;
-                bottom: -19px;
-                ${SIDE[message.person]}: 18px;
-                margin-left: -12px;
-            }
-          `}
+        sx={{
+          position: "relative",
+          background: message.backgroundColor,
+          color: "#ffffff",
+          borderRadius: "15px",
+          padding: "0.5em",
+          "&:after": {
+            content: '""',
+            position: "absolute",
+            display: "block",
+            width: "0",
+            zIndex: "1",
+            borderStyle: "solid",
+            borderColor: `${message.backgroundColor} transparent`,
+            borderWidth: "19px 12px 0",
+            bottom: "-19px",
+            [SIDE[message.person]]: "38px",
+            marginLeft: "-12px",
+          }
+        }}
       >
         <Typography variant="caption1">{message.name}</Typography>
         <Typography variant="body1">{message.text}</Typography>
@@ -142,18 +142,18 @@ export default function Studio({ log, writeLog, panelWidth }) {
     }));
 
     // 後でtextの中身を直接いじるのでMessageのコピーを新たに作って渡す
-    botRef.current.execute(new Message({
-      text: userInput,
-      name: auth.displayName,
-      person: 'user',
-      avatarURL: auth.photoURL,
-      backgroundColor: auth.backgroundColor,
-    }), writeLog);
+    setTimeout(() => {
+      botRef.current.execute(new Message({
+        text: userInput,
+        name: auth.displayName,
+        person: 'user',
+        avatarURL: auth.photoURL,
+        backgroundColor: auth.backgroundColor,
+      }), writeLog)}, DELAY);
 
     setUserInput("");
     event.preventDefault();
   }
-  console.log("log=",log)
 
   const memorizedUserPanel = useMemo(() =>
     <UserPanel
@@ -165,22 +165,8 @@ export default function Studio({ log, writeLog, panelWidth }) {
     <Box
       display="flex"
       flexDirection="column"
+      sx={{ paddingBottom: 2 }}
     >
-      {log.length >0 &&
-        <Balloon message={message} />
-
-      }
-      <Box
-        display="flex"
-        flexDirection="row"
-        justifyContent="space-evenly"
-      >
-        <FairyPanel
-          panelWidth={panelWidth}
-        />
-        {memorizedUserPanel}
-
-      </Box>
       <Box
         alignSelf="stretch"
       >
@@ -218,6 +204,20 @@ export default function Studio({ log, writeLog, panelWidth }) {
             }
           />
         </Paper>
+      </Box>
+      {log.length > 0 &&
+        <Balloon message={message} />
+      }
+      <Box
+        display="flex"
+        flexDirection="row"
+        justifyContent="space-between"
+      >
+        <FairyPanel
+          panelWidth={panelWidth}
+        />
+        {memorizedUserPanel}
+
       </Box>
     </Box>
   )

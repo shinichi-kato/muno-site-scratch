@@ -102,7 +102,7 @@ function reducer(state, action) {
         pos = state.order.main.indexOf(action.cellName);
         mode = 'main';
       }
-      console.log("pos",pos,"mode",mode,"name",action.cellName)
+      console.log("pos", pos, "mode", mode, "name", action.cellName)
       let newOrder = {
         'main': [...state.order.main],
         'biome': [...state.order.biome]
@@ -111,7 +111,7 @@ function reducer(state, action) {
         let removed = newOrder[mode].splice(pos, 1)
         newOrder[mode].unshift(removed[0]);
       }
-      console.log("newOrder",newOrder)
+      console.log("newOrder", newOrder)
       return {
         ...state,
         order: newOrder
@@ -157,9 +157,9 @@ export function useBiome(url) {
 
   useEffect(() => {
     if (mainState.status === 'loaded' && biomeState.status === 'init') {
-      db.open(url).then(() => {
-        db.appendMemoryItems(mainState.memory);
-
+      (async () => {
+        await db.open(url);
+        await db.appendMemoryItems(mainState.memory);
         const dir = getDir(url);
         dispatch({ type: 'loading', dir: dir });
 
@@ -172,32 +172,34 @@ export function useBiome(url) {
           avatarDir: mainState.spool[mainCellName].avatarDir,
           spool: mainState.spool,
           order: mainState.cellNames,
-          backgroundColor: mainState.spool[mainCellName].backgroundColor
+          backgroundColor: mainState.spool[mainCellName].backgroundColor,
         });
-      })
-    }
-  }, [
-    url,
-    mainState.status,
-    biomeState.status,
-    biomeLoad,
-    mainState.biomes,
-    mainState.cellNames,
-    mainState.spool,
-    mainState.memory,
-  ]);
+
+      })();
+
+    }}
+    , [
+      url,
+      mainState.status,
+      biomeState.status,
+      biomeLoad,
+      mainState.biomes,
+      mainState.cellNames,
+      mainState.spool,
+      mainState.memory,
+    ]);
 
   useEffect(() => {
     if (biomeState.status === 'loaded') {
-      db.open(url)
-        .then(() => {
-          dispatch({
-            type: 'biome_loaded',
-            spool: biomeState.spool,
-            order: biomeState.cellNames
-          });
+      db.appendMemoryItems(biomeState.memory).then(()=>{
+        dispatch({
+          type: 'biome_loaded',
+          spool: biomeState.spool,
+          order: biomeState.cellNames
+        });
+  
+      })
 
-        })
     }
   }, [url,
     biomeState.status,

@@ -1,6 +1,6 @@
 {
     "name": "reference-0.10",
-    "avatarPath":"avatar/reference/peace.svg",
+    "avatarURL":"avatar/reference/peace.svg",
     "backgroundColor": "#db8ce6",
     "encoder": "PatternEncoder",
     "stateMachine": "MainStateMachine",

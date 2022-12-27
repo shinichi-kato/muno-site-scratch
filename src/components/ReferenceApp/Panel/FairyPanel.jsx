@@ -14,7 +14,7 @@ export default function FairyPanel(props) {
 
   const bot = useContext(BiomeBotContext);
   const width = props.panelWidth;
-  const height = width * 1.5;
+  const height = width * 4/3;
 
   let bgColor = bot.isReady ? bot.backgroundColor : '#dddddd33';
   

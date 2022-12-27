@@ -137,10 +137,10 @@ import React, {
   useEffect, useReducer, useCallback,
   createContext
 } from 'react';
-import Message from './message'
+import { Message } from '../message'
 
 import { BIOME_READY, useBiome } from './useBiome';
-// import {db} from './db';
+import {db} from './db';
 
 export const BiomeBotContext = createContext();
 
@@ -150,6 +150,7 @@ const initialState = {
   url: '',
   avatarURL: '',
   backgroundColor: '',
+  botName: ''
 }
 
 function reducer(state, action) {
@@ -159,7 +160,8 @@ function reducer(state, action) {
         status: 'biomeLoaded',
         url: action.url,
         avatarURL: '',
-        backgroundColor: action.backgroundColor
+        backgroundColor: action.backgroundColor,
+        botName: action.botName,
       }
     }
 
@@ -187,7 +189,8 @@ export default function BiomeBotProvider(props) {
       dispatch({
         type: 'biomeReady',
         url: url,
-        backgroundColor: biomeState.backgroundColor
+        backgroundColor: biomeState.backgroundColor,
+        botName: db.getBotName()
       });
       handleBotReady();
       console.log("botReady");
@@ -208,7 +211,7 @@ export default function BiomeBotProvider(props) {
 
     let cell, retcode;
     for (cell of cells()) {
-      console.log("cell",cell)
+      console.log("cell", cell)
       retcode = cell.encoder.retrieve(code);
       retcode = cell.stateMachine.run(retcode);
       if (retcode.intent === 'to_biome' && biomeState.status >= BIOME_READY) {
@@ -220,8 +223,8 @@ export default function BiomeBotProvider(props) {
     }
     exitCells();
     // hoist,drop処理
-    console.log("cell",cell)
-    if (cell.retention < Math.random()){
+    console.log("cell", cell)
+    if (cell.retention < Math.random()) {
       drop(cell.name);
     } else {
       hoist(cell.name);
@@ -231,12 +234,14 @@ export default function BiomeBotProvider(props) {
     const avatarURL = `${biomeState.avatarDir}${retcode.avatar}`;
 
     // decode
-    dispatch({ type: 'execute', avatarURL: avatarURL})
+    dispatch({ type: 'execute', avatarURL: avatarURL })
     let rettext = cell.decoder.render(retcode);
 
-    emitter(new Message({
-      photoURL: avatarURL,
+    emitter(new Message('speech', {
+      avatarURL: avatarURL,
       text: rettext,
+      name: state.botName,
+      backgroundColor: biomeState.backgroundColor,
       person: 'bot'
     }));
   }, [
@@ -244,7 +249,9 @@ export default function BiomeBotProvider(props) {
     changeMode,
     drop, hoist,
     biomeState.status,
+    biomeState.backgroundColor,
     biomeState.avatarDir,
+    state.botName,
   ]);
 
   return (

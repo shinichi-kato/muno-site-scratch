@@ -114,7 +114,8 @@ class dbio {
 
     let dict = {};
     for (let item of items) {
-      dict[item.key] = [...item.values];
+      console.log("item",item)
+      dict[item.key] = [...item.val];
     }
     return dict;
   }
@@ -126,9 +127,10 @@ class dbio {
     console.assert(this.chatbotId, "DBがopenされていません");
     let val = [];
     for(let key in dict){
-      val = await this.db.get({chatbotId:this.chatbotId,key:key});
+      val = await this.db.memory.get({chatbotId:this.chatbotId,key:key});
+      console.log(val)
       val = val ? val.push(dict[key]) : [val]
-      await this.db.put({chatbotId:this.chatbotId, key:key, val:val});
+      await this.db.memory.put({chatbotId:this.chatbotId, key:key, val:val});
     }
   }
 
@@ -149,7 +151,7 @@ class dbio {
       data.push({
         chatbotId: this.chatbotId,
         key: key,
-        values: dict[key]
+        val: dict[key]
       });
     }
 
@@ -174,13 +176,13 @@ class dbio {
           id: prev.id,
           chatbotId: this.chatbotId,
           key:key,
-          values: [...prev.values, value]
+          val: [...prev.val, value]
         })
       } else {
         await this.db.memory.put({
           chatbotId: this.chatbotId,
           key:key,
-          values: [value]
+          val: [value]
         })
       }
     })();
@@ -206,7 +208,7 @@ class dbio {
         
       await this.db.memory.update(
         prev.id,{
-        values: [value]
+        val: [value]
       });
     })();
 
@@ -224,6 +226,11 @@ class dbio {
 
   isExist(key){
     return key in this.cache;
+  }
+
+  getBotName(){
+    console.assert(this.chatbotId, "DBがopenされていません");
+    return this.cache['{BOT_NAME}'][0]
   }
 }
 

@@ -6,7 +6,7 @@ import { AuthContext } from "../Auth/AuthProvider";
 export default function UserPanel(props) {
   const auth = useContext(AuthContext);
   const width = props.panelWidth;
-  const height = width * 1.5;
+  const height = width * 4/3;
 
   return (
     <Box
@@ -29,6 +29,7 @@ export default function UserPanel(props) {
       <Box sx={{
         width: width,
         height: height,
+        p:0, m:0
       }}
         position="absolute"
         bottom={0}

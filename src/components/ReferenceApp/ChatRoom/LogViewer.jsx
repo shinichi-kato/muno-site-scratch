@@ -6,10 +6,10 @@ import Typography from '@mui/material/Typography';
 
 function LeftBalloon(props) {
   const message = props.message;
-  const avatarSrc = message.person === 'bot' ?
-    `/chatbot/${message.avatarPath}/avatar.svg`
+  const avatarSrc = message.person === 'bot' && message.avatarURL ?
+    message.avatarURL.replace(/([^/]+\..+)$/,"avatar.svg")
     :
-    `${message.avatarPath}`;
+    `${message.avatarURL}`;
   const texts = message.text?.split('<br/>') || ["undefined"];
   const backgroundColor = message.backgroundColor || "#FFFFFFBB";
 
@@ -42,9 +42,9 @@ function LeftBalloon(props) {
 function RightBalloon(props) {
   const message = props.message;
   const avatarSrc = message.person === 'bot' ?
-    `/chatbot/${message.avatarPath}/avatar.svg`
+    `/chatbot/${message.avatarURL}/avatar.svg`
     :
-    `/user/${message.avatarPath}/avatar.svg`;
+    `/user/${message.avatarURL}/avatar.svg`;
   const backgroundColor = message.backgroundColor || "#FFFFFFBB";
 
   return (

@@ -13,6 +13,9 @@
     "biome": [
         "greeting.json"
     ],
+    "memory": {
+        "{BOT_NAME}":["アルファ"]
+    },
     "script": [
         {
             "intent": "enter",

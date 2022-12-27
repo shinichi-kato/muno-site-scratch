@@ -10,7 +10,7 @@ Messageクラス
     name: "しまりす",
     person: "user",
     mood: "peace", // 省略可, デフォルト "peace"
-    avatarPath: "static/avatar/person.svg"
+    avatarURL: "static/avatar/person.svg"
   });
 
   発言時刻は自動で付与される。
@@ -21,7 +21,7 @@ Messageクラス
     name: "しずく",
     person: "bot",
     mood: "cheer", // 省略可, デフォルト "peace"
-    avatarPath: "/chatbot/shizuku/"
+    avatarURL: "/chatbot/shizuku/"
   });
 
   ## システムメッセージ
@@ -36,7 +36,7 @@ export class Message {
     this.text = "";
     this.name = "";
     this.timestamp = null;
-    this.avatarPath = "";
+    this.avatarURL = "";
     this.backgroundColor = "";
     this.mood = "";
     this.person = "";
@@ -53,7 +53,7 @@ export class Message {
       this.text = data.text;
       this.name = data.name;
       this.timestamp = new Date();
-      this.avatarPath = data.avatarPath;
+      this.avatarURL = data.avatarURL;
       this.backgroundColor = data.backgroundColor;
       this.person = data.person;
       this.mood = data.mood;
