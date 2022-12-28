@@ -1,4 +1,5 @@
 import React,{ useContext } from "react";
+import { withPrefix } from 'gatsby';
 import Box from '@mui/material/Box';
 import { BiomeBotContext } from '../BiomeBot-0.10/BiomeBotProvider';
 
@@ -52,8 +53,8 @@ export default function FairyPanel(props) {
               width: width,
               height: height,
             }}
-            src={bot.avatarURL}
-            alt={bot.avatarURL}
+            src={withPrefix(bot.avatarURL)}
+            alt={withPrefix(bot.avatarURL)}
              />
         </Box>
       }

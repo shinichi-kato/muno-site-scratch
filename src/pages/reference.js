@@ -5,7 +5,7 @@ import BiomebotProvider from '../components/ReferenceApp/BiomeBot-0.10/BiomeBotP
 import EcosystemProvider from '../components/ReferenceApp/Ecosystem/EcosystemProvider';
 import ChatRoom from '../components/ReferenceApp/ChatRoom/ChatRoom';
 
-const URL = './chatbot/biomebot/reference-1.0.json';
+const URL = '/chatbot/biomebot/reference-1.0.json';
 
 export default function RefAppPage() {
   const [appState, setAppState] = useState(null);

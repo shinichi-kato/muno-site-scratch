@@ -1,4 +1,5 @@
 import React, { useState, useContext, useMemo, useRef } from 'react';
+import { withPrefix } from 'gatsby';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -69,7 +70,7 @@ function OthersBalloon({ message }) {
       alignSelf="flex-start"
     >
       <Box>
-        <Avatar alt={message.name} src={message.avatarURL} />
+        <Avatar alt={message.name} src={withPrefix(message.avatarURL)} />
       </Box>
       <Box
         sx={{

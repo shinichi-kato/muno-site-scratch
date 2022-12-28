@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef } from 'react';
+import { withPrefix } from 'gatsby';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
@@ -24,7 +25,7 @@ function LeftBalloon(props) {
       <Box
         alignSelf="flex-end"
       >
-        <Avatar alt={message.name} src={avatarSrc} />
+        <Avatar alt={message.name} src={withPrefix(avatarSrc)} />
       </Box>
       <Box
         sx={{
@@ -71,7 +72,7 @@ function RightBalloon(props) {
       <Box
         alignSelf="flex-end"
       >
-        <Avatar alt={message.name} src={avatarSrc} />
+        <Avatar alt={message.name} src={withPrefix(avatarSrc)} />
       </Box>
     </Box>
   )

@@ -113,7 +113,7 @@ class dbio {
       .toArray();
 
     if (items.length === 0) {
-      return false;
+      return {};
     }
 
     let dict = {};

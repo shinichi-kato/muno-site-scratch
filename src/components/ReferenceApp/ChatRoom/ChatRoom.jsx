@@ -40,10 +40,17 @@ export default function ChatRoom({ log, writeLog }) {
       }}
     >
       <Studio
+        sx={{
+          height:"448px"
+        }}
         panelWidth={panelWidth}
         log={log}
         writeLog={writeLog} />
       <Box
+        sx={{
+          height:"calc (100vh - 448px)",
+          overflowY: "scroll",
+        }}
         flexGrow={1}
       >
         <LogViewer log={log} />

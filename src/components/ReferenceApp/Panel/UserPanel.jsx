@@ -1,4 +1,5 @@
 import React, {useContext} from "react";
+import { withPrefix } from 'gatsby';
 import Box from '@mui/material/Box';
 import { AuthContext } from "../Auth/AuthProvider";
 
@@ -40,8 +41,8 @@ export default function UserPanel(props) {
             width: width,
             height: height,
           }}
-          src={auth.photoURL}
-          alt={auth.photoURL} />
+          src={withPrefix(auth.photoURL)}
+          alt={withPrefix(auth.photoURL)} />
       </Box>
 
     </Box>
