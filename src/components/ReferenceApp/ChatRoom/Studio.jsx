@@ -19,14 +19,13 @@ const SIDE = {
   'user': 'right',
 };
 const ALIGN_SELF = {
-  'bot': 'flexStart',
-  'user': 'flexEnd'
+  'bot': 'flex-start',
+  'user': 'flex-end'
 };
 
-const DELAY = 1000
+const DELAY = 1800
 
 function LRBalloon({ message }) {
-  console.log(message)
   return (
     <Box
       display="flex"
@@ -49,14 +48,14 @@ function LRBalloon({ message }) {
             borderStyle: "solid",
             borderColor: `${message.backgroundColor} transparent`,
             borderWidth: "19px 12px 0",
-            bottom: "-19px",
-            [SIDE[message.person]]: "38px",
+            bottom: "-16px",
+            [SIDE[message.person]]: "30px",
             marginLeft: "-12px",
           }
         }}
       >
-        <Typography variant="caption1">{message.name}</Typography>
         <Typography variant="body1">{message.text}</Typography>
+        <Typography variant="caption">{message.name}</Typography>
       </Box>
     </ Box>
   );

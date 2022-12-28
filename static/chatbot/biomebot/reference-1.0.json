@@ -14,7 +14,8 @@
         "greeting.json"
     ],
     "memory": {
-        "{BOT_NAME}":["アルファ"]
+        "{BOT_NAME}":["アルファ"],
+        "{BOT_NAME_SPOKEN}":["アルファ"]
     },
     "script": [
         {

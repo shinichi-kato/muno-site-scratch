@@ -62,8 +62,8 @@ class dbio {
     if (!url) {
       throw new Error("urlが指定されていません");
     }
-    if (this.url === url){
-      return 
+    if (this.url === url) {
+      return
     }
     this.url = url;
     this.db = new Dexie('Biomebot-0.10');
@@ -86,11 +86,13 @@ class dbio {
       this.chatbotId = data[0].id;
     }
 
-    this.cache=await this.getMemory();
+    this.cache = await this.getMemory();
   }
 
-  async isMemoryEmpty(){
-    console.assert(this.chatbotId, "DBがopenされていません");
+  async isMemoryEmpty() {
+    if (!this.chatbotId) {
+      throw new Error("DBがopenされていません");
+    }
     const count = await this.db.memory
       .where('[chatbotId+key]')
       .between([this.chatbotId, Dexie.minKey], [this.chatbotId, Dexie.maxKey])
@@ -101,7 +103,9 @@ class dbio {
 
   async getMemory() {
 
-    console.assert(this.chatbotId, "DBがopenされていません");
+    if (!this.chatbotId) {
+      throw new Error("DBがopenされていません");
+    }
 
     const items = await this.db.memory
       .where('[chatbotId+key]')
@@ -114,24 +118,36 @@ class dbio {
 
     let dict = {};
     for (let item of items) {
-      console.log("item",item)
-      dict[item.key] = [...item.val];
+      console.log("item", item)
+      if(item.val){
+        dict[item.key] = [...item.val];
+      }
     }
     return dict;
   }
-  async appendMemoryItems(dict){
+  async appendMemoryItems(dict) {
     /*
-    dictの内容をmemoryに書き込む。
+    dictの内容をmemoryに追記する。
     与えられたkeyが既存の場合はvalueに追加する
     */
-    console.assert(this.chatbotId, "DBがopenされていません");
-    let val = [];
-    for(let key in dict){
-      val = await this.db.memory.get({chatbotId:this.chatbotId,key:key});
-      console.log(val)
-      val = val ? val.push(dict[key]) : [val]
-      await this.db.memory.put({chatbotId:this.chatbotId, key:key, val:val});
+    if (!this.chatbotId) {
+      throw new Error("DBがopenされていません");
     }
+    for (let key in dict) {
+      let item = await this.db.memory.get({ chatbotId: this.chatbotId, key: key });
+
+      if (item && item.val ) {
+        item = {...item, val: [...item.val, ...dict[key]]};
+      } else {
+        item={chatbotId: this.chatbotId, key:key, val:dict[key]}
+      }
+      
+      await this.db.memory.put({ ...item});
+
+      this.cache[key] = [...dict[key]]
+      
+    }
+    
   }
 
   async putsMemory(dict) {
@@ -144,7 +160,9 @@ class dbio {
        という形式になっている。これをbulkAddに対応したリストに書き換える
     */
 
-    console.assert(this.chatbotId, "DBがopenされていません");
+    if (!this.chatbotId) {
+      throw new Error("DBがopenされていません");
+    }
 
     let data = [];
     for (let key in dict) {
@@ -171,28 +189,28 @@ class dbio {
         .where({ chatbotId: this.chatbotId, key: key })
         .first();
 
-      if(prev){
+      if (prev) {
         await this.db.memory.put({
           id: prev.id,
           chatbotId: this.chatbotId,
-          key:key,
+          key: key,
           val: [...prev.val, value]
         })
       } else {
         await this.db.memory.put({
           chatbotId: this.chatbotId,
-          key:key,
+          key: key,
           val: [value]
         })
       }
     })();
 
-    if (key in this.cache){
+    if (key in this.cache) {
       this.cache[key].push(value);
     } else {
       this.cache[key] = [value];
     }
-    
+
   }
   setMemoryItem(key, value) {
     /*
@@ -203,11 +221,11 @@ class dbio {
 
     (async () => {
       let prev = await this.db.memory
-        .where({chatbotId:this.chatbotId,key:key})
+        .where({ chatbotId: this.chatbotId, key: key })
         .first();
-        
+
       await this.db.memory.update(
-        prev.id,{
+        prev.id, {
         val: [value]
       });
     })();
@@ -224,11 +242,11 @@ class dbio {
     return this.cache[key] || [];
   }
 
-  isExist(key){
+  isExist(key) {
     return key in this.cache;
   }
 
-  getBotName(){
+  getBotName() {
     console.assert(this.chatbotId, "DBがopenされていません");
     return this.cache['{BOT_NAME}'][0]
   }

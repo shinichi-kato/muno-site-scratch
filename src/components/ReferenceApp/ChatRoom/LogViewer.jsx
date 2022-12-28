@@ -21,14 +21,16 @@ function LeftBalloon(props) {
       flexDirection="row"
       alignSelf="flex-start"
     >
-      <Box>
+      <Box
+        alignSelf="flex-end"
+      >
         <Avatar alt={message.name} src={avatarSrc} />
       </Box>
       <Box
         sx={{
           borderRadius: "15px 15px 15px 0px",
           padding: "0.5em",
-          marginLeft: 4,
+          marginLeft: 2,
           backgroundColor: backgroundColor,
         }}
       >
@@ -41,10 +43,10 @@ function LeftBalloon(props) {
 
 function RightBalloon(props) {
   const message = props.message;
-  const avatarSrc = message.person === 'bot' ?
-    `/chatbot/${message.avatarURL}/avatar.svg`
+  const avatarSrc = message.person === 'bot' && message.avatarURL ?
+    message.avatarURL.replace(/([^/]+\..+)$/,"avatar.svg")
     :
-    `/user/${message.avatarURL}/avatar.svg`;
+    `${message.avatarURL}`;
   const backgroundColor = message.backgroundColor || "#FFFFFFBB";
 
   return (
@@ -58,7 +60,7 @@ function RightBalloon(props) {
         sx={{
           borderRadius: " 15px 15px 0px 15px",
           padding: "0.5em",
-          marginRight: 4,
+          marginRight: 2,
           backgroundColor: backgroundColor,
         }}
       >
@@ -66,7 +68,9 @@ function RightBalloon(props) {
         <Typography variant="caption">{message.name}</Typography>
 
       </Box>
-      <Box>
+      <Box
+        alignSelf="flex-end"
+      >
         <Avatar alt={message.name} src={avatarSrc} />
       </Box>
     </Box>
