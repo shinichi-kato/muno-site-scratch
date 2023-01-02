@@ -68,7 +68,7 @@ const RE_MAIN_TAG = /{[A-Z_][A-Z0-9_]*}/g;
 
 export default class BowEncoder {
 
-  constructor(segmenter) {
+  constructor(script) {
     this.matrix = [];
     this.vocab = {};
     this.vocabLength = 0;
@@ -77,7 +77,8 @@ export default class BowEncoder {
     this.tfidf = null;
     this.index = [];
     this.intents = {};
-    this.segmenter = segmenter !== undefined ? segmenter : new TinySegmenter();
+    this.segmenter = new TinySegmenter();
+    this.learn(script);
 
   }
 
@@ -209,6 +210,7 @@ export default class BowEncoder {
     let nodes = this.segmenter.segment(text);
     // similarity計算
     result = this._similarity(nodes);
+    console.log(result)
     
     // i行のintentを探す
     for(let x in this.intents){
@@ -222,7 +224,7 @@ export default class BowEncoder {
   }
 
   _tagging(text, key){
-    let vals = this.db.getMemoryValues(key);
+    let vals = db.getMemoryValues(key);
     for(let val of vals){
       text = text.replace(val,key);
     }

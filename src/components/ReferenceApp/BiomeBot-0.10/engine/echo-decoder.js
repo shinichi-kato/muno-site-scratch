@@ -136,7 +136,7 @@ export default class EchoDecoder {
     */
     if (!db.isExist(tag)) return tag;
 
-    let vals = db.getValues(tag);
+    let vals = db.getMemoryValues(tag);
     let val = vals[randomInt(vals.length)];
 
     return val.replace(RE_MAIN_TAG, (whole, itemTag) => this.expand(itemTag))

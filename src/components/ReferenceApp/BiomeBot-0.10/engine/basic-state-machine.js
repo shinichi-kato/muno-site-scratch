@@ -42,7 +42,8 @@ const AVATARS = {
   'enter': 'waving.svg',
   '*enter': 'waving.svg',
   'pass': 'peace.svg',
-  'exit': 'peace.svg'
+  'exit': 'peace.svg',
+  '*': 'peace.svg',
 };
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
@@ -58,7 +59,6 @@ export default class BasicStateMachine {
       'enter': c => c.intent === 'enter',
       '*enter': c => c.score < this.precision,
       'pass': c => c.score < this.precision,
-      'exit': c => c.intent === 'exit',
     }
 
     this.learn(script)

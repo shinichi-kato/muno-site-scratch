@@ -224,10 +224,11 @@ export default function BiomeBotProvider(props) {
       }else if(retcode.command === 'to_main'){
         changeMode('main')
       }
-      else if (retcode.intent !== 'pass'){
+      else if (retcode.intent === 'pass'){
         // not_foundの代わりにpassを指定することで次のcellに移る
-        break
+        continue
       }
+      break;
     }
     cells('exit')
     
