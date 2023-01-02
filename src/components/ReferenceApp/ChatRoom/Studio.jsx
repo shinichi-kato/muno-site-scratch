@@ -119,7 +119,6 @@ export default function Studio({ log, writeLog, panelWidth }) {
       思われるが、これをmodal表示することでスマホのソフトキーボードを
       が表示されても隠れないことが狙いである。
 
-
       */
 
   const [userInput, setUserInput] = useState("");
@@ -149,7 +148,8 @@ export default function Studio({ log, writeLog, panelWidth }) {
         person: 'user',
         avatarURL: auth.photoURL,
         backgroundColor: auth.backgroundColor,
-      }), writeLog)}, DELAY);
+      }), writeLog)
+    }, DELAY);
 
     setUserInput("");
     event.preventDefault();

@@ -1,13 +1,15 @@
 import { useReducer, useEffect, useCallback } from 'react';
 import { withPrefix } from 'gatsby';
-import { db } from './db'
+// import { db } from './db'
 
 import CentralStateMachine from './engine/central-state-machine';
 import PatternEncoder from './engine/pattern-encoder';
 import HarvestDecoder from './engine/harvest-decoder';
 import BasicStateMachine from './engine/basic-state-machine';
+import BowEncoder from './engine/bow-encoder';
 
 const modules = {
+  'BowEncoder': BowEncoder,
   'PatternEncoder': PatternEncoder,
   'CentralStateMachine': CentralStateMachine,
   'BasicStateMachine': BasicStateMachine,

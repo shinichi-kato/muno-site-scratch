@@ -9,7 +9,7 @@ Monobot
 
 */
 
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer,useCallback } from 'react';
 import { withPrefix } from 'gatsby';
 import Link from '@mui/material/Link'
 import Box from '@mui/material/Box';
@@ -186,7 +186,32 @@ export default function Chatbot({ source, options }) {
   const [log, setLog] = useState([]);
   const [userText, setUserText] = useState("");
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [avatarURL, setavatarURL] = useState("");
+  const [avatarURL, setAvatarURL] = useState("");
+
+  const renderMessage = useCallback((person, text, code)=> {
+    if(text!=="{NOP}"){
+      setLog(prev =>
+        [...prev.slice(-MAX_LOG_LENGTH),
+        { person: person, text: text }
+        ]
+      );
+  
+    }
+
+    if(code){
+      setAvatarURL(withPrefix(
+        code.intent === 'absent' || code.intent === 'stand_by'
+          ? `${source}/absent.svg`
+          : `${source}/${state.avatar}`
+      ))
+  
+    }
+  },[
+    setLog,
+    setAvatarURL,
+    state.avatar,
+    source,
+  ]);
 
   //-------------------------------------------
   // chatbotのロード
@@ -236,7 +261,7 @@ export default function Chatbot({ source, options }) {
           }
         )
     }
-  }, [state.source, source, state.status]);
+  }, [state.source, source, state.status, options]);
 
   // -------------------------------------------------
   // チャットボットの動作開始
@@ -262,7 +287,14 @@ export default function Chatbot({ source, options }) {
       dispatch({ type: "Start" });
       renderMessage('bot', text, code);
     }
-  }, [state.encoder, state.decoder, state.stateMachine, state.status])
+  }, [
+    state.encoder,
+    state.decoder,
+    state.stateMachine,
+    state.status,
+    state.options,
+    renderMessage,
+  ])
 
 
   function handleChangeInput(event) {
@@ -287,25 +319,7 @@ export default function Chatbot({ source, options }) {
     renderMessage('bot', text, code);
   }
 
-  function renderMessage(person, text, code) {
-    if(text!=="{NOP}"){
-      setLog(prev =>
-        [...prev.slice(-MAX_LOG_LENGTH),
-        { person: person, text: text }
-        ]
-      );
-  
-    }
 
-    if(code){
-      setavatarURL(withPrefix(
-        code.intent === 'absent' || code.intent === 'stand_by'
-          ? `${source}/absent.svg`
-          : `${source}/${state.avatar}`
-      ))
-  
-    }
-  }
 
   return (
     <Box

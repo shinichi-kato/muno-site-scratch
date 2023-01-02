@@ -62,21 +62,21 @@ bot_namer::='B_naming' 'B_renaming'* ('B_confirm'|'B_break')
 
 import { parseTables, dispatchTables } from './phrase-segmenter';
 import BasicStateMachine from './basic-state-machine';
-import {db} from '../db';
+import { db } from '../db';
 const RE_NAME_TAG = /naming$/;
 
 const STATE_TABLES = parseTables({
   main: [
-    //            0  1  2  3  4  5  6  7  8  9 10
-    '*          : 0  0  0  0  0  0  7  0  0  0  0',
-    'enter      : 2  0  0  0  0  0  0  0  0  0  0',
-    'absent     : 3  0  0  0  0  0  0  0  0  0  0',
-    'std_by     : 0  0  0  4  4  0  0  0  0  0  0',
-    'summon     : 0  0  0  5  5  0  0  0  0  0  0',
-    'to_biome   : 0  0  6  0  0  6  0  6  6  6  0',
-    'bot_namer  : 0  0  9  0  0  9  0  9  9  9  0',
-    'not_found  : 0  0  0  0  0  0  0  8  0  0  0',
-    'exit       : 0  0 10  0  0 10  0 10 10 10  0',
+    //            0  1  2  3  4  5  6  7  8  9
+    '*          : 0  0  6  0  0  6  6  6  6  0',
+    'enter      : 2  0  0  0  0  0  0  0  0  0',
+    'absent     : 3  0  0  0  0  0  0  0  0  0',
+    'std_by     : 0  0  0  4  4  0  0  0  0  0',
+    'summon     : 0  0  0  5  5  0  0  0  0  0',
+    'to_biome   : 0  0  6  0  0  6  6  6  6  0',
+    'bot_namer  : 0  0  8  0  0  8  8  8  8  0',
+    'not_found  : 0  0  0  0  0  0  7  0  0  0',
+    'exit       : 0  0  9  0  0  9  9  9  9  0',
   ],
   bot_namer: [
     //             0  1  2  3  4  5
@@ -112,7 +112,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       'enter': c => c.intent === 'enter',
       'absent': c => c.intent === 'absent',
       'std_by': c => c.intent !== 'summon',
-      'summon': c => ( this.refractory < 1 && c.intent === 'summon' ),
+      'summon': c => (this.refractory < 1 && c.intent === 'summon'),
       'to_biome': c => c.score <= this.precision,
       'not_found': c => c.score <= this.precision,
       'exit': c => c.intent === 'exit',
@@ -128,7 +128,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
   }
 
 
-  learn(script){
+  learn(script) {
     this.precision = script.precision;
     this.refractory = script.refractory || 4; // exitしたあとの不応期
   }
@@ -145,7 +145,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
   run(code) {
     let table, state, pos, lastIndex;
     let loop = 0;
-    console.log("code",code)
+
     while (true) {
       loop++;
       if (loop > 100) {
@@ -159,7 +159,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       state = this.states[lastIndex][1];
       console.log("st=", table, state, "pos=", pos)
 
-      if (pos === 'exit'){
+      if (pos === 'exit') {
         this.refractCount = this.refractory;
       }
 
@@ -180,7 +180,6 @@ export default class CentralStateMachine1 extends BasicStateMachine {
 
       if (pos === 'to_biome') {
         // 'from_biome'に進んだ状態でreturn
-        this.states = ['main', 8];
         return {
           ...code,
           command: 'to_biome'
@@ -191,9 +190,9 @@ export default class CentralStateMachine1 extends BasicStateMachine {
     }
 
     // 通常の処理
-    if (pos === 'std_by'){
-      if(this.refractCount>0){
-        this.refractCount --;
+    if (pos === 'std_by') {
+      if (this.refractCount > 0) {
+        this.refractCount--;
       }
     }
 
@@ -206,10 +205,16 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       db.addMemoryItem('{BOT_NAME}', last[0]);
     }
 
-    return {
+    const retcode = {
       ...code,
       intent: pos,
-      avatar: AVATARS[pos]
+      avatar: AVATARS[pos],
+      command: null,
     }
+
+    console.log("state machine returns",retcode);
+
+    return retcode;
+
   }
 }

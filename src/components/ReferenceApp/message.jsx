@@ -40,6 +40,7 @@ export class Message {
     this.backgroundColor = "";
     this.mood = "";
     this.person = "";
+    this.id = Date.now();
 
     if (data === undefined) {
       if (isObject(mode)) {

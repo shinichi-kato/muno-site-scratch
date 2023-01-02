@@ -179,7 +179,7 @@ function reducer(state, action) {
 }
 
 export default function BiomeBotProvider(props) {
-  const [biomeState, biomeLoad, cells, exitCells, changeMode, hoist, drop] = useBiome(props.url);
+  const [biomeState, biomeLoad, cells, changeMode, hoist, drop] = useBiome(props.url);
   const [state, dispatch] = useReducer(reducer, initialState);
   const handleBotReady = props.handleBotReady;
   const url = props.url;
@@ -210,24 +210,33 @@ export default function BiomeBotProvider(props) {
     }
 
     let cell, retcode;
-    for (cell of cells()) {
-      console.log("cell", cell)
-      retcode = cell.encoder.retrieve(code);
-      retcode = cell.stateMachine.run(retcode);
-      if (retcode.intent === 'to_biome' && biomeState.status >= BIOME_READY) {
-        changeMode('biome');
-      }
-      else if (retcode.intent !== 'pass') {
+    cells('start');
+      
+    while(true){
+      cell = cells('next');
+      if(cell.done){
         break;
       }
+      retcode = cell.value.encoder.retrieve(code);
+      retcode = cell.value.stateMachine.run(retcode);
+      if(retcode.command === 'to_biome'){
+        changeMode('biome');
+      }else if(retcode.command === 'to_main'){
+        changeMode('main')
+      }
+      else if (retcode.intent !== 'pass'){
+        // not_foundの代わりにpassを指定することで次のcellに移る
+        break
+      }
     }
-    exitCells();
+    cells('exit')
+    
     // hoist,drop処理
     console.log("cell", cell)
-    if (cell.retention < Math.random()) {
-      drop(cell.name);
+    if (cell.value.retention < Math.random()) {
+      drop(cell.value.name);
     } else {
-      hoist(cell.name);
+      hoist(cell.value.name);
     }
     // そのほか明示的hoist.dropは後で考える
 
@@ -235,7 +244,7 @@ export default function BiomeBotProvider(props) {
 
     // decode
     dispatch({ type: 'execute', avatarURL: avatarURL })
-    let rettext = cell.decoder.render(retcode);
+    let rettext = cell.value.decoder.render(retcode);
 
     emitter(new Message('speech', {
       avatarURL: avatarURL,
@@ -245,10 +254,10 @@ export default function BiomeBotProvider(props) {
       person: 'bot'
     }));
   }, [
-    cells, exitCells,
+    cells,
     changeMode,
     drop, hoist,
-    biomeState.status,
+    // biomeState.status,
     biomeState.backgroundColor,
     biomeState.avatarDir,
     state.botName,
