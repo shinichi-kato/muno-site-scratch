@@ -5,8 +5,6 @@ import { db } from '../BiomeBot-0.10/db';
 const BIOME_LOADING = 0;
 export const BIOME_MAIN_READY = 1;
 export const BIOME_READY = 2;
-const BIOME_RUN = 3;
-const BIOME_CELLS_IS_RUNNING = 4;
 
 
 const initialState = {
@@ -14,8 +12,6 @@ const initialState = {
   isReady: false,
   dir: '',
   mode: 'main',
-  currentMode: '',
-  currentCellName: '',
   backgroundColor: '',
   avatarDir: '',
   spool: {},
@@ -70,94 +66,43 @@ function reducer(state, action) {
       }
     }
 
-    case 'rewind_cells': {
-      return {
-        ...state,
-        status: BIOME_CELLS_IS_RUNNING,
-        currentMode: action.mode ? action.mode : state.mode,
-        currentIndex: 0
-      }
-    }
-
-
-    case 'next_cells': {
-      return {
-        ...state,
-        status: BIOME_CELLS_IS_RUNNING,
-        currentMode: state.currentMode + 1,
-
-      }
-    }
-
-    case 'exit_cells': {
-      return {
-        ...state,
-        status: BIOME_RUN
-      }
-    }
-
-    case 'changeMode': {
-      return {
-        ...state,
-        mode: action.modeName
-      }
-    }
-
-    case 'hoist': {
-      // generator実行中はhoist禁止
-      if (state.status === BIOME_CELLS_IS_RUNNING) {
-        throw new Error('関数useBiome.cells()実行中はhoistできません')
-      }
-
-      // mainとbiomeのどちらをhoistしたかをcellNameで判別
-      let pos = state.order.biome.indexOf(action.cellName);
-      let mode = 'biome';
-      if (pos === -1) {
-        pos = state.order.main.indexOf(action.cellName);
-        mode = 'main';
-      }
-      console.log("pos", pos, "mode", mode, "name", action.cellName)
+    case 'update': {
+      const cellName = state.order[action.mode][action.index];
+      const cell = state.spool[cellName];
       let newOrder = {
         'main': [...state.order.main],
         'biome': [...state.order.biome]
       }
-      if (pos > 0) {
-        let removed = newOrder[mode].splice(pos, 1)
-        newOrder[mode].unshift(removed[0]);
-      }
-      console.log("hoisted: newOrder", mode, newOrder)
-      return {
-        ...state,
-        order: newOrder
-      }
-    }
 
-    case 'drop': {
-      // generator実行中はhoist禁止
-      if (state.status === BIOME_CELLS_IS_RUNNING) {
-        throw new Error('関数useBiome.cells()実行中はdrop()は使用できません')
-      }
-
-      // mainとbiomeのどちらをhoistしたかをcellNameで判別
-      let pos = state.order['biome'].indexOf(action.cellName);
+      // hoist/drop
+      let pos = state.order.biome.indexOf(cellName);
       let mode = 'biome';
       if (pos === -1) {
-        pos = state.order['main'].indexOf(action.cellName);
+        pos = state.order.main.indexOf(cellName);
         mode = 'main';
       }
-      let newOrder = {
-        'main': [...state.order.main],
-        'biome': [...state.order.biome]
+
+      if (cell.retention < Math.random()) {
+        // drop
+        if (pos !== -1 && pos < newOrder.length - 1) {
+          let removed = newOrder[mode].splice(pos, 1);
+          newOrder[mode].push(removed[0]);
+        }
+      } else {
+        // hoist
+        if (pos > 0) {
+          let removed = newOrder[mode].splice(pos, 1)
+          newOrder[mode].unshift(removed[0]);
+        }
       }
-      if (pos !== -1 && pos < newOrder.length - 1) {
-        let removed = newOrder[mode].splice(pos, 1);
-        newOrder[mode].push(removed[0]);
-      }
+
       return {
         ...state,
+        mode: action.mode,
         order: newOrder
       }
     }
+
 
     default:
       throw new Error(`invalid action.type ${action.type}`);
@@ -228,106 +173,14 @@ export function useBiome(url) {
     mainLoad(url);
   }, [mainLoad]);
 
-  const changeMode = useCallback((modeName) => {
-    dispatch({ type: 'changeMode', modeName: modeName })
-  }, []);
-
-  const cells = useCallback((type) => {
-    // cells(type)
-    // type:'start' 初期化
-    // type:'next' 次のcellを返す。startまたは前のnextの間にmodeが変更されたら
-    //             新たなmodeの先頭のcellを返す
-    // type:'exit' 終了
-
-    if (type === 'start') {
-      // 初期設定
-      dispatch({ type: 'rewind_cells' });
-      return
-    }
-
-    if (type === 'next') {
-      // 前回のcells呼び出しまでにmode変更が起きていなければ
-      // {value:現在のcell, done:false} を返す。indexを一つ進める。
-      // もしbiome終端にいた場合、modeをmainにする。mainの終端にいた場合
-      // {done:true}を返す
-      if (state.mode === state.currentMode) {
-        if (state.order[state.mode].length < state.currentIndex) {
-
-          const cellName = state.order[state.mode];
-          const retval = { value: state.spool[cellName], done: false };
-          dispatch({ type: 'next_cells' })
-          return retval;
-
-        } else if (state.mode === 'biome') {
-          dispatch({ type: 'rewind_cells', mode: 'main' });
-        } else if (state.mode === 'main') {
-          return { done: true }
-        }
-        const cellName = state.order[state.mode];
-        const retval = { value: state.spool[cellName], done: false };
-        dispatch({ type: 'next_cells' })
-
-        return retval;
-      }
-      else {
-        // mainまたはbiomeの先頭に戻ってcellを返す
-        const mode = state.mode === 'main' ? 'biome' : 'main';
-        dispatch({ type: 'rewind_cells', mode: mode });
-        return {
-          value: state.spool[state.order[mode][0]],
-          done: false
-        }
-      }
-
-    }
-
-    if (type==='exit'){
-      dispatch({type: 'exit_cells'});
-    }
-  }, [
-    state.currentIndex,
-    state.currentMode,
-    state.mode,
-    state.order,
-    state.spool
-  ]);
-
-  // const cells = useCallback(function* () {
-  //   if (state.status !== BIOME_READY) return;
-  //   let cellName;
-  //   let currentMode;
-
-  //   dispatch({ type: 'start_generator' });
-
-  //   while (state.mode !== currentMode) {
-  //     currentMode = state.mode;
-  //     for (cellName of state.order[state.mode]) {
-  //       if (state.mode !== currentMode) {
-  //         console.log("mode changed to",state.mode)
-  //         break;
-  //       }
-  //       yield state.spool[cellName];
-  //     }
-  //   }
-  //   dispatch({ type: 'end_generator' })
-  // }, [state.status, state.mode, state.spool, state.order]);
-
-
-  const hoist = useCallback((cellName) => {
-    dispatch({ type: 'hoist', cellName: cellName })
-  }, []);
-
-  const drop = useCallback((cellName) => {
-    dispatch({ type: 'drop', cellName: cellName })
+  const update = useCallback((mode, index) => {
+    dispatch({type: 'update', mode: mode, index:index})
   }, []);
 
   return [
     state,
     load,
-    cells,
-    changeMode,
-    hoist,
-    drop,
+    update
   ]
 }
 

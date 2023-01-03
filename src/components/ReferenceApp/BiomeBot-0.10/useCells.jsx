@@ -30,9 +30,9 @@ function getFilename(url) {
 
 const initialState = {
   status: 'init',
-  cellNames: [],
+  cellNames: [],  // ロードしたcellの名前
   spool: {},
-  biomes: [],
+  biomes: [],   // 各cellのbiome(mainのbiomeのみ使用)
   memory: {}
 };
 

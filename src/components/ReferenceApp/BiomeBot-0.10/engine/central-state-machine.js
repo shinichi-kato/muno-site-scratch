@@ -180,6 +180,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
 
       if (pos === 'to_biome') {
         // 'from_biome'に進んだ状態でreturn
+        // from_biomeが必要かテストすること
         return {
           ...code,
           command: 'to_biome'

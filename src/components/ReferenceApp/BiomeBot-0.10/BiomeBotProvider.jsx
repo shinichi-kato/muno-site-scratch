@@ -139,8 +139,8 @@ import React, {
 } from 'react';
 import { Message } from '../message'
 
-import { BIOME_READY, useBiome } from './useBiome';
-import {db} from './db';
+import { useBiome } from './useBiome';
+import { db } from './db';
 
 export const BiomeBotContext = createContext();
 
@@ -179,7 +179,7 @@ function reducer(state, action) {
 }
 
 export default function BiomeBotProvider(props) {
-  const [biomeState, biomeLoad, cells, changeMode, hoist, drop] = useBiome(props.url);
+  const [biomeState, biomeLoad, biomeUpdate] = useBiome(props.url);
   const [state, dispatch] = useReducer(reducer, initialState);
   const handleBotReady = props.handleBotReady;
   const url = props.url;
@@ -205,48 +205,56 @@ export default function BiomeBotProvider(props) {
   const handleExecute = useCallback((userMessage, emitter) => {
     let code = {
       intent: userMessage.intent || '*',
-      text: userMessage.text,  // {BOT_NAME} {USER_NAME}をタグ化（未実装)
+      text: userMessage.text,  // {BOT_NAME} {BOT_NAME_SPOKEN} {USER_NAME}をタグ化（未実装)
       owner: 'user',
     }
 
-    let cell, retcode;
-    cells('start');
-      
-    while(true){
-      cell = cells('next');
-      if(cell.done){
-        break;
+    let mode = biomeState.mode;
+    let index = 0;
+    let cell, cellName, retcode;
+
+    while (true) {
+      if (biomeState.order[mode].length <= index) {
+        // order終端にいる
+        // biome終端 -> mainへ。
+        if (mode === 'biome') {
+          mode = 'main';
+          index = 0;
+        } else {
+          // main終端→エラー
+          console.error("mainの状態機械が終了に到達しました。main状態機械は終了しない設計にしてください")
+          index = 0;
+        }
       }
-      retcode = cell.value.encoder.retrieve(code);
-      retcode = cell.value.stateMachine.run(retcode);
-      if(retcode.command === 'to_biome'){
-        changeMode('biome');
-      }else if(retcode.command === 'to_main'){
-        changeMode('main')
+
+      cellName = biomeState.order[mode][index];
+      cell = biomeState.spool[cellName];
+      retcode = cell.encoder.retrieve(code);
+      retcode = cell.stateMachine.run(retcode);
+
+      if (retcode.command === 'to_biome') {
+        mode = 'biome';
+        index = 0;
+        continue;
+      } else if (retcode.command === 'to_main') {
+        mode = 'main';
+        index = 0;
+        continue;
       }
-      else if (retcode.intent === 'pass'){
-        // not_foundの代わりにpassを指定することで次のcellに移る
-        continue
+
+      if (retcode.intent === 'pass') {
+        index++;
+        continue;
       }
       break;
     }
-    cells('exit')
-    
-    // hoist,drop処理
-    console.log("cell", cell)
-    if (cell.value.retention < Math.random()) {
-      drop(cell.value.name);
-    } else {
-      hoist(cell.value.name);
-    }
-    // そのほか明示的hoist.dropは後で考える
 
     const avatarURL = `${biomeState.avatarDir}${retcode.avatar}`;
+    biomeUpdate(mode, index);
+    dispatch({ type: 'execute', avatarURL: avatarURL });
 
     // decode
-    dispatch({ type: 'execute', avatarURL: avatarURL })
-    let rettext = cell.value.decoder.render(retcode);
-
+    let rettext = cell.decoder.render(retcode);
     emitter(new Message('speech', {
       avatarURL: avatarURL,
       text: rettext,
@@ -254,11 +262,12 @@ export default function BiomeBotProvider(props) {
       backgroundColor: biomeState.backgroundColor,
       person: 'bot'
     }));
+
   }, [
-    cells,
-    changeMode,
-    drop, hoist,
-    // biomeState.status,
+    biomeUpdate,
+    biomeState.order,
+    biomeState.spool,
+    biomeState.mode,
     biomeState.backgroundColor,
     biomeState.avatarDir,
     state.botName,
