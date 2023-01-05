@@ -45,7 +45,7 @@ central state machine 1
 ■ biome→main遷移
 biomeの動作ですべてのcellがprecisionチェックでNGとなった場合、
 biome→main遷移を行う。「すべてのcellがprecisionチェックでNG」という
-状態はnot_found似相当するため、to_biomeの次はnot_foundになるものとする。
+状態はnot_found相当するため、to_biomeの次はnot_foundになるものとする。
 これによりnot_found処理をmain側で一元的に扱う。
 
 
@@ -73,7 +73,7 @@ const STATE_TABLES = parseTables({
     'absent     : 3  0  0  0  0  0  0  0  0  0',
     'std_by     : 0  0  0  4  4  0  0  0  0  0',
     'summon     : 0  0  0  5  5  0  0  0  0  0',
-    'to_biome   : 0  0  6  0  0  6  6  6  6  0',
+    'to_biome   : 0  0  6  0  0  6  0  6  6  0',
     'bot_namer  : 0  0  8  0  0  8  8  8  8  0',
     'not_found  : 0  0  0  0  0  0  7  0  0  0',
     'exit       : 0  0  9  0  0  9  9  9  9  0',

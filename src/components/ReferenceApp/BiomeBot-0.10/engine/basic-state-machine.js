@@ -1,29 +1,29 @@
 /*
 Basic State Machine
 ===============================
-基本の内的プロセス状態機械
+基本のBiome内的プロセス状態機械
 
-セルが初めて実行されたとき、ユーザ入力に対して返答可能な場合 *enter 状態に
-遷移して返答を行う。
+Biomeは複数のBiomeセルがカスケード接続されていることを想定している。
+初期状態で、ユーザの入力に応答可能な場合はenterに遷移し、返答を返す。
+応答できない場合はpass(1)に遷移し、これをトリガーとして次のセルに制御が移る。
 
-返答可能な内容をユーザが話した場合は状態*に移動し、
-それに対応した内容を返する。そうでなければ状態はenterに移り、自発的な発言を
-行う。その後、scoreが低い場合はpassに移動し、次のcellに制御が映る
-exitは明示的にdropする
-
-セルは初期状態('main',0)から始まり、
-起動準備ができたらチャットボットに{intent:'start'}を渡す。
-それによりチャットボットは{intent:'start'}を出力するとともに稼働状態になる。
-稼働状態では*、、byeのいずれかに遷移する。
+一度enterに移動したあとは、辞書を検索して応答可能なら*、応答できない場合は
+pass(2)に移動する。
 
 上述のパース内容は下記にBNF記法で記述した。これはhttps://www.bottlecaps.de/rr/ui
 で可視化できる。
 --------------------------------------------------------------------------------
 
-main ::= ('*'|'*enter') ('*'|'pass()')+
+basic ::= 'pass(1)'* 'enter' ('*'|'pass(2)')+
 
 --------------------------------------------------------------------------------
 
+{index: null, score: 0, intent: '*', status: 'ok'}
+basic-state-machine.js:85 st= main 5 pos= pass
+central-state-machine.js:160 st= main 6 pos= to_biome
+bow-encoder.js:213 {index: null, score: 0, intent: '*', status: 'ok'}
+basic-state-machine.js:85 st= main 5 pos= pass
+central-state-machine.js:160 st= main 6 pos= to_biome
 */
 
 import { parseTables, dispatchTables } from './phrase-segmenter';
@@ -31,18 +31,15 @@ import { parseTables, dispatchTables } from './phrase-segmenter';
 const STATE_TABLES = parseTables({
   main: [
     //         0  1  2  3  4  5
-    '*       : 0  0  4  4  4  4',
-    'enter   : 3  0  0  0  0  0',
-    '*enter  : 2  0  0  0  0  0',
-    'pass    : 0  0  5  5  5  5',
+    '*       : 0  0  0  4  4  4',
+    'enter   : 3  0  3  0  0  0',
+    'pass    : 2  0  2  5  5  5',
   ],
 });
 
 const AVATARS = {
   'enter': 'waving.svg',
-  '*enter': 'waving.svg',
   'pass': 'peace.svg',
-  'exit': 'peace.svg',
   '*': 'peace.svg',
 };
 
@@ -57,8 +54,7 @@ export default class BasicStateMachine {
     this.lex = {
       '*': c => false,
       'enter': c => c.intent === 'enter',
-      '*enter': c => c.score < this.precision,
-      'pass': c => c.score < this.precision,
+      'pass': c => c.score <= this.precision,
     }
 
     this.learn(script)
@@ -84,7 +80,7 @@ export default class BasicStateMachine {
     while (true) {
       loop++;
       if (loop > 100) {
-        throw new Error(`maybe infinite loop at ${code}`);
+        throw new Error(`maybe infinite loop at ${code}, state=${state}`);
       }
 
       lastIndex = this.states.length - 1;
@@ -92,6 +88,7 @@ export default class BasicStateMachine {
       pos = this._assignPos(code, table, state);
       this.states[lastIndex] = [table, STATE_TABLES[table][pos][state]];
       state = this.states[lastIndex][1];
+      console.log("st=", table, state, "pos=", pos)
 
       if (state === 0) {
         this.states = [['main', 0]];

@@ -13,19 +13,9 @@
     "biome": [],
     "script": [
         {
-            "intent": "*enter",
-            "in": ["こんにちは"],
-            "out": ["こんにちは！"]
-        },
-        {
             "intent": "enter",
             "in": ["こんにちは"],
             "out": ["こんにちは！"]
-        },
-        {
-            "intent": "pass",
-            "in": ["{NOP}"],
-            "out": ["{NOP}"]
         },
         {
             "in":["こんばんは"],
