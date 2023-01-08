@@ -176,7 +176,7 @@ import React, {
       })
   
     }, updateInterval, true);
-  
+
     return (
       <EcosystemContext.Provider
         value={{

@@ -3,7 +3,10 @@
 central state machine 1
 
 ================================
-在室/不在及び名付けに対応したメインセル
+在室/不在及び名付けに対応したメインcell
+
+この状態機械はABSENT、PRESENTなどの状態から開始可能で、
+そのうちのどれを選択するかはmemoryの{ENTER}で決める。
 
 この状態機械は PatternEncoderによりコード化されたユーザ入力を受取り、
 内部状態を保持しつつ
@@ -53,30 +56,44 @@ biome→main遷移を行う。「すべてのcellがprecisionチェックでNG�
 https://www.bottlecaps.de/rr/ui で可視化可能である。
 -------------------------------------------------------------
 
-main::= ('enter'|('absent' 'stand_by'* 'summon'))
-        (( to_biome 'not_found'?)|bot_namer)* 'exit'
+main::='enter' ( initial loop* 'exit')+ 
+initial::= (('absent' 'std-by'* 'summon')|'present')
+loop::= ('to_biome' 'not_found')|bot_namer
 bot_namer::='B_naming' 'B_renaming'* ('B_confirm'|'B_break')
 
 ------------------------------------------------------------
 */
 
+import { randomInt } from "mathjs";
 import { parseTables, dispatchTables } from './phrase-segmenter';
 import BasicStateMachine from './basic-state-machine';
 import { db } from '../db';
+
 const RE_NAME_TAG = /naming$/;
 
 const STATE_TABLES = parseTables({
   main: [
-    //            0  1  2  3  4  5  6  7  8  9
-    '*          : 0  0  6  0  0  6  6  6  6  0',
-    'enter      : 2  0  0  0  0  0  0  0  0  0',
-    'absent     : 3  0  0  0  0  0  0  0  0  0',
-    'std_by     : 0  0  0  4  4  0  0  0  0  0',
-    'summon     : 0  0  0  5  5  0  0  0  0  0',
-    'to_biome   : 0  0  6  0  0  6  0  6  6  0',
-    'bot_namer  : 0  0  8  0  0  8  8  8  8  0',
-    'not_found  : 0  0  0  0  0  0  7  0  0  0',
-    'exit       : 0  0  9  0  0  9  9  9  9  0',
+    //         0  1  2  3  4  5
+    '*       : 0  0  0  0  0  0',
+    'enter   : 2  0  0  0  0  0',
+    'initial : 0  0  3  0  0  3',
+    'loop    : 0  0  0  4  4  0',
+    'exit    : 0  0  0  5  5  0',
+  ],
+  initial: [
+    //            0  1  2  3  4  5
+    '*          : 0  0  0  0  1  1',
+    'absent     : 2  0  0  0  0  0',
+    'std_by     : 0  0  3  3  0  0',
+    'summon     : 0  0  4  4  0  0',
+    'appear     : 5  0  0  0  0  0',
+  ],
+  loop: [
+    //            0  1  2  3  4
+    '*          : 0  0  0  1  1',
+    'to_biome   : 2  0  0  0  0',
+    'bot_namer  : 4  0  0  0  0',
+    'not_found  : 0  0  3  0  0',
   ],
   bot_namer: [
     //             0  1  2  3  4  5
@@ -90,13 +107,17 @@ const STATE_TABLES = parseTables({
 
 const AVATARS = {
   '*': 'peace.svg',
-  'enter': 'waving.svg',
+  'appear': 'waving.svg',
   'std_by': 'absent.svg',
   'absent': 'absent.svg',
   'summon': 'waving.svg',
   'to_biome': 'peace.svg',
   'bot_namer': 'peace.svg',
   'not_found': 'peace.svg',
+  'B_naming': 'peace.svg',
+  'B_renaming': 'peace.svg',
+  'B_break': 'down.svg',
+  'B_confirm': 'cheer.svg',
   'exit': 'waving.svg',
 };
 
@@ -106,16 +127,21 @@ export default class CentralStateMachine1 extends BasicStateMachine {
   constructor(script) {
     super(script);
     this.refractCount = 0;
+    this.SE_INITIAL = {absent:true, appear:true};
 
     this.lex = {
       '*': c => false,
       'enter': c => c.intent === 'enter',
+      'initial': c => c.intent in this.SE_INITIAL,
+      'loop': c => c.intent !== 'exit',
+      'exit': c => c.intent === 'exit',
+
       'absent': c => c.intent === 'absent',
       'std_by': c => c.intent !== 'summon',
-      'summon': c => (this.refractory < 1 && c.intent === 'summon'),
+      'summon': c => (this.refractCount < 1 && c.intent === 'summon'),
+      'appear': c=> c.intent === 'appear',
       'to_biome': c => c.score <= this.precision,
       'not_found': c => c.score <= this.precision,
-      'exit': c => c.intent === 'exit',
       'bot_namer': c => c.intent === 'bot_naming',
 
       'B_naming': c => c.intent === 'bot_naming',
@@ -149,7 +175,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
     while (true) {
       loop++;
       if (loop > 100) {
-        throw new Error(`infinite loop detected at ${code}`);
+        throw new Error(`infinite loop detected at pos=${pos}, code=${code.text} ${code.intent}`);
       }
 
       lastIndex = this.states.length - 1;
@@ -158,10 +184,6 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       this.states[lastIndex] = [table, STATE_TABLES[table][pos][state]];
       state = this.states[lastIndex][1];
       console.log("st=", table, state, "pos=", pos)
-
-      if (pos === 'exit') {
-        this.refractCount = this.refractory;
-      }
 
       if (state === 0) {
         this.states = [['main', 0]];
@@ -173,14 +195,18 @@ export default class CentralStateMachine1 extends BasicStateMachine {
         continue;
       }
 
+      if (pos === 'enter') {
+        const cands = db.getMemoryValues('{ENTER}');
+        code.intent = cands[randomInt(cands.length)];
+        continue;
+      }
+
       if (pos in STATE_TABLES) {
         this.states.push([pos, 0]);
         continue;
       }
 
       if (pos === 'to_biome') {
-        // 'from_biome'に進んだ状態でreturn
-        // from_biomeが必要かテストすること
         return {
           ...code,
           command: 'to_biome'
@@ -195,6 +221,9 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       if (this.refractCount > 0) {
         this.refractCount--;
       }
+    } else 
+    if (pos === 'exit') {
+      this.refractCount = this.refractory;
     }
 
     if (RE_NAME_TAG.test(pos)) {
@@ -213,7 +242,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       command: null,
     }
 
-    console.log("state machine returns",retcode);
+    console.log("state machine returns", retcode);
 
     return retcode;
 

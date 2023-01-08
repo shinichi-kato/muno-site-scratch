@@ -97,6 +97,7 @@ class dbio {
       .where('[chatbotId+key]')
       .between([this.chatbotId, Dexie.minKey], [this.chatbotId, Dexie.maxKey])
       .count();
+    console.log(count);
 
     return count === 0;
   }
@@ -119,35 +120,53 @@ class dbio {
     let dict = {};
     for (let item of items) {
       console.log("item", item)
-      if(item.val){
+      if (item.val) {
         dict[item.key] = [...item.val];
       }
     }
     return dict;
   }
+
   async appendMemoryItems(dict) {
     /*
     dictの内容をmemoryに追記する。
-    与えられたkeyが既存の場合はvalueに追加する
+    与えられたkeyが既存の場合、dictのvalueと同じ要素はその個数を含め
+    変更しない。
     */
     if (!this.chatbotId) {
       throw new Error("DBがopenされていません");
     }
+    let newVals;
     for (let key in dict) {
       let item = await this.db.memory.get({ chatbotId: this.chatbotId, key: key });
 
-      if (item && item.val ) {
-        item = {...item, val: [...item.val, ...dict[key]]};
+      if (item && item.val) {
+        // dict[key]の内容がvalに含まれていたらそれは重複して追加しない
+        newVals = [...item.val];
+        let dictVals = [...dict[key]];
+        let p;
+        for (let v of item.val) {
+          p = dictVals.indexOf(v);
+          if (p !== -1) {
+            dictVals.splice(p, 1);
+          }
+          if (dictVals.length === 0){
+            break;
+          }
+        }
+        newVals = [...item.val,...dictVals];
+        item = { ...item, val: newVals };
       } else {
-        item={chatbotId: this.chatbotId, key:key, val:dict[key]}
+        newVals = dict[key];
+        item = { chatbotId: this.chatbotId, key: key, val: newVals }
       }
-      
-      await this.db.memory.put({ ...item});
 
-      this.cache[key] = [...dict[key]]
-      
+      await this.db.memory.put({ ...item });
+
+      this.cache[key] = [...newVals];
+
     }
-    
+
   }
 
   async putsMemory(dict) {

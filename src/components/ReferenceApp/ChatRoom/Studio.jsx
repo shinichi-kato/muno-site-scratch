@@ -24,7 +24,7 @@ const ALIGN_SELF = {
   'user': 'flex-end'
 };
 
-const DELAY = 1800
+const DELAY_MSEC = 1800;
 
 function LRBalloon({ message }) {
   return (
@@ -149,7 +149,7 @@ export default function Studio({ log, writeLog, panelWidth }) {
         avatarURL: auth.photoURL,
         backgroundColor: auth.backgroundColor,
       }), writeLog)
-    }, DELAY);
+    }, DELAY_MSEC);
 
     setUserInput("");
     event.preventDefault();

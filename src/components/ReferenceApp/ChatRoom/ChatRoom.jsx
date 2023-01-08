@@ -3,17 +3,19 @@ import Box from '@mui/material/Box';
 
 import Studio from './Studio';
 import { BiomeBotContext } from '../BiomeBot-0.10/BiomeBotProvider';
-// import { EcosystemContext } from '../Ecosystem/EcosystemProvider';
+import { EcosystemContext } from '../Ecosystem/EcosystemProvider';
+import { Message } from '../message'
 
 import LogViewer from './LogViewer';
 
-const panelWidth = 192; // 120,160,192
+const panelWidth = 180; // 120,160,192
 
 export default function ChatRoom({ log, writeLog }) {
-  // const ecosystem = useContext(EcosystemContext);
-  // const ecosystemRef = useRef(ecosystem);
+  const ecosystem = useContext(EcosystemContext);
+  const ecosystemRef = useRef(ecosystem);
   const bot = useContext(BiomeBotContext);
   const botRef = useRef(bot);
+  const change = ecosystemRef.current.change;
 
   useEffect(() => {
     if (bot.isReady) {
@@ -25,6 +27,19 @@ export default function ChatRoom({ log, writeLog }) {
       botRef.current.execute(code, writeLog)
     }
   }, [bot.isReady, writeLog]);
+
+  useEffect(()=>{
+    if(change !== null){
+      botRef.current.execute(
+        new Message('trigger', {
+          name: "",
+          text: `{enter_${change}}`
+        }),
+        writeLog
+      );
+      ecosystem.dispatch({type:'dispatched'});
+    }
+  },[change, ecosystem, ecosystem.dispatch, writeLog]);
 
 
   return (

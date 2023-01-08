@@ -12,7 +12,9 @@ export default function RefAppPage() {
   const [log, setLog] = useState([]);
   
   const handleWriteLog = useCallback(message => {
-    setLog(prev => [message, ...prev]);
+    if(message.text !== '{NOP}'){
+      setLog(prev => [message, ...prev]);
+    }
   },[]);
 
   const handleBotReady = useCallback(()=>{

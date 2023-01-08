@@ -184,14 +184,6 @@ export function useBiome(url) {
   ]
 }
 
-// function splitPath(url) {
-//   const match = url.match(/(.+\/)(.+?)([?#;].*)?$/)
-//   return [
-//     match[1],
-//     match[2]
-//   ]
-// }
-
 function getDir(url) {
   const match = url.match(/(.+\/)(.+?)([?#;].*)?$/)
   return match[1];

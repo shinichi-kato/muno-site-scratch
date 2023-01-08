@@ -15,7 +15,8 @@
     ],
     "memory": {
         "{BOT_NAME}":["アルファ"],
-        "{BOT_NAME_SPOKEN}":["アルファ"]
+        "{BOT_NAME_SPOKEN}":["アルファ"],
+        "{ENTER}":["absent","appear"]
     },
     "script": [
         {
@@ -38,6 +39,12 @@
             "in": ["{BOT_NAME}"],
             "out": ["はーい！"]
         },
+        {
+            "intent": "appear",
+            "in": ["{NOP}"],
+            "out": ["やってきましたよ！"]
+        },
+        
         {
             "intent": "bot_naming",
             "in": [
