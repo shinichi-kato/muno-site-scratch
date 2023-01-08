@@ -152,6 +152,7 @@ export default class PatternEncoder {
     if (check.status !== 'ok') return check;
     
     // メイン辞書に記載された一部の文字列をタグに置き換える
+    text = this._tagging(text, '{BOT_NAME_SPOKEN}');
     text = this._tagging(text, '{BOT_NAME}');
     text = this._tagging(text, '{USER_NAME}');
 

@@ -14,33 +14,27 @@ pass(2)に移動する。
 で可視化できる。
 --------------------------------------------------------------------------------
 
-basic ::= 'pass(1)'* 'enter' ('*'|'pass(2)')+
+basic    ::= 'pass(1)'* ( 'enter' | '*' ) ( '*' | 'pass(2)' )+
 
 --------------------------------------------------------------------------------
 
-{index: null, score: 0, intent: '*', status: 'ok'}
-basic-state-machine.js:85 st= main 5 pos= pass
-central-state-machine.js:160 st= main 6 pos= to_biome
-bow-encoder.js:213 {index: null, score: 0, intent: '*', status: 'ok'}
-basic-state-machine.js:85 st= main 5 pos= pass
-central-state-machine.js:160 st= main 6 pos= to_biome
 */
 
 import { parseTables, dispatchTables } from './phrase-segmenter';
 
 const STATE_TABLES = parseTables({
   main: [
-    //         0  1  2  3  4  5
-    '*       : 0  0  0  4  4  4',
-    'enter   : 3  0  3  0  0  0',
-    'pass    : 2  0  2  5  5  5',
+    //         0  1  2  3  4  5  6
+    '*       : 4  0  4  5  5  5  5',
+    'enter   : 3  0  3  0  0  0  0',
+    'pass    : 2  0  2  6  6  6  6',
   ],
 });
 
 const AVATARS = {
   'enter': 'waving.svg',
   'pass': 'peace.svg',
-  '*': 'peace.svg',
+  '*': 'cheer.svg',
 };
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);

@@ -57,7 +57,7 @@ https://www.bottlecaps.de/rr/ui で可視化可能である。
 -------------------------------------------------------------
 
 main::='enter' ( initial loop* 'exit')+ 
-initial::= (('absent' 'std-by'* 'summon')|'present')
+initial::= (('absent' 'std-by'* 'summon')|'appear')
 loop::= ('to_biome' 'not_found')|bot_namer
 bot_namer::='B_naming' 'B_renaming'* ('B_confirm'|'B_break')
 
@@ -123,23 +123,23 @@ const AVATARS = {
 
 const DISPATCH_TABLES = dispatchTables(STATE_TABLES);
 
-export default class CentralStateMachine1 extends BasicStateMachine {
+export default class CentralStateMachine extends BasicStateMachine {
   constructor(script) {
     super(script);
     this.refractCount = 0;
-    this.SE_INITIAL = {absent:true, appear:true};
+    this.SE_INITIAL = { absent: true, appear: true };
 
     this.lex = {
       '*': c => false,
       'enter': c => c.intent === 'enter',
-      'initial': c => c.intent in this.SE_INITIAL,
+      'initial': c => (c.intent in this.SE_INITIAL || this.refractCount > 0),
       'loop': c => c.intent !== 'exit',
       'exit': c => c.intent === 'exit',
 
-      'absent': c => c.intent === 'absent',
+      'absent': c => (c.intent === 'absent' || this.refractCount > 0),
       'std_by': c => c.intent !== 'summon',
       'summon': c => (this.refractCount < 1 && c.intent === 'summon'),
-      'appear': c=> c.intent === 'appear',
+      'appear': c => (c.intent === 'appear' && this.refractCount === 0),
       'to_biome': c => c.score <= this.precision,
       'not_found': c => c.score <= this.precision,
       'bot_namer': c => c.intent === 'bot_naming',
@@ -221,10 +221,10 @@ export default class CentralStateMachine1 extends BasicStateMachine {
       if (this.refractCount > 0) {
         this.refractCount--;
       }
-    } else 
-    if (pos === 'exit') {
-      this.refractCount = this.refractory;
-    }
+    } else
+      if (pos === 'exit') {
+        this.refractCount = this.refractory;
+      }
 
     if (RE_NAME_TAG.test(pos)) {
       db.setMemoryItem('{LAST}', code.harvests[0]);
@@ -232,7 +232,7 @@ export default class CentralStateMachine1 extends BasicStateMachine {
 
     if (pos === 'B_confirm') {
       let last = db.getValues('{LAST}');
-      db.addMemoryItem('{BOT_NAME}', last[0]);
+      db.addMemoryItem('{BOT_NAME_SPOKEN}', last[0]);
     }
 
     const retcode = {
