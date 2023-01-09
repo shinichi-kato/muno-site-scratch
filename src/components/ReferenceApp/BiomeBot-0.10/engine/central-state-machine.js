@@ -59,7 +59,7 @@ https://www.bottlecaps.de/rr/ui で可視化可能である。
 main::='enter' ( initial loop* 'exit')+ 
 initial::= (('absent' 'std-by'* 'summon')|'appear')
 loop::= ('to_biome' 'not_found')|bot_namer
-bot_namer::='B_naming' 'B_renaming'* ('B_confirm'|'B_break')
+bot_namer::='bot_naming' 'bot_renaming'* ('bot_confirm'|'bot_break')
 
 ------------------------------------------------------------
 */
@@ -89,19 +89,19 @@ const STATE_TABLES = parseTables({
     'appear     : 5  0  0  0  0  0',
   ],
   loop: [
-    //            0  1  2  3  4
-    '*          : 0  0  0  1  1',
-    'to_biome   : 2  0  0  0  0',
-    'bot_namer  : 4  0  0  0  0',
-    'not_found  : 0  0  3  0  0',
+    //            0  1  2  3  4  5
+    '*          : 5  0  0  1  1  1',
+    'to_biome   : 2  0  0  0  0  0',
+    'bot_namer  : 4  0  0  0  0  0',
+    'not_found  : 0  0  3  0  0  0',
   ],
   bot_namer: [
-    //             0  1  2  3  4  5
-    '*           : 0  0  0  0  1  1',
-    'B_naming    : 2  0  0  0  0  0',
-    'B_renaming  : 0  0  3  3  0  0',
-    'B_confirm   : 0  0  4  4  0  0',
-    'B_break     : 0  0  5  5  0  0',
+    //               0  1  2  3  4  5
+    '*             : 0  0  0  0  1  1',
+    'bot_naming    : 2  0  0  0  0  0',
+    'bot_renaming  : 0  0  3  3  0  0',
+    'bot_confirm   : 0  0  4  4  0  0',
+    'bot_break     : 0  0  5  5  0  0',
   ],
 });
 
@@ -114,10 +114,10 @@ const AVATARS = {
   'to_biome': 'peace.svg',
   'bot_namer': 'peace.svg',
   'not_found': 'peace.svg',
-  'B_naming': 'peace.svg',
-  'B_renaming': 'peace.svg',
-  'B_break': 'down.svg',
-  'B_confirm': 'cheer.svg',
+  'bot_naming': 'peace.svg',
+  'bot_renaming': 'peace.svg',
+  'bot_break': 'down.svg',
+  'bot_confirm': 'cheer.svg',
   'exit': 'waving.svg',
 };
 
@@ -144,10 +144,10 @@ export default class CentralStateMachine extends BasicStateMachine {
       'not_found': c => c.score <= this.precision,
       'bot_namer': c => c.intent === 'bot_naming',
 
-      'B_naming': c => c.intent === 'bot_naming',
-      'B_renaming': c => c.intent === 'bot_renaming',
-      'B_confirm': c => c.intent === 'bot_confirm',
-      'B_break': c => c.intent !== 'bot_renaming' && c.intent !== 'bot_confirm',
+      'bot_naming': c => c.intent === 'bot_naming',
+      'bot_renaming': c => c.intent === 'bot_renaming',
+      'bot_confirm': c => c.intent === 'bot_confirm',
+      'bot_break': c => c.intent !== 'bot_renaming' && c.intent !== 'bot_confirm',
     };
 
 
@@ -230,8 +230,8 @@ export default class CentralStateMachine extends BasicStateMachine {
       db.setMemoryItem('{LAST}', code.harvests[0]);
     }
 
-    if (pos === 'B_confirm') {
-      let last = db.getValues('{LAST}');
+    if (pos === 'bot_confirm') {
+      let last = db.getMemoryValues('{LAST}');
       db.addMemoryItem('{BOT_NAME_SPOKEN}', last[0]);
     }
 

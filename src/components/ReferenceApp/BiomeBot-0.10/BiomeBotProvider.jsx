@@ -203,9 +203,24 @@ export default function BiomeBotProvider(props) {
   }
 
   const handleExecute = useCallback((userMessage, emitter) => {
+
+    // db.memory辞書に記載された一部の文字列をタグに置き換える
+    function _tagging(text, key) {
+      let vals = db.getMemoryValues(key);
+      for (let val of vals) {
+        text = text.replace(val, key);
+      }
+      return text;
+    }
+
+    let text = userMessage.text;
+    text = _tagging(text, '{BOT_NAME_SPOKEN}');
+    text = _tagging(text, '{BOT_NAME}');
+    text = _tagging(text, '{USER_NAME}');
+
     let code = {
       intent: userMessage.intent || '*',
-      text: userMessage.text,  // {BOT_NAME} {BOT_NAME_SPOKEN} {USER_NAME}をタグ化（未実装)
+      text: text,  
       owner: 'user',
     }
 

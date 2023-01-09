@@ -21,7 +21,6 @@ export default function ArticleCard({ node }) {
     default:
       color="grey.500";
   }
-  console.log("node",node)
   
   return (
     <Card

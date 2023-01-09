@@ -1,46 +1,59 @@
 /*
-チャットボットのDBバックエンド
+チャットボットのDB I/O
 
-チャットボットのスクリプト、主記憶、状態を保持する。
+チャットボットのスクリプト、主記憶、状態およびチャットボットが把握する
+ユーザ情報などを保持する。
 
-チャットボットのニックネーム、ユーザの好きなもの、など会話を通じて
-得られた記憶を永続的に保持する。botごとに記憶を区別するため、
-chatbot.jsonのurlなどをbotIdとして与える。
+** テーブルの構成
+
+*** chatbotsテーブル
+
+| name | *   | 説明
+| ---- | --- | 
+| ++id | ○  | id pk
+| &url | ○  | チャットボットのurl
+
+チャットボットはurlが同じであれば同一人物とみなす。urlそのものをidにする
+ことも可能だが、chatbotsテーブルでidを与える。
+
+***  memoryテーブル
+
+| name      | *   | 説明
+|      ---- | --- | ---
+| ++id      | ○  | id pk
+| chatbotId | ○  | chatbots.id
+| key       | ○  | 辞書のキー
+| val       | --  | 辞書の値リスト
+
+現状で以下のアイテムがある。
+{BOT_NAME}: チャットボットの表示名
+{BOT_NAME_SPOKEN}: チャットボットの呼び名、ニックネームなどのリスト
+{ENTER}: このチャットボット開始時の状態リスト
 
 この情報はdecoderやencoderでタグ展開に使われる。
 replace関数内で再帰的に使われるため、メモリ内にデータのキャッシュを保持する。
 
+*** usersテーブル (未実装)
 
-* config: チャットボットの基本設定
+| name      | *   | 説明
+| ----      | --- | 
+| ++id      | ○  | id pk
+| chatbotId | ○  | chatbots.id
+| extId     | ○  | 外部で定義されるid
+| name      | ○  | 名前
+| key       | ○  | 辞書のキー
+| val       | --  | 辞書の値リスト
 
-```
-  config: {
-    botId: "firebaseのIDやuuidライクな文字列",
-    description: "チャットボットの説明"
-    backgroundColor: "#87DEDE",
-    avatarDir: "/chatbot/???/",
-    initialCellOrder: [],
-    keepAliveMin: 10,
-  }
-```
-会話中に変化しないチャットボットの情報
+チャットボットが記憶する各ユーザの情報。ユーザの識別にはfirebaseIdのような
+外部のid(extId)があればそれを用いて区別し、extIdがなければ名前で区別する。
+現状で以下のアイテムを予定している。
+{CLOSENESS}: ユーザとこのチャットボットの親密さ
 
-* work:
-
-``` 
-  work: {
-    updatedAt: string
-    partOrder: []
-    queue: []
-    site: string
-  }
-```
+*** settingsテーブル(未実装)
+チャットボットのスクリプトを編集するため、内容を記憶する。
 
 
-// main: 
-part: {
 
-}
 
 */
 
@@ -119,7 +132,6 @@ class dbio {
 
     let dict = {};
     for (let item of items) {
-      console.log("item", item)
       if (item.val) {
         dict[item.key] = [...item.val];
       }
@@ -242,11 +254,22 @@ class dbio {
       let prev = await this.db.memory
         .where({ chatbotId: this.chatbotId, key: key })
         .first();
+      
+      if (prev){
+        await this.db.memory.put({
+          id: prev.id,
+          key: key,
+          chatbotId: this.chatbotId, 
+          val: [value]
+        });
+      } else {
+        await this.db.memory.add({
+          chatbotId: this.chatbotId,
+          key: key,
+          val: [value]
+        })
+      }
 
-      await this.db.memory.update(
-        prev.id, {
-        val: [value]
-      });
     })();
 
     this.cache[key] = [value];

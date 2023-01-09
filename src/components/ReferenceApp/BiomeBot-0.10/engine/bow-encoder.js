@@ -200,17 +200,11 @@ export default class BowEncoder {
     let result = this._retrieveIntent(code);
     if (result !== false) { return result };
 
-    // メイン辞書に記載された一部の文字列をタグに置き換える
-    let text = code.text;
-    text = this._tagging(text,'{BOT_NAME}');
-    
-
-
-    // segment
-    let nodes = this.segmenter.segment(text);
+     // segment
+    let nodes = this.segmenter.segment(code.text);
+    console.log(nodes)
     // similarity計算
     result = this._similarity(nodes);
-    console.log(result)
     
     // i行のintentを探す
     for(let x in this.intents){
