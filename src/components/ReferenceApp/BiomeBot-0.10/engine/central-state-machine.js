@@ -89,11 +89,11 @@ const STATE_TABLES = parseTables({
     'appear     : 5  0  0  0  0  0',
   ],
   loop: [
-    //            0  1  2  3  4  5
-    '*          : 5  0  0  1  1  1',
-    'to_biome   : 2  0  0  0  0  0',
-    'bot_namer  : 4  0  0  0  0  0',
-    'not_found  : 0  0  3  0  0  0',
+    //            0  1  2  3  4
+    '*          : 0  0  0  1  1',
+    'to_biome   : 2  0  0  0  0',
+    'bot_namer  : 4  0  4  0  0',
+    'not_found  : 3  0  3  0  0',
   ],
   bot_namer: [
     //               0  1  2  3  4  5
@@ -140,7 +140,7 @@ export default class CentralStateMachine extends BasicStateMachine {
       'std_by': c => c.intent !== 'summon',
       'summon': c => (this.refractCount < 1 && c.intent === 'summon'),
       'appear': c => (c.intent === 'appear' && this.refractCount === 0),
-      'to_biome': c => c.score <= this.precision,
+      'to_biome': c => (c.intent !== 'bot_namer' || c.score <= this.precision),
       'not_found': c => c.score <= this.precision,
       'bot_namer': c => c.intent === 'bot_naming',
 
@@ -171,19 +171,19 @@ export default class CentralStateMachine extends BasicStateMachine {
   run(code) {
     let table, state, pos, lastIndex;
     let loop = 0;
-
     while (true) {
       loop++;
       if (loop > 100) {
         throw new Error(`infinite loop detected at pos=${pos}, code=${code.text} ${code.intent}`);
       }
-
       lastIndex = this.states.length - 1;
       [table, state] = this.states[lastIndex];
       pos = this._assignPos(code, table, state);
+
+      console.log("pos",pos,"table",table,"staet",state)
+
       this.states[lastIndex] = [table, STATE_TABLES[table][pos][state]];
       state = this.states[lastIndex][1];
-      console.log("st=", table, state, "pos=", pos)
 
       if (state === 0) {
         this.states = [['main', 0]];
