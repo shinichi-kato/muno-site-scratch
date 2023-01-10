@@ -58,7 +58,7 @@ https://www.bottlecaps.de/rr/ui で可視化可能である。
 
 main::='enter' ( initial loop* 'exit')+ 
 initial::= (('absent' 'std-by'* 'summon')|'appear')
-loop::= ('to_biome' 'not_found')|bot_namer
+loop     ::= 'to_biome'? ( 'not_found' | bot_namer )
 bot_namer::='bot_naming' 'bot_renaming'* ('bot_confirm'|'bot_break')
 
 ------------------------------------------------------------
