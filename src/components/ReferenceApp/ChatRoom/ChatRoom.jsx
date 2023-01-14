@@ -32,7 +32,7 @@ export default function ChatRoom({ log, writeLog }) {
     if(change !== null){
       botRef.current.execute(
         new Message('trigger', {
-          name: "",
+          name: null,
           text: `{enter_${change}}`
         }),
         writeLog
@@ -58,7 +58,7 @@ export default function ChatRoom({ log, writeLog }) {
         sx={{
           height:"448px"
         }}
-        panelWidth={panelWidth}
+        closeness={closeness}
         log={log}
         writeLog={writeLog} />
       <Box

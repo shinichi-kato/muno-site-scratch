@@ -62,7 +62,7 @@ import {
 
 import { TinySegmenter } from './tinysegmenter';
 import { InvalidScriptException } from './exceptions.js';
-import { db } from '../db';
+import { db } from '../../db';
 
 const RE_MAIN_TAG = /{[A-Z_][A-Z0-9_]*}/g;
 

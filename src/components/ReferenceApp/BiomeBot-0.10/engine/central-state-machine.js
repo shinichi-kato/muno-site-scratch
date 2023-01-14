@@ -67,7 +67,7 @@ bot_namer::='bot_naming' 'bot_renaming'* ('bot_confirm'|'bot_break')
 import { randomInt } from "mathjs";
 import { parseTables, dispatchTables } from './phrase-segmenter';
 import BasicStateMachine from './basic-state-machine';
-import { db } from '../db';
+import { db } from '../../db';
 
 const RE_NAME_TAG = /naming$/;
 

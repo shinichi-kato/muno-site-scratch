@@ -44,7 +44,7 @@ codeは以下の内容になる
 */
 
 import { InvalidScriptException } from './exceptions.js';
-import { db } from '../db';
+import { db } from '../../db';
 
 export default class PatternEncoder {
 

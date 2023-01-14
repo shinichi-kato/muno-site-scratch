@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useCallback } from 'react';
 import { useCells } from './useCells';
-import { db } from '../BiomeBot-0.10/db';
+import { db } from '../db';
 
 const BIOME_LOADING = 0;
 export const BIOME_MAIN_READY = 1;

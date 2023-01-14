@@ -25,6 +25,8 @@ const ALIGN_SELF = {
 };
 
 const DELAY_MSEC = 1800;
+const PANEL_SIZE_MAX_PERCENT = 50;
+const PANEL_SIZE_MIN_PERCENT = 30;
 
 function LRBalloon({ message }) {
   return (
@@ -109,7 +111,7 @@ function Balloon({ message }) {
   }
 }
 
-export default function Studio({ log, writeLog, panelWidth }) {
+export default function Studio({ log, writeLog, closeness }) {
   /*
       チャットルームの最小の構成である、
       最新の吹き出し一つ（チャットボット or ユーザ or 第三者)、
@@ -119,6 +121,14 @@ export default function Studio({ log, writeLog, panelWidth }) {
       思われるが、これをmodal表示することでスマホのソフトキーボードを
       が表示されても隠れないことが狙いである。
 
+      closenessはチャットボットとユーザの親密さで、0以上1以下の実数値を
+      とる。値は1が親密、0が親密でないことを表す。
+      これをユーザとチャットボットのアバターの間の距離として表現する。
+      親密度が1のときはUserPanel,FairyPanelの幅をそれぞれ50%とし、
+      表示範囲内いっぱいに拡大されて隙間がない表示になる。
+      親密度が0のときは幅を30%などとし、アバターは小さめに、間が離れた
+      表示にする。
+
       */
 
   const [userInput, setUserInput] = useState("");
@@ -126,6 +136,10 @@ export default function Studio({ log, writeLog, panelWidth }) {
   const bot = useContext(BiomeBotContext);
   const botRef = useRef(bot);
   const message = log[0];
+
+  const panelWidth = (PANEL_SIZE_MIN_PERCENT - PANEL_SIZE_MAX_PERCENT) * closeness
+                     + PANEL_SIZE_MAX;
+
 
   function handleChangeUserInput(event) {
     setUserInput(event.target.value);
@@ -157,7 +171,7 @@ export default function Studio({ log, writeLog, panelWidth }) {
 
   const memorizedUserPanel = useMemo(() =>
     <UserPanel
-      panelWidth={panelWidth}
+      panelWidth={`${panelWidth}%`}
     />
     , [panelWidth]);
 
@@ -214,7 +228,7 @@ export default function Studio({ log, writeLog, panelWidth }) {
         justifyContent="space-between"
       >
         <FairyPanel
-          panelWidth={panelWidth}
+          panelWidth={`${panelWidth}%`}
         />
         {memorizedUserPanel}
 

@@ -24,6 +24,7 @@ mainセルが実行され、環境に応じて反応を行うとともにmainセ
 mainセルに制御が戻る。
 
 
+
 # Cell
 ## Cellの構造
 
@@ -42,6 +43,7 @@ cellは以下のプロパティで構成される。
   decoder,         // デコーダのモジュール名
   precision,       // 返答を生成する閾値
   retention,       // 
+  refractory,      // exit後に返答をしない回数(不応期)
   
   biome: [],       // 「to_biome」コマンドで実行されるcellのリスト
   script: []       // スクリプト
@@ -58,16 +60,15 @@ Encoderは入力されたテキストに対して自然言語処理のための�
 ### stateMachine
 StateMachineはEncoderが出力した内部表現を入力として受取り、出力のための
 内部表現を生成する。入力と出力の関係はプッシュダウン・オートマトンなどを
-利用して実装し、ロジックや内部状態の変化を実現する。
+利用して実装し、ロジックや内部状態の変化を実現する。内部状態によりアバターが
+決まり、stateMachineの出力にはavatarの情報が含まれる。
+
 入力: code = {score:float, index:int, intent:string}
 
+
 ### decoder
-DecoderはStateMachineが出力した内部表現を、自然言語やアバターなどから
-なる出力に変換する。変換には辞書を用いる。
+DecoderはStateMachineが出力した内部表現を、自然言語に変換する。変換には辞書を用いる。
 内部表現はDecoderによりテキスト化してユーザに表示するだけでなく、システムの
-状態を変えるコマンドを記述することができる
-  * {activate *} 同じbiomeに属するcellに強制的に遷移する
-  * {run_biome} biomeを利用した会話を行う
 
 
 ### biome
@@ -82,13 +83,16 @@ encodeのスコアが大きcellに行き当たった場合このcellのstateMach
 失敗したらこのcellはbiomeの末尾に順序が移動し、制御がこのcellのStateMachineに
 戻る。
 
+なお、cellの各ファイルの中にbiomeを設定できるが、現状ではメインセルのbiomeだけが
+利用され、biomeセルのbiomeは無視される。
+
 
 
 ## Cellの機能的分類
 
 Cell                概要
 ----------------------------------------------------------------------
-メイン              在室/不在、睡眠/覚醒、空腹、注意など  
+メイン              在室/不在、明舞、睡眠/覚醒、空腹、注意など  
 挨拶                会話開始時に挨拶する
 好奇心              知らない言葉を聞いて覚える
 エピソード          ログに倣って返答する
@@ -122,25 +126,31 @@ down         落ち込んでいる
 waving       手を振っている
 --------------------------------------------------------------
 
-# script
+# Biomebot
 
-[
-  intent: ,
-  in: [],
-  out: [],
-]
+Biomebotにはインスタンス固有の情報があり、以下のようなものがある。
+{BOT_NAME} : チャットボットの名前
+{BOT_NAME_SPOKEN}: チャットボットをユーザや第三者が呼ぶときの呼び名
+{BOT_LIKES_USER00}: ユーザに対するチャットボットの親密さ
 
-# biomebotのID
+親密さは本来ユーザごとに定義されるパラメータで、現状では簡易的にユーザ名で
+識別する。ユーザ名をユーザIDに読み替えるテーブルを利用する。
+親密さが低いとアバターとユーザは小さく表示され、距離が遠いことが表現される。
+親密さが高いとアバターとユーザは大きく表示され、距離が近いことがわかる。
+UIデザイン上はUserPanelとFairyPanelのwidthは30%が最小、50%が最大、とする。
+
+
 
 */
 import React, {
   useEffect, useReducer, useCallback,
-  createContext
+  createContext, useContext
 } from 'react';
+import { AuthContext } from "../Auth/AuthProvider";
 import { Message } from '../message'
 
 import { useBiome } from './useBiome';
-import { db } from './db';
+import { db } from '../db';
 
 export const BiomeBotContext = createContext();
 
@@ -149,8 +159,9 @@ const initialState = {
   status: 'init',
   url: '',
   avatarURL: '',
+  avatarSize: 100,
   backgroundColor: '',
-  botName: ''
+  botName: '',
 }
 
 function reducer(state, action) {
@@ -160,8 +171,17 @@ function reducer(state, action) {
         status: 'biomeLoaded',
         url: action.url,
         avatarURL: '',
+        closeness: action.closeness,
         backgroundColor: action.backgroundColor,
         botName: action.botName,
+        userId: state.userId,
+      }
+    }
+
+    case 'setCloseness': {
+      return {
+        ...state,
+        closeness: action.closeness,
       }
     }
 
@@ -181,30 +201,52 @@ function reducer(state, action) {
 export default function BiomeBotProvider(props) {
   const [biomeState, biomeLoad, biomeUpdate] = useBiome(props.url);
   const [state, dispatch] = useReducer(reducer, initialState);
+  const auth = useContext(AuthContext);
+
   const handleBotReady = props.handleBotReady;
   const url = props.url;
 
   useEffect(() => {
-    if (biomeState.isReady) {
-      dispatch({
-        type: 'biomeReady',
-        url: url,
-        backgroundColor: biomeState.backgroundColor,
-        botName: db.getBotName()
-      });
-      handleBotReady();
-      console.log("botReady");
+    if (auth.authState === 'ok' && biomeState.isReady) {
+      (async() => {
+        const uid = await db.getUserId(auth.displayName)
+        const closeness = db.getMemoryValues(`{BOT_CLOSENESS_TO_USER${uid}`) || 0;
 
+        dispatch({
+          type: 'biomeReady',
+          url: url,
+          backgroundColor: biomeState.backgroundColor,
+          botName: db.getBotName(),
+          closeness: closeness
+        });
+  
+        handleBotReady();
+        console.log("botReady");
+      })();
     }
-  }, [biomeState.isReady, handleBotReady, url, biomeState.backgroundColor]);
+  }, [
+    auth.authState,
+    biomeState.isReady,
+    handleBotReady, url,
+    biomeState.backgroundColor
+  ]);
+
+  useEffect(()=>{
+    if(auth.authState==='ok' && biomeState.isReady){
+      dispatch({
+        type: 'setAvatarSize',
+        avatarSize: 100, // ここでavatarサイズ計算db.getUserId(auth.displayName)
+      })
+    }
+  },[auth.authState,biomeState.isReady]);
 
   function handleLoad(url) {
     biomeLoad(url);
   }
 
   const handleExecute = useCallback((userMessage, emitter) => {
-
-    // db.memory辞書に記載された一部の文字列をタグに置き換える
+    // db.memory辞書に記載された一部の文字列をタグに置き換える。
+    // closure化するのを防ぐため内部で関数定義
     function _tagging(text, key) {
       let vals = db.getMemoryValues(key);
       for (let val of vals) {

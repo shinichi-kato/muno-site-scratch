@@ -4,6 +4,7 @@ mock auth
 
 
 import React, { createContext } from 'react';
+import { db } from '../db';
 
 export const AuthContext = createContext();
 

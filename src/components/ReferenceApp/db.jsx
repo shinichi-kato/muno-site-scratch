@@ -38,16 +38,9 @@ replace関数内で再帰的に使われるため、メモリ内にデータの�
 | name      | *   | 説明
 | ----      | --- | 
 | ++id      | ○  | id pk
-| chatbotId | ○  | chatbots.id
-| extId     | ○  | 外部で定義されるid
 | name      | ○  | 名前
-| key       | ○  | 辞書のキー
-| val       | --  | 辞書の値リスト
 
-チャットボットが記憶する各ユーザの情報。ユーザの識別にはfirebaseIdのような
-外部のid(extId)があればそれを用いて区別し、extIdがなければ名前で区別する。
-現状で以下のアイテムを予定している。
-{CLOSENESS}: ユーザとこのチャットボットの親密さ
+チャットボットが各ユーザの情報を記憶するときに使用するIDを与える。
 
 *** settingsテーブル(未実装)
 チャットボットのスクリプトを編集するため、内容を記憶する。
@@ -80,10 +73,11 @@ class dbio {
     }
     this.url = url;
     this.db = new Dexie('Biomebot-0.10');
-    this.db.version(1).stores({
+    this.db.version(2).stores({
       chatbots: "++id, &url", // id, url 
       memory: "++id,[chatbotId+key]",  // id,botId,key,val 
-      state: "chatbotId" // 
+      state: "chatbotId", // 
+      users: "++id, &name"
     });
 
     // chatbotsテーブルを調べてidがあればそれをthis.chatbotIdとする。
@@ -162,11 +156,11 @@ class dbio {
           if (p !== -1) {
             dictVals.splice(p, 1);
           }
-          if (dictVals.length === 0){
+          if (dictVals.length === 0) {
             break;
           }
         }
-        newVals = [...item.val,...dictVals];
+        newVals = [...item.val, ...dictVals];
         item = { ...item, val: newVals };
       } else {
         newVals = dict[key];
@@ -243,6 +237,7 @@ class dbio {
     }
 
   }
+
   setMemoryItem(key, value) {
     /*
       keyにvalueを格納する。
@@ -254,12 +249,12 @@ class dbio {
       let prev = await this.db.memory
         .where({ chatbotId: this.chatbotId, key: key })
         .first();
-      
-      if (prev){
+
+      if (prev) {
         await this.db.memory.put({
           id: prev.id,
           key: key,
-          chatbotId: this.chatbotId, 
+          chatbotId: this.chatbotId,
           val: [value]
         });
       } else {
@@ -291,6 +286,21 @@ class dbio {
   getBotName() {
     console.assert(this.chatbotId, "DBがopenされていません");
     return this.cache['{BOT_NAME}'][0]
+  }
+
+  async getUserId(userName) {
+    let id;
+    const data = await this.db.users
+      .where({ name: userName })
+      .toArray();
+
+    if (data.length === 0) {
+      id = await this.db.users.add({ name: userName });
+    } else {
+      id = data[0].id;
+    }
+
+    return id;
   }
 }
 
