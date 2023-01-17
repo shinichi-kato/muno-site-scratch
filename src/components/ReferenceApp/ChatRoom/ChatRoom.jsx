@@ -58,7 +58,7 @@ export default function ChatRoom({ log, writeLog }) {
         sx={{
           height:"448px"
         }}
-        closeness={closeness}
+        closeness={bot.closeness}
         log={log}
         writeLog={writeLog} />
       <Box

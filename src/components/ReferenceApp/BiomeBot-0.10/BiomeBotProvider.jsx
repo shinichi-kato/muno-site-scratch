@@ -226,19 +226,11 @@ export default function BiomeBotProvider(props) {
     }
   }, [
     auth.authState,
+    auth.displayName,
     biomeState.isReady,
     handleBotReady, url,
     biomeState.backgroundColor
   ]);
-
-  useEffect(()=>{
-    if(auth.authState==='ok' && biomeState.isReady){
-      dispatch({
-        type: 'setAvatarSize',
-        avatarSize: 100, // ここでavatarサイズ計算db.getUserId(auth.displayName)
-      })
-    }
-  },[auth.authState,biomeState.isReady]);
 
   function handleLoad(url) {
     biomeLoad(url);
@@ -337,6 +329,7 @@ export default function BiomeBotProvider(props) {
         load: handleLoad,
         execute: handleExecute,
         avatarURL: state.avatarURL,
+        closeness: state.closeness,
         backgroundColor: state.backgroundColor,
       }}
     >

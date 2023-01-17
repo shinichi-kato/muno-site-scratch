@@ -123,12 +123,17 @@ export default function Studio({ log, writeLog, closeness }) {
 
       closenessはチャットボットとユーザの親密さで、0以上1以下の実数値を
       とる。値は1が親密、0が親密でないことを表す。
+      親密度を変えるルールがまだ整備できていないので、以降の実装は
+      先送りにする。なお、実装にはuseMeasureを試すこと
+
+      --- 先送り -----------------------------------------------------
       これをユーザとチャットボットのアバターの間の距離として表現する。
       親密度が1のときはUserPanel,FairyPanelの幅をそれぞれ50%とし、
       表示範囲内いっぱいに拡大されて隙間がない表示になる。
       親密度が0のときは幅を30%などとし、アバターは小さめに、間が離れた
       表示にする。
-
+      -----------------------------------------------------------------
+      
       */
 
   const [userInput, setUserInput] = useState("");
@@ -137,8 +142,9 @@ export default function Studio({ log, writeLog, closeness }) {
   const botRef = useRef(bot);
   const message = log[0];
 
-  const panelWidth = (PANEL_SIZE_MIN_PERCENT - PANEL_SIZE_MAX_PERCENT) * closeness
-                     + PANEL_SIZE_MAX;
+  // const panelWidth = (PANEL_SIZE_MIN_PERCENT - PANEL_SIZE_MAX_PERCENT) * closeness
+  //                    + PANEL_SIZE_MAX_PERCENT;
+  const panelWidth = 180;
 
 
   function handleChangeUserInput(event) {
@@ -171,7 +177,7 @@ export default function Studio({ log, writeLog, closeness }) {
 
   const memorizedUserPanel = useMemo(() =>
     <UserPanel
-      panelWidth={`${panelWidth}%`}
+      panelWidth={panelWidth}
     />
     , [panelWidth]);
 
@@ -228,7 +234,7 @@ export default function Studio({ log, writeLog, closeness }) {
         justifyContent="space-between"
       >
         <FairyPanel
-          panelWidth={`${panelWidth}%`}
+          panelWidth={panelWidth}
         />
         {memorizedUserPanel}
 

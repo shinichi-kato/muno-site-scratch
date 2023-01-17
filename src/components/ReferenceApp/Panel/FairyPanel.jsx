@@ -14,7 +14,7 @@ export default function FairyPanel(props) {
   */
 
   const bot = useContext(BiomeBotContext);
-  const width = props.panelWidth;
+  const width = 180;
   const height = width * 4/3;
 
   let bgColor = bot.isReady ? bot.backgroundColor : '#dddddd33';
@@ -46,7 +46,7 @@ export default function FairyPanel(props) {
           }}
           position="absolute"
           bottom={0}
-          right={0}
+          left={0}
         >
           <img
             style={{
