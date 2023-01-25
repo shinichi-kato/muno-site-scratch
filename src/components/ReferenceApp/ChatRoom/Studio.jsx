@@ -25,8 +25,8 @@ const ALIGN_SELF = {
 };
 
 const DELAY_MSEC = 1800;
-const PANEL_SIZE_MAX_PERCENT = 50;
-const PANEL_SIZE_MIN_PERCENT = 30;
+// const PANEL_SIZE_MAX_PERCENT = 50;
+// const PANEL_SIZE_MIN_PERCENT = 30;
 
 function LRBalloon({ message }) {
   return (
