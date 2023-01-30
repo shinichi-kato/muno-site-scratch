@@ -251,6 +251,8 @@ export default function BiomeBotProvider(props) {
     text = _tagging(text, '{BOT_NAME_SPOKEN}');
     text = _tagging(text, '{BOT_NAME}');
     text = _tagging(text, '{USER_NAME}');
+    text = _tagging(text, '{YOU}');
+    text = _tagging(text, '{I}');
 
     let code = {
       intent: userMessage.intent || '*',

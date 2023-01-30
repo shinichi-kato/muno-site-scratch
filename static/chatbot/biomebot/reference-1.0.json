@@ -11,13 +11,15 @@
     "retention": 1,
     "refractory": 4,
     "biome": [
-        "greeting.json"
+        "greeting.json",
+        "w-311-05.json"
     ],
     "memory": {
         "{BOT_NAME}":["アルファ"],
         "{BOT_NAME_SPOKEN}":["あるふぁさん","アルファさん","アルファ君"],
         "{YOU}":["君","あなた","お前さん","貴方","あんた"],
-        "{ENTER}":["absent","appear"]
+        "{ENTER}":["absent","appear"],
+        "{I}":["私"]
     },
     "script": [
         {

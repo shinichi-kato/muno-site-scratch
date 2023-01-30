@@ -6,13 +6,17 @@ import CentralStateMachine from './engine/central-state-machine';
 import PatternEncoder from './engine/pattern-encoder';
 import HarvestDecoder from './engine/harvest-decoder';
 import BasicStateMachine from './engine/basic-state-machine';
+import EnterlessStateMachine from './engine/enterless-state-machine';
 import BowEncoder from './engine/bow-encoder';
+import LogEncoder from './engine/log-encoder';
 
 const modules = {
   'BowEncoder': BowEncoder,
   'PatternEncoder': PatternEncoder,
+  'LogEncoder': LogEncoder,
   'CentralStateMachine': CentralStateMachine,
   'BasicStateMachine': BasicStateMachine,
+  'EnterlessStateMachine': EnterlessStateMachine,
   'HarvestDecoder': HarvestDecoder,
 }
 
